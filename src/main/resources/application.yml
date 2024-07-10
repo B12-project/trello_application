@@ -1,0 +1,30 @@
+spring.application.name=trello
+
+---
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      encoding: UTF-8
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        connection:
+          CharSet: utf-8
+          characterEncoding: utf-8
+          useUnicode: true
+
+#jwt:
+#  secret-key: ${JWT_SECRET_KEY}
+
+server:
+  port: ${SERVER_PORT}

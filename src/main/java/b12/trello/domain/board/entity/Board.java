@@ -2,6 +2,7 @@ package b12.trello.domain.board.entity;
 
 import b12.trello.global.entity.TimeStamped;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,5 +28,12 @@ public class Board extends TimeStamped {
     public enum BoardStatus {
         ACTIVE,
         DELETED
+    }
+
+    @Builder
+    public Board(String boardName, String boardInfo, BoardStatus boardStatus) {
+        this.boardName = boardName;
+        this.boardInfo = boardInfo;
+        this.boardStatus = boardStatus;
     }
 }

@@ -3,10 +3,13 @@ package b12.trello.domain.boardUser.entity;
 import b12.trello.domain.board.entity.Board;
 import b12.trello.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class BoardUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,5 +30,12 @@ public class BoardUser {
     public enum BoardUserRole {
         INVITEE,
         MANAGER
+    }
+
+    @Builder
+    public BoardUser(Board board, User user, BoardUserRole boardUserRole) {
+        this.board = board;
+        this.user = user;
+        this.boardUserRole = boardUserRole;
     }
 }

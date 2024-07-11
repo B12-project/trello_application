@@ -1,4 +1,7 @@
 package b12.trello.domain.card.repository;
 
-public class CardRepository {
+import b12.trello.domain.card.entity.Card;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CardRepository extends JpaRepository<Card, Long> {
 }

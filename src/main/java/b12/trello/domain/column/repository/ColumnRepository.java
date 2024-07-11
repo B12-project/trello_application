@@ -1,4 +1,7 @@
 package b12.trello.domain.column.repository;
 
-public interface ColumnRepository {
+import b12.trello.domain.column.entity.Columns;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ColumnRepository extends JpaRepository<Columns, Long> {
 }

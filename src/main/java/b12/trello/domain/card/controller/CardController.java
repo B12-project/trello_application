@@ -1,7 +1,9 @@
 package b12.trello.domain.card.controller;
 
 import b12.trello.domain.card.dto.request.CardCreateRequestDto;
+import b12.trello.domain.card.dto.request.CardListByColumnRequestDto;
 import b12.trello.domain.card.dto.request.CardModifyRequestDto;
+import b12.trello.domain.card.dto.response.CardListByColumnResponseDto;
 import b12.trello.domain.card.dto.response.CardReadResponseDto;
 import b12.trello.domain.card.service.CardService;
 import b12.trello.global.response.BasicResponse;
@@ -31,6 +33,14 @@ public class CardController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BasicResponse.of("카드가 조회되었습니다.", responseDto));
+    }
+
+    @GetMapping
+    public ResponseEntity<BasicResponse<CardListByColumnResponseDto>> findCardListByColumn(@RequestBody CardListByColumnRequestDto requestDto) {
+        CardListByColumnResponseDto responseDto = cardService.findCardListByColumn(requestDto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(BasicResponse.of("선택한 컬럼의 카드가 조회되었습니다.", responseDto));
     }
 
     @PatchMapping("/{cardId}")

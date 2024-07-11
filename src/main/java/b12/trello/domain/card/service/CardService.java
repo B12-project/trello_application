@@ -1,10 +1,11 @@
 package b12.trello.domain.card.service;
 
 import b12.trello.domain.board.entity.Board;
-import b12.trello.domain.board.repository.BoardRepository;
 import b12.trello.domain.boardUser.service.BoardUserService;
 import b12.trello.domain.card.dto.request.CardCreateRequestDto;
+import b12.trello.domain.card.dto.request.CardListByColumnRequestDto;
 import b12.trello.domain.card.dto.request.CardModifyRequestDto;
+import b12.trello.domain.card.dto.response.CardListByColumnResponseDto;
 import b12.trello.domain.card.dto.response.CardReadResponseDto;
 import b12.trello.domain.card.entity.Card;
 import b12.trello.domain.card.repository.CardRepository;
@@ -29,7 +30,7 @@ public class CardService {
     @Transactional
     public void createCard(CardCreateRequestDto requestDto) {
         // 컬럼이 존재하는지 확인
-        Columns column = findColumnById(requestDto.getColumnId());
+        Columns column = validateAndGetColumnById(requestDto.getColumnId());
 
         // 컬럼이 포함된 보드가 삭제된 보드인지 검증
         Board board = column.getBoard();
@@ -56,19 +57,30 @@ public class CardService {
     }
 
     public CardReadResponseDto findCard(Long cardId) {
-        Card card = findCardById(cardId);
+        Card card = validateAndGetCardById(cardId);
         return CardReadResponseDto.of(card);
+    }
+
+    public CardListByColumnResponseDto findCardListByColumn(CardListByColumnRequestDto requestDto) {
+        Columns column = validateAndGetColumnById(requestDto.getColumnId());
+        Board board = column.getBoard();
+        board.validateBoardStatus();
+
+//        // 요청한 유저가 해당 보드의 참여자인지 검증
+//        User requestUser = boardUserService.findBoardUser(boardId, user.getId());
+
+        return CardListByColumnResponseDto.of(column);
     }
 
     @Transactional
     public void modifyCard(Long cardId, CardModifyRequestDto requestDto) {
         // 카드가 존재하는지 확인
-        Card card = findCardById(cardId);
+        Card card = validateAndGetCardById(cardId);
         card.updateColumn(requestDto.getCardName());
         Columns column = card.getColumn();
 
         if (requestDto.getColumnId() != null) {
-            column = findColumnById(requestDto.getColumnId());
+            column = validateAndGetColumnById(requestDto.getColumnId());
         }
 
         // 지정한 컬럼이 현재 보드에 속하는지
@@ -99,7 +111,7 @@ public class CardService {
 
     @Transactional
     public void deleteCard(Long cardId) {
-        Card card = findCardById(cardId);
+        Card card = validateAndGetCardById(cardId);
         Board board = card.getColumn().getBoard();
         board.validateBoardStatus();
 
@@ -108,14 +120,13 @@ public class CardService {
         cardRepository.delete(card);
     }
 
-    private Card findCardById(Long cardId){
+    private Card validateAndGetCardById(Long cardId){
         return cardRepository.findById(cardId).orElseThrow(() ->
                 new CardException(CardErrorCode.CARD_NOT_FOUND));
     }
 
-    private Columns findColumnById(Long columnId) {
+    private Columns validateAndGetColumnById(Long columnId) {
         return columnRepository.findById(columnId).orElseThrow(() ->
                 new CardException(CardErrorCode.COLUMN_NOT_FOUND));
-
     }
 }

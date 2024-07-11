@@ -1,6 +1,7 @@
 package b12.trello.domain.card.dto.response;
 
 import b12.trello.domain.card.entity.Card;
+import b12.trello.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -20,16 +21,16 @@ public class CardReadResponseDto {
     private LocalDateTime modifiedAt;
 
     public static CardReadResponseDto of(Card card) {
+        User worker = card.getWorker();
         return CardReadResponseDto.builder()
                 .columnId(card.getColumn().getColumnId())
                 .columnName(card.getColumn().getColumnName())
                 .cardName(card.getCardName())
                 .cardContents(card.getCardContents())
-                .workerId(card.getWorker().getId())
+                .workerId(worker != null ? worker.getId() : null)
                 .deadline(card.getDeadline())
                 .createdAt(card.getCreatedAt())
                 .modifiedAt(card.getModifiedAt())
                 .build();
     }
-
 }

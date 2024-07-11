@@ -75,12 +75,17 @@ Content-Type: application/json
   "deadline": "20240711"
 }
 
-#####
-
 ### 카드 단일 조회
 GET http://localhost:8080/cards/1
 
 
+### 컬럼별 카드 리스트 조회
+GET http://localhost:8080/cards
+Content-Type: application/json
+
+{
+  "columnId": 1
+}
 
 ### 카드 수정
 PATCH http://localhost:8080/cards/1

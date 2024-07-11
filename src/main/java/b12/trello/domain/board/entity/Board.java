@@ -4,10 +4,12 @@ import b12.trello.global.entity.TimeStamped;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Entity
 @NoArgsConstructor
+@Setter //test
 public class Board extends TimeStamped {
 
     @Id

@@ -1,6 +1,7 @@
 package b12.trello.global.security.filter;
 
 import b12.trello.domain.user.repository.UserRepository;
+import b12.trello.global.security.UserDetailsServiceImpl;
 import b12.trello.global.security.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

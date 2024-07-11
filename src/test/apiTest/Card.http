@@ -1,0 +1,77 @@
+### 카드 생성
+POST http://localhost:8080/cards
+Content-Type: application/json
+
+{
+  "columnId": 1,
+  "cardName": "cardName_3225c6b9ca08",
+  "cardContents": "cardContents_b1a81b394d5f",
+  "userId": 2,
+  "deadline": "2024-07-11"
+}
+
+### 카드 생성 - 작업자 없이
+POST http://localhost:8080/cards
+Content-Type: application/json
+
+{
+  "columnId": 1,
+  "cardName": "hi",
+  "cardContents": "cardContents_b1a81b394d5f",
+  "deadline": "2024-07-11"
+}
+
+### 카드 생성 - 마감일자 없이
+POST http://localhost:8080/cards
+Content-Type: application/json
+
+{
+  "columnId": 1,
+  "cardName": "hi",
+  "cardContents": "cardContents_b1a81b394d5f"
+}
+
+### 카드 생성 실패
+POST http://localhost:8080/cards
+Content-Type: application/json
+
+{
+  "columnId": 1,
+  "cardName": "",
+  "cardContents": "cardContents_b1a81b394d5f",
+  "userId": 2,
+  "deadline": "2024-07-11"
+}
+
+### 카드 생성 실패 - 보드 참여자가 아닌 경우
+POST http://localhost:8080/cards
+Content-Type: application/json
+
+{
+  "columnId": 1,
+  "cardName": "hi",
+  "userId": 4,
+  "cardContents": "cardContents_b1a81b394d5f"
+}
+
+### 카드 생성 실패 - Validation
+POST http://localhost:8080/cards
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "cardContents": "cardContents_b1a81b394d5f",
+  "deadline": "2024-07-11"
+}
+
+### 카드 생성 실패 - 날짜 형식
+POST http://localhost:8080/cards
+Content-Type: application/json
+
+{
+  "columnId": 1,
+  "cardName": "hi",
+  "userId": 4,
+  "cardContents": "cardContents_b1a81b394d5f",
+  "deadline": "20240711"
+}

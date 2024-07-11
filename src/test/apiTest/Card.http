@@ -5,8 +5,7 @@ Content-Type: application/json
 {
   "columnId": 1,
   "cardName": "cardName_3225c6b9ca08",
-  "cardContents": "cardContents_b1a81b394d5f",
-  "userId": 2,
+  "userId": 1,
   "deadline": "2024-07-11"
 }
 
@@ -78,15 +77,30 @@ Content-Type: application/json
 
 #####
 
+### 카드 단일 조회
+GET http://localhost:8080/cards/1
+
+
+
 ### 카드 수정
 PATCH http://localhost:8080/cards/1
 Content-Type: application/json
 
 {
   "cardName": "제목 수정",
-  "userId": 1,
   "cardContents": "카드 수정",
-  "deadline": "2024-07-11"
+  "deadline": "2024-07-12"
+}
+
+### 카드 수정
+PATCH http://localhost:8080/cards/1
+Content-Type: application/json
+
+{
+  "cardName": "제목 왜 지금은 되는거야대체 왜!!!!!",
+  "userId": 1,
+  "cardContents": "관련 작업 모두 끝내기",
+  "deadline": "2024-07-12"
 }
 
 ### 카드 수정 실패 - 해당 보드 유저가 아님
@@ -107,7 +121,7 @@ Content-Type: application/json
 {
   "columnId": 2,
   "cardName": "제목 수정",
-  "userId": 1,
+  "userId": 4,
   "cardContents": "카드 수정",
   "deadline": "2024-07-11"
 }

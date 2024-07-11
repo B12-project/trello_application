@@ -5,6 +5,7 @@ import b12.trello.domain.board.repository.BoardRepository;
 import b12.trello.domain.boardUser.service.BoardUserService;
 import b12.trello.domain.card.dto.request.CardCreateRequestDto;
 import b12.trello.domain.card.dto.request.CardModifyRequestDto;
+import b12.trello.domain.card.dto.response.CardReadResponseDto;
 import b12.trello.domain.card.entity.Card;
 import b12.trello.domain.card.repository.CardRepository;
 import b12.trello.domain.column.entity.Columns;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CardService {
-    private final BoardRepository boardRepository;
     private final BoardUserService boardUserService;
     private final ColumnRepository columnRepository;
     private final CardRepository cardRepository;
@@ -55,10 +55,16 @@ public class CardService {
         cardRepository.save(newCard);
     }
 
+    public CardReadResponseDto findCard(Long cardId) {
+        Card card = findCardById(cardId);
+        return CardReadResponseDto.of(card);
+    }
+
     @Transactional
     public void modifyCard(Long cardId, CardModifyRequestDto requestDto) {
         // 카드가 존재하는지 확인
         Card card = findCardById(cardId);
+        card.updateColumn(requestDto.getCardName());
         Columns column = card.getColumn();
 
         if (requestDto.getColumnId() != null) {
@@ -72,7 +78,8 @@ public class CardService {
         // 요청한 유저가 해당 보드의 참여자인지 검증 (시큐리티 이후)
 //        User requestUser = boardUserService.findBoardUser(board.getId(), user.getId());
 
-        User worker = card.getWorker();
+        // 작업자를 없앨 수도 있기 때문에 null로 설정
+        User worker = null;
 
         if (requestDto.getUserId() != null) {
             // 작업자가 해당 보드의 참여자인지 검증
@@ -86,6 +93,8 @@ public class CardService {
                 requestDto.getDeadline(),
                 worker
         );
+
+        cardRepository.save(card);
     }
 
     private Card findCardById(Long cardId){

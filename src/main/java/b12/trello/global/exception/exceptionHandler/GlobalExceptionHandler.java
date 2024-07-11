@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorResponse> handleException(Exception e) {
-        log.error("{} 예외 발생", e.getClass());
+        log.error("{} 예외 발생, caused By: {} , message: {}", e.getClass(), NestedExceptionUtils.getMostSpecificCause(e), e.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse.of(CommonErrorCode.INTERNAL_SERVER_ERROR));
     }

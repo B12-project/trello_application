@@ -5,6 +5,7 @@ import b12.trello.domain.user.entity.User;
 import b12.trello.global.entity.TimeStamped;
 import b12.trello.global.exception.customException.CardException;
 import b12.trello.global.exception.errorCode.CardErrorCode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,6 +30,7 @@ public class Card extends TimeStamped {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "column_id")
+    @JsonIgnore
     private Columns column;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -64,4 +66,7 @@ public class Card extends TimeStamped {
         this.column.getBoard().validateBoardStatus();
     }
 
+    public void updateColumn(String cardName) {
+        this.cardName = cardName;
+    }
 }

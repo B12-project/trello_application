@@ -28,7 +28,7 @@ public class UserService {
 
         User.UserAuth auth = User.UserAuth.USER;
 
-        if (!signupRequestDto.getAdminToken().isEmpty()){
+        if (!(signupRequestDto.getAdminToken() == null)){
             if (ADMIN_TOKEN.equals(signupRequestDto.getAdminToken())) {
                 auth = User.UserAuth.ADMIN;
             }

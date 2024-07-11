@@ -1,7 +1,9 @@
 package b12.trello.global.config;
 
 
+import b12.trello.domain.user.repository.UserRepository;
 import b12.trello.domain.user.service.AuthService;
+import b12.trello.global.security.UserDetailsServiceImpl;
 import b12.trello.global.security.filter.JwtAuthenticationFilter;
 import b12.trello.global.security.filter.JwtAuthorizationFilter;
 import b12.trello.global.security.util.JwtUtil;
@@ -29,11 +31,13 @@ public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
 
-    private final UserDetailsService userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
 
     private final AuthenticationConfiguration authenticationConfiguration;
 
     private final AuthService authService;
+
+    private final UserRepository userRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -42,7 +46,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil,authService);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil,authService,userRepository);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
     }

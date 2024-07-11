@@ -42,7 +42,7 @@ public class UserDetailsImpl implements UserDetails {
     // username 가져오기
     @Override
     public String getUsername() {
-        return user.getName();
+        return user.getEmail();
     }
 
     // 계정 만료 안됨

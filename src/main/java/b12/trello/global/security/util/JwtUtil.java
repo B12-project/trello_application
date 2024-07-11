@@ -50,15 +50,14 @@ public class JwtUtil {
     }
 
     // 토큰 생성 Access, Refresh Token
-    public String createAccessToken(String username, User.UserAuth role) {
+    public String createAccessToken(String email) {
 
         // 생성시간
         Date date = new Date();
 
         return BEARER_PREFIX +
-                Jwts.builder().setSubject(username)
-                        .claim(ACCESS_TOKEN_HEADER, "access")
-                        .claim("UserRole", role)
+                Jwts.builder()
+                        .setSubject(email)
                         .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_EXPIRATION))
                         .setIssuedAt(date)
                         .signWith(signatureAlgorithm, secret)
@@ -66,14 +65,14 @@ public class JwtUtil {
     }
 
     // 토큰 생성 Refresh Token
-    public String createRefreshToken() {
+    public String createRefreshToken(String email) {
 
         // 생성시간
         Date date = new Date();
 
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .claim(REFRESH_TOKEN_HEADER, "refresh")
+                        .setSubject(email)
                         .setExpiration(new Date(date.getTime() + REFRESH_TOKEN_EXPIRATION))
                         .setIssuedAt(date)
                         .signWith(signatureAlgorithm, secret)
@@ -102,7 +101,7 @@ public class JwtUtil {
 
     // 사용자에게서 Access 토큰 가져오기
     public String getAccessTokenFromRequest(HttpServletRequest request) {
-        return getTokenFromRequest(request,ACCESS_TOKEN_HEADER);
+        return getTokenFromRequest(request,AUTHORIZATION_HEADER);
     }
 
     // 사용자에게서 Refresh 토큰 가져오기

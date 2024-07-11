@@ -11,5 +11,5 @@ public class SignupRequestDto {
 
     private String name;
 
-    private final String adminToken = null;
+    private String adminToken;
 }

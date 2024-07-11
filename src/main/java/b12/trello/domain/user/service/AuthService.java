@@ -65,7 +65,7 @@ public class AuthService {
         }
 
         // 5. access token 재발급
-        String newAccessToken = jwtUtil.createAccessToken(user.getName(), user.getAuth());
+        String newAccessToken = jwtUtil.createAccessToken(user.getEmail());
 
         return newAccessToken;
     }

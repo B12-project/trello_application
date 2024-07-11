@@ -4,6 +4,8 @@ import b12.trello.domain.user.dto.LoginRequestDto;
 import b12.trello.domain.user.entity.User;
 import b12.trello.domain.user.repository.UserRepository;
 import b12.trello.domain.user.service.AuthService;
+import b12.trello.global.exception.customException.UserException;
+import b12.trello.global.exception.errorCode.UserErrorCode;
 import b12.trello.global.security.UserDetailsImpl;
 import b12.trello.global.security.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,22 +25,20 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Slf4j(topic = "로그인 및 JWT 생성")
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final JwtUtil jwtUtil;
 
     // refreshToken 저장을 위해
-    AuthService authService;
+    private final AuthService authService;
 
-    private PasswordEncoder passwordEncoder;
-
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, AuthService authService) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, AuthService authService, UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
         this.authService = authService;
+        this.userRepository = userRepository;
         setFilterProcessesUrl("/users/login");
     }
 
@@ -55,22 +55,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 // 요청 받은 값 확인
                 log.info("로그인 요청을 받았습니다: " + loginRequestDto.getEmail() + "     " + loginRequestDto.getPassword());
 
-                Optional<User> optionalUser = userRepository.findByEmail(loginRequestDto.getEmail());
-
                 // 회원가입 된 username 이 있는지 확인
-                if(optionalUser.isPresent()) {
-                    User user = optionalUser.get();
+                User user = userRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
 
-                    // 로그인 시도 한 user 가 탈퇴 상태인지 확인 (지금은 임시로 user) + 비밀번호 확인
-                    if (User.UserAuth.DELETED.equals(user.getAuth())) {
-                        response.setCharacterEncoding("UTF-8");
-                        response.getWriter().write("탈퇴한 계정입니다.");
-                    } else if (user.getPassword().equals(loginRequestDto.getPassword())) {
-                        response.getWriter().write("비밀번호가 틀렸습니다.");
-                    }
-                } else {
+                // 로그인 시도 한 user 가 탈퇴 상태인지 확인
+                if (User.UserAuth.DELETED.equals(user.getAuth())) {
                     response.setCharacterEncoding("UTF-8");
-                    response.getWriter().write("해당 이메일로 가입한 계정이 없습니다.");
+                    response.getWriter().write("탈퇴한 계정입니다.");
                 }
 
                 UsernamePasswordAuthenticationToken authRequest =
@@ -94,17 +85,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
         log.info("로그인 성공 JWT 생성");
         Long id = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getId();
-        String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
+        String email = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         User.UserAuth auth = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getAuth();
 
-        String accessToken = jwtUtil.createAccessToken(username, auth);
-        String refreshToken = jwtUtil.createRefreshToken();
+        String accessToken = jwtUtil.createAccessToken(email);
+        String refreshToken = jwtUtil.createRefreshToken(email);
 
         // 토큰을 헤더에 전달
-        jwtUtil.addJwtToHeader(response, JwtUtil.ACCESS_TOKEN_HEADER, accessToken);
-
-        // 헤더 username 추가
-        response.setHeader("username", username);
+        jwtUtil.addJwtToHeader(response, JwtUtil.AUTHORIZATION_HEADER, accessToken);
 
         // refreshToken Entity 에 저장
         authService.updateRefreshToken(id, refreshToken);
@@ -112,7 +100,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // 확인용
         log.info("accessToken: " + accessToken);
         log.info("refreshToken: " + refreshToken);
-        log.info("username: " + username);
+        log.info("email: " + email);
 
         // 로그인 성공 메세지
         response.setContentType("application/json");

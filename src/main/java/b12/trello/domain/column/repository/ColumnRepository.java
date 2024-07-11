@@ -6,12 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ColumnRepository extends JpaRepository<Columns, Long> {
 
-    List<Columns> findAllByColumnOrderBetween(Long newOrder, Long columnOrder);
-
     Long countByBoardId(Long boardId);
-
-    List<Columns> findAllByColumnOrderGreaterThan(Long columnOrder);
 
     List<Columns> findAllByBoardIdOrderByColumnOrderAsc(Long boardId);
 
+    boolean existsByColumnNameAndBoardId(String columnName, Long boardId);
+
+    List<Columns> findAllByBoardIdAndColumnOrderBetween(Long boardId, Long newOrder, Long columnOrder);
+
+    List<Columns> findAllByBoardIdAndColumnOrderGreaterThan(Long id, Long columnOrder);
 }

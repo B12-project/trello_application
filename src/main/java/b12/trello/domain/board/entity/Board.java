@@ -1,6 +1,8 @@
 package b12.trello.domain.board.entity;
 
 import b12.trello.global.entity.TimeStamped;
+import b12.trello.global.exception.customException.CardException;
+import b12.trello.global.exception.errorCode.CardErrorCode;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,5 +37,11 @@ public class Board extends TimeStamped {
         this.boardName = boardName;
         this.boardInfo = boardInfo;
         this.boardStatus = boardStatus;
+    }
+
+    public void validateBoardStatus() {
+        if (this.getBoardStatus().equals(Board.BoardStatus.DELETED)) {
+            throw new CardException(CardErrorCode.BOARD_STATUS_DELETED);
+        }
     }
 }

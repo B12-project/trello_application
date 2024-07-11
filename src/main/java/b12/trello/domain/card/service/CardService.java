@@ -4,6 +4,7 @@ import b12.trello.domain.board.entity.Board;
 import b12.trello.domain.board.repository.BoardRepository;
 import b12.trello.domain.boardUser.service.BoardUserService;
 import b12.trello.domain.card.dto.request.CardCreateRequestDto;
+import b12.trello.domain.card.dto.request.CardModifyRequestDto;
 import b12.trello.domain.card.entity.Card;
 import b12.trello.domain.card.repository.CardRepository;
 import b12.trello.domain.column.entity.Columns;
@@ -28,30 +29,73 @@ public class CardService {
     @Transactional
     public void createCard(CardCreateRequestDto requestDto) {
         // 컬럼이 존재하는지 확인
-        Columns column = columnRepository.findById(requestDto.getColumnId()).orElseThrow(() ->
-                new CardException(CardErrorCode.COLUMN_NOT_FOUND));
+        Columns column = findColumnById(requestDto.getColumnId());
 
         // 컬럼이 포함된 보드가 삭제된 보드인지 검증
-        Board board = boardRepository.findById(column.getBoard().getId()).orElseThrow(() ->
-                new CardException(CardErrorCode.BOARD_STATUS_DELETED));
-        log.info("board.getId : {}",board.getId());
+        Board board = column.getBoard();
+        board.validateBoardStatus();
 
         // 요청한 유저가 해당 보드의 참여자인지 검증
 //        User requestUser = boardUserService.findBoardUser(boardId, user.getId());
-
-        Card.CardBuilder cardBuilder = Card.builder()
-                .column(column)
-                .cardName(requestDto.getCardName())
-                .cardContents(requestDto.getCardContents() != null ? requestDto.getCardContents() : null)
-                .deadline(requestDto.getDeadline() != null ? requestDto.getDeadline() : null);
+        User worker = null;
 
         if (requestDto.getUserId() != null) {
             // 작업자가 해당 보드의 참여자인지 검증
-            User worker = boardUserService.findBoardUser(board.getId(), requestDto.getUserId());
-            cardBuilder.worker(worker);
+            worker = boardUserService.findBoardUser(board.getId(), requestDto.getUserId());
         }
 
-        Card newCard = cardBuilder.build();
+        Card newCard = Card.builder()
+                .column(column)
+                .cardName(requestDto.getCardName())
+                .cardContents(requestDto.getCardContents())
+                .deadline(requestDto.getDeadline())
+                .worker(worker)
+                .build();
+
         cardRepository.save(newCard);
+    }
+
+    @Transactional
+    public void modifyCard(Long cardId, CardModifyRequestDto requestDto) {
+        // 카드가 존재하는지 확인
+        Card card = findCardById(cardId);
+        Columns column = card.getColumn();
+
+        if (requestDto.getColumnId() != null) {
+            column = findColumnById(requestDto.getColumnId());
+        }
+
+        // 지정한 컬럼이 현재 보드에 속하는지
+        // 보드는 삭제되지 않은 상태인지 검증
+        card.validateColumnAndBoard(column);
+
+        // 요청한 유저가 해당 보드의 참여자인지 검증 (시큐리티 이후)
+//        User requestUser = boardUserService.findBoardUser(board.getId(), user.getId());
+
+        User worker = card.getWorker();
+
+        if (requestDto.getUserId() != null) {
+            // 작업자가 해당 보드의 참여자인지 검증
+            worker = boardUserService.findBoardUser(column.getBoard().getId(), requestDto.getUserId());
+        }
+
+        card.updateCard(
+                column,
+                requestDto.getCardName(),
+                requestDto.getCardContents(),
+                requestDto.getDeadline(),
+                worker
+        );
+    }
+
+    private Card findCardById(Long cardId){
+        return cardRepository.findById(cardId).orElseThrow(() ->
+                new CardException(CardErrorCode.CARD_NOT_FOUND));
+    }
+
+    private Columns findColumnById(Long columnId) {
+        return columnRepository.findById(columnId).orElseThrow(() ->
+                new CardException(CardErrorCode.COLUMN_NOT_FOUND));
+
     }
 }

@@ -1,9 +1,10 @@
 package b12.trello.domain.card.entity;
 
-import b12.trello.domain.card.dto.request.CardCreateRequestDto;
 import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.user.entity.User;
 import b12.trello.global.entity.TimeStamped;
+import b12.trello.global.exception.customException.CardException;
+import b12.trello.global.exception.errorCode.CardErrorCode;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +27,7 @@ public class Card extends TimeStamped {
 
     private LocalDate deadline;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "column_id")
     private Columns column;
 
@@ -43,9 +44,24 @@ public class Card extends TimeStamped {
         this.worker = worker;
     }
 
-//    public static Card saveCard(CardCreateRequestDto requestDto) {
-//        return Card.builder()
-//                .cardName(requestDto.getCardName())
-//                .cardContents(requestDto.getCardContents() != null ? requestDto.getCardContents() : null)
+    public void updateCard(Columns column, String cardName, String cardContents, LocalDate deadline, User worker) {
+        this.column = column;
+        this.cardName = cardName;
+        this.cardContents = cardContents;
+        this.deadline = deadline;
+        this.worker = worker;
+    }
+
+//    public void updateCardColumn(Columns column) {
+//        validateColumnAndBoard(column);
+//        this.column = column;
 //    }
+
+    public void validateColumnAndBoard(Columns column) {
+        if (this.column.getBoard() != column.getBoard()) {
+            throw new CardException(CardErrorCode.INVALID_COLUMN_UPDATE);
+        }
+        this.column.getBoard().validateBoardStatus();
+    }
+
 }

@@ -97,6 +97,17 @@ public class CardService {
         cardRepository.save(card);
     }
 
+    @Transactional
+    public void deleteCard(Long cardId) {
+        Card card = findCardById(cardId);
+        Board board = card.getColumn().getBoard();
+        board.validateBoardStatus();
+
+        // 요청한 유저가 해당 보드의 참여자인지 검증 (시큐리티 이후)
+//        User requestUser = boardUserService.findBoardUser(board.getId(), user.getId());
+        cardRepository.delete(card);
+    }
+
     private Card findCardById(Long cardId){
         return cardRepository.findById(cardId).orElseThrow(() ->
                 new CardException(CardErrorCode.CARD_NOT_FOUND));

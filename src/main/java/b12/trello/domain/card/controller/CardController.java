@@ -41,4 +41,12 @@ public class CardController {
                 .body(BasicResponse.of("카드가 수정되었습니다."));
     }
 
+    @DeleteMapping("/{cardId}")
+    public ResponseEntity<BasicResponse<Void>> deleteCard(@PathVariable Long cardId) {
+        cardService.deleteCard(cardId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(BasicResponse.of("카드가 삭제되었습니다."));
+    }
+
 }

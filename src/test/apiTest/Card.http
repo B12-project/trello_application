@@ -125,3 +125,6 @@ Content-Type: application/json
   "cardContents": "카드 수정",
   "deadline": "2024-07-11"
 }
+
+### 카드 삭제
+DELETE http://localhost:8080/cards/1

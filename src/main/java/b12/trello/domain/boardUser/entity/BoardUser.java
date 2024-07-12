@@ -6,9 +6,11 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 public class BoardUser {
     @Id
@@ -27,15 +29,15 @@ public class BoardUser {
     @Column(nullable = false)
     private BoardUserRole boardUserRole;
 
-    public enum BoardUserRole {
-        INVITEE,
-        MANAGER
-    }
-
     @Builder
     public BoardUser(Board board, User user, BoardUserRole boardUserRole) {
         this.board = board;
         this.user = user;
         this.boardUserRole = boardUserRole;
+    }
+
+    public enum BoardUserRole {
+        INVITEE,
+        MANAGER
     }
 }

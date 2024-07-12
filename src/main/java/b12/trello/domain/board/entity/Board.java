@@ -1,12 +1,13 @@
 package b12.trello.domain.board.entity;
 
+import b12.trello.domain.boardUser.entity.BoardUser;
+import b12.trello.domain.user.entity.User;
 import b12.trello.global.entity.TimeStamped;
-import b12.trello.global.exception.customException.CardException;
-import b12.trello.global.exception.errorCode.CardErrorCode;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -23,22 +24,36 @@ public class Board extends TimeStamped {
     @Column
     private String boardInfo;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private BoardStatus boardStatus;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager_id", nullable = false)
+    private User manager;
 
-    public enum BoardStatus {
-        ACTIVE,
-        DELETED
-    }
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BoardUser> boardUsers = new ArrayList<>();
 
+    // 빌더 패턴 추가
     @Builder
-    public Board(String boardName, String boardInfo, BoardStatus boardStatus) {
+    public Board(String boardName, String boardInfo, User manager) {
         this.boardName = boardName;
         this.boardInfo = boardInfo;
-        this.boardStatus = boardStatus;
+        this.manager = manager;
     }
 
+    public void update(String boardName, String boardInfo) {
+        this.boardName = boardName;
+        this.boardInfo = boardInfo;
+    }
+
+    public void addUser(BoardUser boardUser) {
+        boardUsers.add(boardUser);
+        boardUser.setBoard(this);
+    }
+
+    public void removeUser(BoardUser boardUser) {
+        boardUsers.remove(boardUser);
+        boardUser.setBoard(null);
+        // 위 줄은 삭제하지 않습니다. BoardUser 엔티티의 관계를 Board 엔티티와의 연결을 해제하는 중요한 단계
+    }
 
     public void checkBoardDeleted() {
         if (this.getDeletedAt() == null) {

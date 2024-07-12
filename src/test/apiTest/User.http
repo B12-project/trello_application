@@ -1,2 +1,60 @@
-### 회원가입
-http://localhost:8080/
+### ADMIN 회원가입
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "email" : "admin@gmail.com",
+  "password": "sparta12!@",
+  "name" : "admin",
+  "adminToken": "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC"
+}
+
+### ADMIN 회원가입시 토큰값이 다를 때 실패
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "email" : "adminFail@gmail.com",
+  "password": "sparta12!@",
+  "name" : "admin1",
+  "adminToken": "AC"
+}
+
+### USER 회원가입
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "email" : "user@gmail.com",
+  "password": "sparta12!@",
+  "name" : "user"
+}
+
+
+
+### ADMIN 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "email" : "admin@gmail.com",
+  "password": "sparta12!@"
+}
+
+> {% client.global.set("ADMIN_TOKEN", response.headers.valueOf("ACCESS_TOKEN_HEADER")); %}
+
+### USER 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "email" : "user@gmail.com",
+  "password": "sparta12!@"
+}
+
+> {% client.global.set("USER_TOKEN", response.headers.valueOf("ACCESS_TOKEN_HEADER")); %}
+
+### 보드 생성
+POST http://localhost:8080/bo
+Content-Type: application/json
+ACCESS_TOKEN_HEADER:{{ADMIN_TOKEN}}

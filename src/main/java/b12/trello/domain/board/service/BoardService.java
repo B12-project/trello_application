@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static b12.trello.global.exception.errorCode.BoardErrorCode.*;
+
 
 @Slf4j
 @Service
@@ -28,7 +30,7 @@ public class BoardService {
     private final BoardUserRepository boardUserRepository;
     private final UserRepository userRepository;
 
-    public BoardResponseDto addBoard(BoardRequestDto boardRequestDto, User user) {
+    public BoardResponseDto createBoard(BoardRequestDto boardRequestDto, User user) {
         Board board = new Board(boardRequestDto, user);
         boardRepository.save(board);
 
@@ -46,7 +48,7 @@ public class BoardService {
 
     private Board findBoardById(long id) {
         return boardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 보드가 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException(BOARD_NOT_FOUND.getErrorDescription()));
     }
 
     public List<BoardResponseDto> findAll() {
@@ -57,7 +59,7 @@ public class BoardService {
                 .collect(Collectors.toList());
     }
 
-    public BoardResponseDto updateBoard(BoardRequestDto boardRequestDto, Long boardId, User user) {
+    public BoardResponseDto modifyBoard(BoardRequestDto boardRequestDto, Long boardId, User user) {
         Board board = findBoardById(boardId);
 
         validateManager(board, user);
@@ -77,24 +79,6 @@ public class BoardService {
         boardRepository.delete(board);
     }
 
-//    public void inviteUser(BoardInviteRequestDto boardInviteRequestDto, User inviter) {
-//        Board board = findBoardById(boardInviteRequestDto.getBoardId());
-//
-//        if (!isManager(inviter)) {
-//            throw new IllegalArgumentException("매니저만 사용자를 초대할 수 있습니다.");
-//        }
-//
-//        User user = userRepository.findByEmail(boardInviteRequestDto.getUserEmail())
-//                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-//
-//        if (boardUserRepository.existsByBoardAndUser(board, user)) {
-//            throw new IllegalArgumentException("이미 초대된 사용자입니다.");
-//        }
-//
-//        BoardUser boardUser = new BoardUser(board, user, BoardUser.BoardUserRole.INVITEE);
-//        boardUserRepository.save(boardUser);
-//    }
-
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -104,11 +88,11 @@ public class BoardService {
         Board board = findBoardById(boardId);
 
         if (!isManager(inviter)) {
-            throw new IllegalArgumentException("매니저만 사용자를 초대할 수 있습니다.");
+            throw new IllegalArgumentException(BOARD_MANAGER_ONLY.getErrorDescription());
         }
 
         if (boardUserRepository.existsByBoardAndUser(board, invitedUser)) {
-            throw new IllegalArgumentException("이미 초대된 사용자입니다.");
+            throw new IllegalArgumentException(USER_ALREADY_INVITED.getErrorDescription());
         }
 
         BoardUser boardUser = new BoardUser(board, invitedUser, BoardUser.BoardUserRole.INVITEE);
@@ -116,29 +100,14 @@ public class BoardService {
     }
 
 
-//    public void promoteToManager(BoardInviteRequestDto boardInviteRequestDto, User promoter) {
-//        Board board = findBoardById(boardInviteRequestDto.getBoardId());
-//
-//        validateManager(board, promoter);
-//
-//        User user = userRepository.findByEmail(boardInviteRequestDto.getUserId().toString())
-//                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-//
-//        BoardUser boardUser = boardUserRepository.findByBoardAndUser(board, user)
-//                .orElseThrow(() -> new IllegalArgumentException("해당 사용자는 이 보드의 멤버가 아닙니다."));
-//
-//        boardUser.setBoardUserRole(BoardUser.BoardUserRole.MANAGER);
-//        boardUserRepository.save(boardUser);
-//    }
-
-    public List<String> findAllUserEmails() {
+    public List<String> findAllUserEmailList() {
         return userRepository.findAll().stream()
                 .map(User::getEmail)
                 .collect(Collectors.toList());
     }
 
     // 특정 유저가 참여 있는 보드 조회
-    public List<BoardResponseDto> getBoardsByUser(User user) {
+    public List<BoardResponseDto> findBoardListByUser(User user) {
         List<BoardUser> boardUsers = boardUserRepository.findByUser(user);
         return boardUsers.stream()
                 .map(boardUser -> new BoardResponseDto(boardUser.getBoard()))
@@ -146,7 +115,7 @@ public class BoardService {
     }
 
     // 특정 유저가 매니징 하고 있는 보드 조회
-    public List<BoardResponseDto> getBoardsManagedByUser(User user) {
+    public List<BoardResponseDto> findBoardListManagedByUser(User user) {
         List<BoardUser> boardUsers = boardUserRepository.findByUserAndBoardUserRole(user, BoardUser.BoardUserRole.MANAGER);
         return boardUsers.stream()
                 .map(boardUser -> new BoardResponseDto(boardUser.getBoard()))
@@ -155,9 +124,9 @@ public class BoardService {
 
     private void validateManager(Board board, User user) {
         BoardUser boardUser = boardUserRepository.findByBoardAndUser(board, user)
-                .orElseThrow(() -> new IllegalArgumentException("보드 매니저만 할 수 있습니다."));
+                .orElseThrow(() -> new IllegalArgumentException(BOARD_MANAGER_ONLY.getErrorDescription()));
         if (boardUser.getBoardUserRole() != BoardUser.BoardUserRole.MANAGER) {
-            throw new IllegalArgumentException("보드 매니저만 할 수 있습니다.");
+            throw new IllegalArgumentException(BOARD_MANAGER_ONLY.getErrorDescription());
         }
     }
 

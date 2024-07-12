@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Entity
@@ -17,16 +19,16 @@ public class User extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
     private String password;
 
+    @Length(min = 1, max = 10)
     @Column(nullable = false)
     private String name;
 
-    //Enum 으로 관리?
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserAuth auth;
@@ -43,7 +45,7 @@ public class User extends TimeStamped {
     }
 
     public void signOut() {
-        this.auth = UserAuth.DELETED;
+        updateDeletedAt();
         this.refreshToken = null;
     }
 
@@ -51,33 +53,23 @@ public class User extends TimeStamped {
         refreshToken = null;
     }
 
-    public void update(Optional<String> newPassword, Optional<String> name) {
+    public void updatePassword(Optional<String> newPassword) {
         this.password = newPassword.orElse(this.password);
-        this.name = name.orElse(this.name);
     }
+
+    public void updateProfile(String email, String name) {
+        this.email = email;
+        this.name = name;
+    }
+
 
     public void updateToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
 
     public enum UserAuth {
-        ADMIN(Authority.ADMIN),
-        USER(Authority.USER),
-        DELETED(Authority.DELETED);
-
-        private final String authority;
-
-        UserAuth(String authority) {
-            this.authority = authority;
-        }
-
-        public String getAuthority() {
-            return this.authority;
-        }
+        ADMIN,
+        USER;
     }
-    public static class Authority {
-        public static final String USER = "USER";
-        public static final String ADMIN = "ADMIN";
-        public static final String DELETED = "DELETED";
-    }
+
 }

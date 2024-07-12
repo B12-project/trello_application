@@ -11,11 +11,13 @@ public class ColumnFindResponseDto {
     private Long columnOrder;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    private Long columnId;
 
     public ColumnFindResponseDto(Columns column) {
         this.columnName = column.getColumnName();
         this.columnOrder = column.getColumnOrder();
         this.createdAt = column.getCreatedAt();
         this.modifiedAt = column.getModifiedAt();
+        this.columnId = column.getColumnId();
     }
 }

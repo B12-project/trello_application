@@ -1,7 +1,6 @@
 package b12.trello.domain.column.service;
 
 import b12.trello.domain.board.entity.Board;
-import b12.trello.domain.board.entity.Board.BoardStatus;
 import b12.trello.domain.board.repository.BoardRepository;
 import b12.trello.domain.boardUser.entity.BoardUser;
 import b12.trello.domain.boardUser.repository.BoardUserRepository;
@@ -14,8 +13,6 @@ import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.column.repository.ColumnRepository;
 import b12.trello.domain.user.entity.User;
 import b12.trello.global.exception.customException.column.BoardNotFoundException;
-import b12.trello.global.exception.customException.column.ColumnDuplicatedException;
-import b12.trello.global.exception.customException.column.ColumnNotFoundException;
 import b12.trello.global.exception.customException.column.InvalidOrderException;
 import b12.trello.global.exception.customException.column.InvalidUserException;
 import b12.trello.global.exception.errorCode.column.ColumnErrorCode;
@@ -45,8 +42,11 @@ public class ColumnService {
 
         Long columnOrder = columnRepository.countByBoardId(requestDto.getBoardId()); //컬럼 마지막 순서 계산
 
-        Columns columns = Columns.builder().board(board).columnName(requestDto.getColumnName())
-            .order(columnOrder).build(); //컬럼 생성
+        Columns columns = Columns.builder()
+            .board(board)
+            .columnName(requestDto.getColumnName())
+            .order(columnOrder)
+            .build(); //컬럼 생성
 
         columnRepository.save(columns);
     }
@@ -119,7 +119,7 @@ public class ColumnService {
             List<Columns> columnsList = columnRepository.findAllByBoardIdAndColumnOrderBetween(
                 boardId, newOrder, columns.getColumnOrder());
             for (Columns column : columnsList) {
-                if (Objects.equals(column.getColumnId(), columns.getColumnId())) {
+                if (column.equals(columns)) {
                     columns.setColumnOrder(newOrder);
                     continue;
                 }

@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @NoArgsConstructor
@@ -19,9 +20,11 @@ public class Columns extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long columnId;
 
+    @Setter
     @Column(nullable = false)
     private String columnName;
 
+    @Setter
     @Column(nullable = false)
     private Long columnOrder;
 
@@ -40,14 +43,6 @@ public class Columns extends TimeStamped {
         this.board = board;
         this.columnOrder = order;
     }
-
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
-    }
-    public void setColumnOrder(Long columnOrder) {
-        this.columnOrder = columnOrder;
-    }
-
 
 
 }

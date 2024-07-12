@@ -59,7 +59,7 @@ public class ColumnController {
 
         columnService.modifyColumn(userDetails.getUser(), columnId, requestDto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(BasicResponse.of("컬럼 수정 완료"));
+        return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 수정 완료"));
     }
 
     //컬럼 삭제
@@ -70,7 +70,7 @@ public class ColumnController {
 
         columnService.deleteColumn(userDetails.getUser(), columnId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(BasicResponse.of("컬럼 삭제 완료"));
+        return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 삭제 완료"));
     }
 
     //컬럼 순서 변경
@@ -81,7 +81,7 @@ public class ColumnController {
 
         columnService.modifyColumnOrder(userDetails.getUser(), columnId, requestDto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(BasicResponse.of("컬럼 순서 변경 완료"));
+        return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 순서 변경 완료"));
     }
 
 }

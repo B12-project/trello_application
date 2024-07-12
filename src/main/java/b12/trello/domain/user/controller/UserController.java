@@ -41,7 +41,4 @@ public class UserController {
                 .body(BasicResponse.of(HttpStatus.ACCEPTED.value(), "로그아웃이 완료되었습니다.", responseDto));
     }
 
-
-
-
 }

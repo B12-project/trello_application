@@ -13,11 +13,17 @@ import b12.trello.domain.card.repository.CardSearchCond;
 import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.column.repository.ColumnRepository;
 import b12.trello.domain.user.entity.User;
+import b12.trello.global.exception.customException.CardException;
+import b12.trello.global.exception.errorCode.CardErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import static b12.trello.domain.card.repository.CardSearchCond.*;
@@ -47,7 +53,7 @@ public class CardService {
                 .column(column)
                 .cardName(requestDto.getCardName())
                 .cardContents(requestDto.getCardContents())
-                .deadline(requestDto.getDeadline())
+                .deadline(parseToLocalDate(requestDto.getDeadline()))
                 .worker(worker)
                 .build();
 
@@ -109,7 +115,7 @@ public class CardService {
                 column,
                 requestDto.getCardName(),
                 requestDto.getCardContents(),
-                requestDto.getDeadline(),
+                parseToLocalDate(requestDto.getDeadline()),
                 worker
         );
 
@@ -138,5 +144,17 @@ public class CardService {
         Board board = columns.getBoard();
         board.checkBoardDeleted();
         boardUserRepository.verifyBoardUser(board.getId(), user.getId());
+    }
+
+    private LocalDate parseToLocalDate(String deadline) {
+        if(deadline == null) {
+            return null;
+        } else {
+            try {
+                return LocalDate.parse(deadline, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            } catch (DateTimeParseException e) {
+                throw new CardException(CardErrorCode.DATETIME_PARSE_ERROR);
+            }
+        }
     }
 }

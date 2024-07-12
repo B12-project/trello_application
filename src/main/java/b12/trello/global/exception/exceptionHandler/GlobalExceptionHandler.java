@@ -59,16 +59,6 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 날짜 형식으로 인한 변환 예외 처리
-     */
-    @ExceptionHandler(DateTimeParseException.class)
-    protected ResponseEntity<ErrorResponse> handleDateTimeParseException(DateTimeParseException e) {
-        log.error("{} 예외 발생", e.getClass());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.of(CommonErrorCode.DATETIME_PARSE_ERROR));
-    }
-
-    /**
      * 기타 예외 처리
      */
     @ExceptionHandler(Exception.class)

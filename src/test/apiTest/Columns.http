@@ -1,6 +1,6 @@
 ### 컬럼 조회
 GET http://localhost:8080/columns
-Authorization:{{USER_TOKEN}}
+Authorization:{{USER1_TOKEN}}
 Content-Type: application/json
 
 {
@@ -9,7 +9,7 @@ Content-Type: application/json
 
 ### 컬럼 조회
 GET http://localhost:8080/columns
-Authorization:{{user2Auth}}
+Authorization:{{USER1_TOKEN}}
 Content-Type: application/json
 
 {
@@ -18,17 +18,17 @@ Content-Type: application/json
 
 ### 컬럼 생성
 POST http://localhost:8080/columns
-Authorization:{{USER_TOKEN}}
+Authorization:{{USER1_TOKEN}}
 Content-Type: application/json
 
 {
-  "columnName" : "",
+  "columnName" : "하이2",
   "boardId" : 1
 }
 
 ### 컬럼 생성 실패 - 매니저가 아닌 경우
 POST http://localhost:8080/columns
-Authorization:{{user1Auth}}
+Authorization:{{USER2_TOKEN}}
 Content-Type: application/json
 
 {
@@ -38,7 +38,7 @@ Content-Type: application/json
 
 ### 컬럼 수정 성공
 PATCH http://localhost:8080/columns/1
-Authorization:{{USER_TOKEN}}
+Authorization:{{USER1_TOKEN}}
 Content-Type: application/json
 
 {
@@ -47,7 +47,7 @@ Content-Type: application/json
 
 ### 컬럼 수정 실패 - 매니저가 아닌 경우
 PATCH http://localhost:8080/columns/1
-Authorization:{{user1Auth}}
+Authorization:{{USER2_TOKEN}}
 Content-Type: application/json
 
 {
@@ -56,7 +56,7 @@ Content-Type: application/json
 
 ### 컬럼 순서 변경
 PATCH http://localhost:8080/columns/1/order
-Authorization:{{USER_TOKEN}}
+Authorization:{{USER1_TOKEN}}
 Content-Type: application/json
 
 {
@@ -65,5 +65,5 @@ Content-Type: application/json
 
 ### 컬럼 삭제
 DELETE http://localhost:8080/columns/2
-Authorization:{{USER_TOKEN}}
+Authorization:{{USER1_TOKEN}}
 

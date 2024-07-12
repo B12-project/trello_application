@@ -10,6 +10,7 @@ import b12.trello.domain.column.dto.ColumnModifyRequestDto;
 import b12.trello.domain.column.dto.ColumnOrderModifyRequestDto;
 import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.column.repository.ColumnRepository;
+import b12.trello.domain.user.entity.User;
 import b12.trello.global.exception.customException.column.BoardNotFoundException;
 import b12.trello.global.exception.customException.column.ColumnDuplicatedException;
 import b12.trello.global.exception.customException.column.ColumnNotFoundException;
@@ -34,7 +35,7 @@ public class ColumnService {
 
         Board board = checkBoard(requestDto.getBoardId());
 
-        checkColumnName(requestDto.getColumnName(), requestDto.getBoardId());
+        columnRepository.existsByColumnNameAndBoardIdOrElseThrow(requestDto.getColumnName(), requestDto.getBoardId());
 
         Long columnOrder = columnRepository.countByBoardId(requestDto.getBoardId()); //컬럼 마지막 순서 계산
 
@@ -58,9 +59,9 @@ public class ColumnService {
     //컬럼 수정
     public void modifyColumn(Long columnId, ColumnModifyRequestDto requestDto) {
 
-        Columns columns = checkColumn(columnId);
+        Columns columns = columnRepository.findByIdOrElseThrow(columnId);
 
-        checkColumnName(requestDto.getColumnName(), columns.getBoard().getId());
+        columnRepository.existsByColumnNameAndBoardIdOrElseThrow(requestDto.getColumnName(), columns.getBoard().getId());
 
         columns.setColumnName(requestDto.getColumnName());
 
@@ -71,7 +72,7 @@ public class ColumnService {
     @Transactional
     public void deleteColumn(Long columnId) {
 
-        Columns columns = checkColumn(columnId);
+        Columns columns = columnRepository.findByIdOrElseThrow(columnId);
 
         columnRepository.deleteById(columnId); //컬럼 삭제
 
@@ -89,7 +90,7 @@ public class ColumnService {
 
         Long newOrder = requestDto.getOrderId();
 
-        Columns columns = checkColumn(columnId);
+        Columns columns = columnRepository.findByIdOrElseThrow(columnId);
 
         Long boardId = columns.getBoard().getId();
 
@@ -130,22 +131,23 @@ public class ColumnService {
         Board board = boardRepository.findById(boardId)
             .orElseThrow(() -> new BoardNotFoundException(
                 ColumnErrorCode.BOARD_NOT_FOUND));
-        if (board.getBoardStatus() == BoardStatus.DELETED) {
+        if (board.getDeletedAt() != null) {
             throw new BoardNotFoundException(ColumnErrorCode.DELETED_BOARD);
         }
         return board;
     }
 
     //컬럼 이름 중복 확인
-    private void checkColumnName(String columnName, Long boardId) {
-        if (columnRepository.existsByColumnNameAndBoardId(columnName, boardId)) {
-            throw new ColumnDuplicatedException(ColumnErrorCode.COLUMN_ALREADY_REGISTERED_ERROR);
-        }
-    }
+//    private void checkColumnName(String columnName, Long boardId) {
+//        if (columnRepository.existsByColumnNameAndBoardId(columnName, boardId)) {
+//            throw new ColumnDuplicatedException(ColumnErrorCode.COLUMN_ALREADY_REGISTERED_ERROR);
+//        }
+//    }
 
-    //컬럼 존재 확인
-    private Columns checkColumn(Long columnId) {
-        return columnRepository.findById(columnId)
-            .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
-    }
+//    //컬럼 존재 확인
+//    private Columns checkColumn(Long columnId) {
+//        return columnRepository.findById(columnId)
+//            .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
+//    }
+
 }

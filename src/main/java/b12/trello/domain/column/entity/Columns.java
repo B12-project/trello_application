@@ -1,8 +1,11 @@
 package b12.trello.domain.column.entity;
 
 import b12.trello.domain.board.entity.Board;
+import b12.trello.domain.card.entity.Card;
 import b12.trello.global.entity.TimeStamped;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +24,11 @@ public class Columns extends TimeStamped {
 
     @Column(nullable = false)
     private Long columnOrder;
+
+
+//    @OneToMany(mappedBy = "column", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Card> cards = new ArrayList<>();
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)

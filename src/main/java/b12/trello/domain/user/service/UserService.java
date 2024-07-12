@@ -67,15 +67,16 @@ public class UserService {
 
 
     public ProfileResponseDto getProfile(User user) {
-        ProfileResponseDto profileResponseDto = ProfileResponseDto.of(user);
-        return profileResponseDto;
+        return ProfileResponseDto.of(user);
     }
 
     public ProfileResponseDto updateProfile(User user, ProfileRequestDto requestDto) {
+        if (userRepository.findByEmail(requestDto.getEmail()).isPresent()) {
+            throw new UserException(UserErrorCode.EMAIL_DUPLICATED);
+        }
         user.updateProfile(requestDto.getEmail(), requestDto.getName());
         userRepository.save(user);
-        ProfileResponseDto profileResponseDto = ProfileResponseDto.of(user);
-        return profileResponseDto;
+        return ProfileResponseDto.of(user);
     }
 
 

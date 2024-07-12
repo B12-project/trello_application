@@ -3,6 +3,8 @@ package b12.trello.domain.column.service;
 import b12.trello.domain.board.entity.Board;
 import b12.trello.domain.board.entity.Board.BoardStatus;
 import b12.trello.domain.board.repository.BoardRepository;
+import b12.trello.domain.boardUser.entity.BoardUser;
+import b12.trello.domain.boardUser.repository.BoardUserRepository;
 import b12.trello.domain.column.dto.ColumnCreateRequestDto;
 import b12.trello.domain.column.dto.ColumnFindResponseDto;
 import b12.trello.domain.column.dto.ColumnFindRequestDto;
@@ -15,6 +17,7 @@ import b12.trello.global.exception.customException.column.BoardNotFoundException
 import b12.trello.global.exception.customException.column.ColumnDuplicatedException;
 import b12.trello.global.exception.customException.column.ColumnNotFoundException;
 import b12.trello.global.exception.customException.column.InvalidOrderException;
+import b12.trello.global.exception.customException.column.InvalidUserException;
 import b12.trello.global.exception.errorCode.column.ColumnErrorCode;
 import java.util.List;
 import java.util.Objects;
@@ -28,12 +31,15 @@ public class ColumnService {
 
     private final ColumnRepository columnRepository;
     private final BoardRepository boardRepository;
+    private final BoardUserRepository boardUserRepository;
 
 
     //컬럼생성
-    public void createColumn(ColumnCreateRequestDto requestDto) {
+    public void createColumn(User user, ColumnCreateRequestDto requestDto) {
 
         Board board = checkBoard(requestDto.getBoardId());
+
+        validateManager(board, user);
 
         columnRepository.existsByColumnNameAndBoardIdOrElseThrow(requestDto.getColumnName(), requestDto.getBoardId());
 
@@ -57,9 +63,11 @@ public class ColumnService {
     }
 
     //컬럼 수정
-    public void modifyColumn(Long columnId, ColumnModifyRequestDto requestDto) {
+    public void modifyColumn(User user, Long columnId, ColumnModifyRequestDto requestDto) {
 
         Columns columns = columnRepository.findByIdOrElseThrow(columnId);
+
+        validateManager(columns.getBoard(), user);
 
         columnRepository.existsByColumnNameAndBoardIdOrElseThrow(requestDto.getColumnName(), columns.getBoard().getId());
 
@@ -70,9 +78,11 @@ public class ColumnService {
 
     //컬럼 삭제
     @Transactional
-    public void deleteColumn(Long columnId) {
+    public void deleteColumn(User user, Long columnId) {
 
         Columns columns = columnRepository.findByIdOrElseThrow(columnId);
+
+        validateManager(columns.getBoard(), user);
 
         columnRepository.deleteById(columnId); //컬럼 삭제
 
@@ -86,11 +96,13 @@ public class ColumnService {
 
 
     @Transactional
-    public void modifyColumnOrder(Long columnId, ColumnOrderModifyRequestDto requestDto) {
+    public void modifyColumnOrder(User user, Long columnId, ColumnOrderModifyRequestDto requestDto) {
 
         Long newOrder = requestDto.getOrderId();
 
         Columns columns = columnRepository.findByIdOrElseThrow(columnId);
+
+        validateManager(columns.getBoard(), user);
 
         Long boardId = columns.getBoard().getId();
 
@@ -137,17 +149,11 @@ public class ColumnService {
         return board;
     }
 
-    //컬럼 이름 중복 확인
-//    private void checkColumnName(String columnName, Long boardId) {
-//        if (columnRepository.existsByColumnNameAndBoardId(columnName, boardId)) {
-//            throw new ColumnDuplicatedException(ColumnErrorCode.COLUMN_ALREADY_REGISTERED_ERROR);
-//        }
-//    }
-
-//    //컬럼 존재 확인
-//    private Columns checkColumn(Long columnId) {
-//        return columnRepository.findById(columnId)
-//            .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
-//    }
+    // 매니저 권한 확인
+    private void validateManager(Board board, User user) {
+        if (!boardUserRepository.existsByBoardAndUserAndBoardUserRole(board, user, BoardUser.BoardUserRole.MANAGER)) {
+            throw new InvalidUserException(ColumnErrorCode.BOARD_MANAGER_ONLY);
+        }
+    }
 
 }

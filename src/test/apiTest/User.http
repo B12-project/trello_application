@@ -67,3 +67,13 @@ Content-Type: application/json
 {
 "boardId":1
 }
+
+### 컬럼생성
+POST http://localhost:8080/columns
+Authorization:{{USER_TOKEN}}
+Content-Type: application/json
+
+{
+  "columnName" : "test1",
+  "boardId" : 1
+}

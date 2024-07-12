@@ -25,7 +25,7 @@ public class User extends TimeStamped {
     @Column(nullable = false)
     private String password;
 
-    @Length(min = 4, max = 10)
+    @Length(min = 1, max = 10)
     @Column(nullable = false)
     private String name;
 
@@ -53,31 +53,23 @@ public class User extends TimeStamped {
         refreshToken = null;
     }
 
-    public void update(Optional<String> newPassword, Optional<String> name) {
+    public void updatePassword(Optional<String> newPassword) {
         this.password = newPassword.orElse(this.password);
-        this.name = name.orElse(this.name);
     }
+
+    public void updateProfile(String email, String name) {
+        this.email = email;
+        this.name = name;
+    }
+
 
     public void updateToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
 
     public enum UserAuth {
-        ADMIN(Authority.ADMIN),
-        USER(Authority.USER);
-
-        private final String authority;
-
-        UserAuth(String authority) {
-            this.authority = authority;
-        }
-
-        public String getAuthority() {
-            return this.authority;
-        }
+        ADMIN,
+        USER;
     }
-    public static class Authority {
-        public static final String USER = "USER";
-        public static final String ADMIN = "ADMIN";
-    }
+
 }

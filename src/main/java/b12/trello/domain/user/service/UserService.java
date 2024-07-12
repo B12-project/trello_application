@@ -1,5 +1,7 @@
 package b12.trello.domain.user.service;
 
+import b12.trello.domain.user.dto.ProfileRequestDto;
+import b12.trello.domain.user.dto.ProfileResponseDto;
 import b12.trello.domain.user.dto.SignupRequestDto;
 import b12.trello.domain.user.dto.SignupResponseDto;
 import b12.trello.domain.user.entity.User;
@@ -49,17 +51,32 @@ public class UserService {
         return SignupResponseDto.of(newUser);
     }
 
-    public SignupResponseDto signOut(UserDetailsImpl userDetails) {
-        SignupResponseDto signupResponseDto = SignupResponseDto.of(userDetails.getUser());
-        userDetails.getUser().signOut();
-        userRepository.save(userDetails.getUser());
+    public SignupResponseDto signOut(User user) {
+        SignupResponseDto signupResponseDto = SignupResponseDto.of(user);
+        user.signOut();
+        userRepository.save(user);
         return signupResponseDto;
     }
 
-    public SignupResponseDto logOut(UserDetailsImpl userDetails) {
-        SignupResponseDto signupResponseDto = SignupResponseDto.of(userDetails.getUser());
-        userDetails.getUser().logOut();
-        userRepository.save(userDetails.getUser());
+    public SignupResponseDto logOut(User user) {
+        SignupResponseDto signupResponseDto = SignupResponseDto.of(user);
+        user.logOut();
+        userRepository.save(user);
         return signupResponseDto;
     }
+
+
+    public ProfileResponseDto getProfile(User user) {
+        ProfileResponseDto profileResponseDto = ProfileResponseDto.of(user);
+        return profileResponseDto;
+    }
+
+    public ProfileResponseDto updateProfile(User user, ProfileRequestDto requestDto) {
+        user.updateProfile(requestDto.getEmail(), requestDto.getName());
+        userRepository.save(user);
+        ProfileResponseDto profileResponseDto = ProfileResponseDto.of(user);
+        return profileResponseDto;
+    }
+
+
 }

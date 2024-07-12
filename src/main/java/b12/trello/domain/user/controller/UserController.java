@@ -1,5 +1,7 @@
 package b12.trello.domain.user.controller;
 
+import b12.trello.domain.user.dto.ProfileRequestDto;
+import b12.trello.domain.user.dto.ProfileResponseDto;
 import b12.trello.domain.user.dto.SignupRequestDto;
 import b12.trello.domain.user.dto.SignupResponseDto;
 import b12.trello.domain.user.service.UserService;
@@ -27,7 +29,7 @@ public class UserController {
 
     @DeleteMapping("/signout")
     public ResponseEntity<BasicResponse<SignupResponseDto>> signOut(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        SignupResponseDto responseDto = userService.signOut(userDetails);
+        SignupResponseDto responseDto = userService.signOut(userDetails.getUser());
 
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(BasicResponse.of(HttpStatus.ACCEPTED.value(), "회원탈퇴가 완료되었습니다.", responseDto));
@@ -35,10 +37,27 @@ public class UserController {
 
     @DeleteMapping("/logout")
     public ResponseEntity<BasicResponse<SignupResponseDto>> logOut(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        SignupResponseDto responseDto = userService.logOut(userDetails);
+        SignupResponseDto responseDto = userService.logOut(userDetails.getUser());
 
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(BasicResponse.of(HttpStatus.ACCEPTED.value(), "로그아웃이 완료되었습니다.", responseDto));
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<BasicResponse<ProfileResponseDto>> getProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        ProfileResponseDto responseDto = userService.getProfile(userDetails.getUser());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(BasicResponse.of(HttpStatus.OK.value(), "회원정보를 조회했습니다.", responseDto));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<BasicResponse<ProfileResponseDto>> updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                           @RequestBody ProfileRequestDto requestDto) {
+        ProfileResponseDto responseDto = userService.updateProfile(userDetails.getUser(), requestDto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(BasicResponse.of(HttpStatus.OK.value(), "회원정보를 수정했습니다.", responseDto));
     }
 
 }

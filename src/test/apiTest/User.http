@@ -80,6 +80,23 @@ Content-Type: application/json
 Authorization:{{USER_TOKEN}}
 
 
+### User Profile 조회
+GET http://localhost:8080/users/profile
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+### User Profile 수정
+PUT http://localhost:8080/users/profile
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+{
+  "email" : "editedUser@gmail.com",
+  "name": "열자안넘는이름입니다"
+}
+
+
+
 ### 보드 생성
 POST http://localhost:8080/bo
 Content-Type: application/json

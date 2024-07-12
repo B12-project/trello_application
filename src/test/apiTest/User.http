@@ -41,7 +41,7 @@ Content-Type: application/json
   "password": "sparta12!@"
 }
 
-> {% client.global.set("ADMIN_TOKEN", response.headers.valueOf("ACCESS_TOKEN_HEADER")); %}
+> {% client.global.set("ADMIN_TOKEN", response.headers.valueOf("Authorization")); %}
 
 ### USER 로그인
 POST http://localhost:8080/users/login
@@ -52,9 +52,35 @@ Content-Type: application/json
   "password": "sparta12!@"
 }
 
-> {% client.global.set("USER_TOKEN", response.headers.valueOf("ACCESS_TOKEN_HEADER")); %}
+> {% client.global.set("USER_TOKEN", response.headers.valueOf("Authorization")); %}
+
+### USER 로그아웃
+DELETE http://localhost:8080/users/logout
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+{
+  "email" : "user@gmail.com",
+  "password": "sparta12!@"
+}
+
+### USER 회원탈퇴
+DELETE http://localhost:8080/users/signout
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+{
+  "email" : "user@gmail.com",
+  "password": "sparta12!@"
+}
+
+### User RefreshToken 재발급
+GET http://localhost:8080/refresh/5
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
 
 ### 보드 생성
 POST http://localhost:8080/bo
 Content-Type: application/json
-ACCESS_TOKEN_HEADER:{{ADMIN_TOKEN}}
+Authorization:{{ADMIN_TOKEN}}

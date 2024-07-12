@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Entity
@@ -17,16 +19,16 @@ public class User extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
     private String password;
 
+    @Length(min = 4, max = 10)
     @Column(nullable = false)
     private String name;
 
-    //Enum 으로 관리?
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserAuth auth;
@@ -43,7 +45,11 @@ public class User extends TimeStamped {
     }
 
     public void signOut() {
-        this.auth = UserAuth.DELETED;
+        //this.auth = UserAuth.DELETED;
+        // 타임스탬프로 딜리트 시간 넣기
+        this.setDeletedAt(LocalDateTime.now());
+        System.out.println(LocalDateTime.now());
+        System.out.println(this.getDeletedAt());
         this.refreshToken = null;
     }
 
@@ -62,8 +68,7 @@ public class User extends TimeStamped {
 
     public enum UserAuth {
         ADMIN(Authority.ADMIN),
-        USER(Authority.USER),
-        DELETED(Authority.DELETED);
+        USER(Authority.USER);
 
         private final String authority;
 
@@ -78,6 +83,5 @@ public class User extends TimeStamped {
     public static class Authority {
         public static final String USER = "USER";
         public static final String ADMIN = "ADMIN";
-        public static final String DELETED = "DELETED";
     }
 }

@@ -5,6 +5,8 @@ import b12.trello.domain.boardUser.entity.BoardUser;
 import b12.trello.domain.user.entity.User;
 import b12.trello.global.entity.TimeStamped;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +17,8 @@ import java.util.Set;
 
 @Getter
 @Entity
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class Board extends TimeStamped {
 

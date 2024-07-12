@@ -9,6 +9,8 @@ import b12.trello.domain.boardUser.entity.BoardUser;
 import b12.trello.domain.boardUser.repository.BoardUserRepository;
 import b12.trello.domain.user.entity.User;
 import b12.trello.domain.user.repository.UserRepository;
+import b12.trello.global.exception.errorCode.BoardErrorCode;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -84,18 +86,29 @@ public class BoardService {
         return userRepository.findByEmail(email);
     }
 
-    public void inviteUserByEmail(Long boardId, User invitedUser, User inviter) {
-        Board board = findBoardById(boardId);
+    @Transactional
+    public void inviteUserByEmail(BoardInviteRequestDto boardInviteRequestDto) {
+        Board board = findBoardById(boardInviteRequestDto.getBoardId());
 
-        if (!isManager(inviter)) {
+        // 매니저만 초대할 수 있는지 확인
+        if (!isManager(boardInviteRequestDto.getInviter())) {
             throw new IllegalArgumentException(BOARD_MANAGER_ONLY.getErrorDescription());
         }
 
+        // 초대할 사용자의 역할 설정
+        BoardUser.BoardUserRole role = boardInviteRequestDto.getBoardUserRole();
+
+        // 사용자 이메일로 사용자 찾기
+        User invitedUser = findByEmail(boardInviteRequestDto.getInvitedUser().getEmail())
+                .orElseThrow(() -> new IllegalArgumentException(BoardErrorCode.USER_NOT_FOUND.getErrorDescription()));
+
+        // 이미 초대된 사용자인지 확인
         if (boardUserRepository.existsByBoardAndUser(board, invitedUser)) {
             throw new IllegalArgumentException(USER_ALREADY_INVITED.getErrorDescription());
         }
 
-        BoardUser boardUser = new BoardUser(board, invitedUser, BoardUser.BoardUserRole.INVITEE);
+        // 초대된 사용자 추가
+        BoardUser boardUser = new BoardUser(board, invitedUser, role);
         boardUserRepository.save(boardUser);
     }
 

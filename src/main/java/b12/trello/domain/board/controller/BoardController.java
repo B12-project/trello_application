@@ -133,12 +133,8 @@ public class BoardController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody BoardInviteRequestDto boardInviteRequestDto
     ) {
-        // 이메일로 사용자 찾기
-        User invitedUser = boardService.findByEmail(boardInviteRequestDto.getUserEmail())
-                .orElseThrow(() -> new IllegalArgumentException(BoardErrorCode.USER_NOT_FOUND.getErrorDescription()));
-
         // 초대 기능 호출
-        boardService.inviteUserByEmail(boardInviteRequestDto.getBoardId(), invitedUser, userDetails.getUser());
+        boardService.inviteUserByEmail(boardInviteRequestDto);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

@@ -4,9 +4,9 @@ Authorization: {{user1Auth}}
 Content-Type: application/json
 
 {
-  "columnId": 4,
+  "columnId": 2,
   "cardName": "cardName_3225c6b9ca08",
-  "userId": 3,
+  "userId": 1,
   "deadline": "2024-07-11"
 }
 
@@ -54,7 +54,7 @@ Content-Type: application/json
 {
   "columnId": 1,
   "cardName": "hi",
-  "userId": 4,
+  "userId": 3,
   "cardContents": "cardContents_b1a81b394d5f"
 }
 
@@ -71,6 +71,7 @@ Content-Type: application/json
 
 ### 카드 생성 실패 - 날짜 형식
 POST http://localhost:8080/cards
+Authorization: {{user1Auth}}
 Content-Type: application/json
 
 {
@@ -102,8 +103,8 @@ Authorization: {{user1Auth}}
 Content-Type: application/json
 
 {
-  "columnId": 1,
-  "workerEmail": "test2@mail.com"
+  "columnId": 2,
+  "workerEmail": "test1@mail.com"
 }
 
 ### 사용자별 컬럼별 카드 리스트 조회(아이디)
@@ -113,9 +114,8 @@ Content-Type: application/json
 
 {
   "columnId": 1,
-  "workerId": 1
+  "workerId": 3
 }
-
 
 
 ### 카드 수정
@@ -124,7 +124,7 @@ Content-Type: application/json
 Authorization: {{user1Auth}}
 
 {
-  "cardName": "제목 수정",
+  "cardName": "제목 수정 2",
   "cardContents": "카드 수정2",
   "deadline": "2024-07-12"
 }
@@ -135,7 +135,7 @@ Authorization: {{user1Auth}}
 Content-Type: application/json
 
 {
-  "cardName": "제목 왜 지금은 되는거야대체 왜!!!!!",
+  "cardName": "제목",
   "userId": 2,
   "cardContents": "관련 작업 모두 끝내기",
   "deadline": "2024-07-12"
@@ -148,7 +148,7 @@ Content-Type: application/json
 
 {
   "cardName": "제목 수정",
-  "userId": 4,
+  "workerId": 2,
   "cardContents": "카드 수정",
   "deadline": "2024-07-11"
 }

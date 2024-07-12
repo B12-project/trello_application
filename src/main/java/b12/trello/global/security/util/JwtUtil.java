@@ -36,7 +36,7 @@ public class JwtUtil {
     // 로그 설정
     public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");
 
-    @Value("${JWT_SECRET_KEY}")
+    @Value("${jwt.secret.key}")
     private String secret;
 
     private Key key;

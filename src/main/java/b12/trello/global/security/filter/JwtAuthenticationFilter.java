@@ -62,7 +62,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 if (user.getDeletedAt() != null) {
                     response.setCharacterEncoding("UTF-8");
                     response.getWriter().write("탈퇴한 계정입니다.");
-                    throw new UserException(UserErrorCode.INVALID_REFRESH_TOKEN);
+                    throw new UserException(UserErrorCode.SIGN_OUT_USER);
                 }
 
                 UsernamePasswordAuthenticationToken authRequest =

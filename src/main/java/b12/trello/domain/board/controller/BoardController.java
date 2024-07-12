@@ -5,13 +5,11 @@ import b12.trello.domain.board.dto.BoardRequestDto;
 import b12.trello.domain.board.dto.BoardResponseDto;
 import b12.trello.domain.board.service.BoardService;
 import b12.trello.domain.user.entity.User;
-import b12.trello.global.exception.errorCode.BoardErrorCode;
 import b12.trello.global.response.BasicResponse;
 import b12.trello.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -56,7 +54,7 @@ public class BoardController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("boardId") Long boardId
     ) {
-        BoardResponseDto boardResponseDto = boardService.findById(boardId);
+        BoardResponseDto boardResponseDto = boardService.findBoardById(boardId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(BasicResponse

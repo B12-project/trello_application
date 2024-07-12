@@ -3,6 +3,8 @@ package b12.trello.domain.board.entity;
 import b12.trello.domain.boardUser.entity.BoardUser;
 import b12.trello.domain.user.entity.User;
 import b12.trello.global.entity.TimeStamped;
+import b12.trello.global.exception.customException.BoardException;
+import b12.trello.global.exception.errorCode.BoardErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,7 +43,7 @@ public class Board extends TimeStamped {
         this.manager = manager;
     }
 
-    public void update(String boardName, String boardInfo) {
+    public void updateBoard(String boardName, String boardInfo) {
         this.boardName = boardName;
         this.boardInfo = boardInfo;
     }
@@ -61,6 +63,6 @@ public class Board extends TimeStamped {
         if (this.getDeletedAt() == null) {
             return;
         }
-        throw new CardException(CardErrorCode.BOARD_STATUS_DELETED);
+        throw new BoardException(BoardErrorCode.DELETED_BOARD);
     }
 }

@@ -51,67 +51,65 @@ public class initData {
         /**
          * 보드 저장
          */
-        Board board1 = Board.builder()
-                .boardName("testBoard1")
-                .boardInfo("내용")
-                .boardStatus(Board.BoardStatus.ACTIVE)
-                .build();
-        Board board2 = Board.builder()
-                .boardName("testBoard2")
-                .boardInfo("내용")
-                .boardStatus(Board.BoardStatus.ACTIVE)
-                .build();
-        Board board3 = Board.builder()
-                .boardName("testBoard3")
-                .boardInfo("내용")
-                .boardStatus(Board.BoardStatus.DELETED)
-                .build();
-        save(board1, board2, board3);
-
-        /**
-         * 보드 사용자 저장
-         */
-        BoardUser boardUser1 = BoardUser.builder()
-                .board(board1)
-                .user(user1)
-                .boardUserRole(BoardUser.BoardUserRole.MANAGER)
-                .build();
-
-        BoardUser boardUser2 = BoardUser.builder()
-                .board(board1)
-                .user(user2)
-                .boardUserRole(BoardUser.BoardUserRole.INVITEE)
-                .build();
-        save(boardUser1, boardUser2);
-
-        /**
-         * 컬럼 저장
-         */
-        Columns column1 = Columns.builder()
-                .columnName("column1")
-                .columnOrder(1L)
-                .board(board1)
-                .build();
-
-        Columns column2 = Columns.builder()
-                .columnName("column2")
-                .columnOrder(2L)
-                .board(board1)
-                .build();
-
-        Columns column3 = Columns.builder()
-                .columnName("column3")
-                .columnOrder(1L)
-                .board(board2)
-                .build();
-
-        Columns column4 = Columns.builder()
-                .columnName("column4")
-                .columnOrder(2L)
-                .board(board2)
-                .build();
-
-        save(column1, column2, column3, column4);
+//        Board board1 = Board.builder()
+//                .boardName("testBoard1")
+//                .boardInfo("내용")
+//                .build();
+//        Board board2 = Board.builder()
+//                .boardName("testBoard2")
+//                .boardInfo("내용")
+//                .build();
+//        Board board3 = Board.builder()
+//                .boardName("testBoard3")
+//                .boardInfo("내용")
+//                .build();
+//
+//        save(board1, board2, board3);
+//
+//        /**
+//         * 보드 사용자 저장
+//         */
+//        BoardUser boardUser1 = BoardUser.builder()
+//                .board(board1)
+//                .user(user1)
+//                .boardUserRole(BoardUser.BoardUserRole.MANAGER)
+//                .build();
+//
+//        BoardUser boardUser2 = BoardUser.builder()
+//                .board(board1)
+//                .user(user2)
+//                .boardUserRole(BoardUser.BoardUserRole.INVITEE)
+//                .build();
+//        save(boardUser1, boardUser2);
+//
+//        /**
+//         * 컬럼 저장
+//         */
+//        Columns column1 = Columns.builder()
+//                .columnName("column1")
+//                .columnOrder(1L)
+//                .board(board1)
+//                .build();
+//
+//        Columns column2 = Columns.builder()
+//                .columnName("column2")
+//                .columnOrder(2L)
+//                .board(board1)
+//                .build();
+//
+//        Columns column3 = Columns.builder()
+//                .columnName("column3")
+//                .columnOrder(1L)
+//                .board(board2)
+//                .build();
+//
+//        Columns column4 = Columns.builder()
+//                .columnName("column4")
+//                .columnOrder(2L)
+//                .board(board2)
+//                .build();
+//
+//        save(column1, column2, column3, column4);
     }
 
     public void save(Object... objects) {

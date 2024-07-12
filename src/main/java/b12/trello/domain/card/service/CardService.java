@@ -33,7 +33,7 @@ public class CardService {
     @Transactional
     public void createCard(User user, CardCreateRequestDto requestDto) {
         // 컬럼이 존재하는지 확인
-        Columns column = columnRepository.findColumnsByIdOrElseThrow(requestDto.getColumnId());
+        Columns column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
         checkBoardStatusAndBoardUser(user, column);
 
         User worker = null;
@@ -60,14 +60,14 @@ public class CardService {
     }
 
     public CardListByColumnResponseDto findCardListByColumn(User user, CardListByColumnRequestDto requestDto) {
-        Columns column = columnRepository.findColumnsByIdOrElseThrow(requestDto.getColumnId());
+        Columns column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
         checkBoardStatusAndBoardUser(user, column);
 
         return CardListByColumnResponseDto.of(column);
     }
 
     public CardListByColumnResponseDto searchCardListByColumn(User user, CardListByColumnRequestDto requestDto, String search) {
-        Columns column = columnRepository.findColumnsByIdOrElseThrow(requestDto.getColumnId());
+        Columns column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
         checkBoardStatusAndBoardUser(user, column);
 
         CardSearchCond.CardSearchCondBuilder cond = CardSearchCond.builder();
@@ -92,7 +92,7 @@ public class CardService {
         Columns column = card.getColumn();
 
         if (requestDto.getColumnId() != null) {
-            column = columnRepository.findColumnsByIdOrElseThrow(requestDto.getColumnId());
+            column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
         }
 
         // 지정한 컬럼이 현재 보드에 속하는지 검증
@@ -137,6 +137,6 @@ public class CardService {
     private void checkBoardStatusAndBoardUser(User user, Columns columns) {
         Board board = columns.getBoard();
         board.checkBoardDeleted();
-        boardUserRepository.validateBoardUser(board.getId(), user.getId());
+        boardUserRepository.verifyBoardUser(board.getId(), user.getId());
     }
 }

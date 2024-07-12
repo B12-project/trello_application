@@ -31,16 +31,16 @@ public class UserController {
     public ResponseEntity<BasicResponse<SignupResponseDto>> signOut(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         SignupResponseDto responseDto = userService.signOut(userDetails.getUser());
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(BasicResponse.of(HttpStatus.ACCEPTED.value(), "회원탈퇴가 완료되었습니다.", responseDto));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(BasicResponse.of(HttpStatus.OK.value(), "회원탈퇴가 완료되었습니다.", responseDto));
     }
 
     @DeleteMapping("/logout")
     public ResponseEntity<BasicResponse<SignupResponseDto>> logOut(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         SignupResponseDto responseDto = userService.logOut(userDetails.getUser());
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(BasicResponse.of(HttpStatus.ACCEPTED.value(), "로그아웃이 완료되었습니다.", responseDto));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(BasicResponse.of(HttpStatus.OK.value(), "로그아웃이 완료되었습니다.", responseDto));
     }
 
     @GetMapping("/profile")
@@ -52,8 +52,7 @@ public class UserController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<BasicResponse<ProfileResponseDto>> updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                           @RequestBody ProfileRequestDto requestDto) {
+    public ResponseEntity<BasicResponse<ProfileResponseDto>> updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody ProfileRequestDto requestDto) {
         ProfileResponseDto responseDto = userService.updateProfile(userDetails.getUser(), requestDto);
 
         return ResponseEntity.status(HttpStatus.OK)

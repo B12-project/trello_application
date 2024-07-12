@@ -14,7 +14,7 @@ public interface BoardUserRepository extends JpaRepository<BoardUser, Long> {
 
     boolean existsByBoardAndUser(Board board, User user);
 
-    boolean existsByUserAndBoardUserRole(User user, BoardUser.BoardUserRole boardUserRole);  // 추가
+//    boolean existsByUserAndBoardUserRole(User user, BoardUser.BoardUserRole boardUserRole);  // 추가
 
     List<BoardUser> findByUser(User user);
 
@@ -31,8 +31,16 @@ public interface BoardUserRepository extends JpaRepository<BoardUser, Long> {
             .orElseThrow(() -> new BoardUserException(BoardUserErrorCode.BOARD_USER_NOT_FOUND));
     }
 
-    default void validateBoardUser(Long boardId, Long userId) {
+    // 보드 참여자가 아닌 경우
+    default void verifyBoardUser(Long boardId, Long userId) {
         if (!existsBoardUserByBoardIdAndUserId(boardId, userId)) {
+            throw new BoardUserException(BoardUserErrorCode.BOARD_USER_FORBIDDEN);
+        }
+    }
+
+    // 이미 보드 참여자인 경우
+    default void verifyNotBoardUser(Long boardId, Long userId) {
+        if (existsBoardUserByBoardIdAndUserId(boardId, userId)) {
             throw new BoardUserException(BoardUserErrorCode.BOARD_USER_FORBIDDEN);
         }
     }

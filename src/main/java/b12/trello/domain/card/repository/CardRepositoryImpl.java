@@ -1,6 +1,8 @@
 package b12.trello.domain.card.repository;
 
 import b12.trello.domain.card.entity.Card;
+import b12.trello.global.exception.customException.CardException;
+import b12.trello.global.exception.errorCode.CardErrorCode;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -28,6 +30,23 @@ public class CardRepositoryImpl implements CardRepositoryCustom{
                         workerEmailEq(cond.getWorkerEmail())
                 )
                 .fetch();
+    }
+
+    @Override
+    public Card findCardById(Long cardId) {
+        Card findCard = jpaQueryFactory.selectFrom(card)
+                .leftJoin(card.column, columns)
+                .fetchJoin()
+                .leftJoin(card.column.board, board)
+                .fetchJoin()
+                .where(card.id.eq(cardId))
+                .fetchOne();
+
+        if (findCard == null) {
+            throw new CardException(CardErrorCode.CARD_NOT_FOUND);
+        }
+
+        return findCard;
     }
 
     private BooleanExpression columnIdEq(Long columnId) {

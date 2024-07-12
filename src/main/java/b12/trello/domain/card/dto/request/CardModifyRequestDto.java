@@ -14,7 +14,7 @@ public class CardModifyRequestDto {
     private String cardName;
 
     private String cardContents;
-    private Long userId;
+    private Long workerId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate deadline;

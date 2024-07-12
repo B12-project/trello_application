@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class CardReadResponseDto {
+public class CardFindResponseDto {
     private Long columnId;
     private String columnName;
     private String cardName;
@@ -20,9 +20,9 @@ public class CardReadResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public static CardReadResponseDto of(Card card) {
+    public static CardFindResponseDto of(Card card) {
         User worker = card.getWorker();
-        return CardReadResponseDto.builder()
+        return CardFindResponseDto.builder()
                 .columnId(card.getColumn().getColumnId())
                 .columnName(card.getColumn().getColumnName())
                 .cardName(card.getCardName())

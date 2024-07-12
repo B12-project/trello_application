@@ -39,9 +39,11 @@ public class Board extends TimeStamped {
         this.boardStatus = boardStatus;
     }
 
-    public void validateBoardStatus() {
-        if (this.getBoardStatus().equals(Board.BoardStatus.DELETED)) {
-            throw new CardException(CardErrorCode.BOARD_STATUS_DELETED);
+
+    public void checkBoardDeleted() {
+        if (this.getDeletedAt() == null) {
+            return;
         }
+        throw new CardException(CardErrorCode.BOARD_STATUS_DELETED);
     }
 }

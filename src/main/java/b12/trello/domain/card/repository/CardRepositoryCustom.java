@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface CardRepositoryCustom {
     List<Card> searchCards(CardSearchCond cond);
+    Card findCardById(Long cardId);
 }

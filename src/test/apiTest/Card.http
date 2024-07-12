@@ -4,9 +4,9 @@ Authorization: {{user1Auth}}
 Content-Type: application/json
 
 {
-  "columnId": 1,
+  "columnId": 4,
   "cardName": "cardName_3225c6b9ca08",
-  "userId": 1,
+  "userId": 3,
   "deadline": "2024-07-11"
 }
 
@@ -113,7 +113,7 @@ Content-Type: application/json
 
 {
   "columnId": 1,
-  "workerId": 3
+  "workerId": 1
 }
 
 
@@ -125,7 +125,7 @@ Authorization: {{user1Auth}}
 
 {
   "cardName": "제목 수정",
-  "cardContents": "카드 수정",
+  "cardContents": "카드 수정2",
   "deadline": "2024-07-12"
 }
 
@@ -144,7 +144,6 @@ Content-Type: application/json
 ### 카드 수정 실패 - 해당 보드 유저가 아님
 PATCH http://localhost:8080/cards/1
 Authorization: {{user1Auth}}
-
 Content-Type: application/json
 
 {
@@ -157,7 +156,6 @@ Content-Type: application/json
 ### 카드 수정 실패 - 해당 보드 유저가 아님
 PATCH http://localhost:8080/cards/1
 Authorization: {{user1Auth}}
-
 Content-Type: application/json
 
 {
@@ -169,5 +167,5 @@ Content-Type: application/json
 }
 
 ### 카드 삭제
-DELETE http://localhost:8080/cards/5
+DELETE http://localhost:8080/cards/4
 Authorization: {{user1Auth}}

@@ -4,7 +4,7 @@ import b12.trello.domain.card.dto.request.CardCreateRequestDto;
 import b12.trello.domain.card.dto.request.CardListByColumnRequestDto;
 import b12.trello.domain.card.dto.request.CardModifyRequestDto;
 import b12.trello.domain.card.dto.response.CardListByColumnResponseDto;
-import b12.trello.domain.card.dto.response.CardReadResponseDto;
+import b12.trello.domain.card.dto.response.CardFindResponseDto;
 import b12.trello.domain.card.service.CardService;
 import b12.trello.global.response.BasicResponse;
 import b12.trello.global.security.UserDetailsImpl;
@@ -36,8 +36,8 @@ public class CardController {
      * 단일 카드 상세 조회
      */
     @GetMapping("/{cardId}")
-    public ResponseEntity<BasicResponse<CardReadResponseDto>> findCard(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long cardId) {
-        CardReadResponseDto responseDto = cardService.findCard(userDetails.getUser(), cardId);
+    public ResponseEntity<BasicResponse<CardFindResponseDto>> findCard(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long cardId) {
+        CardFindResponseDto responseDto = cardService.findCard(userDetails.getUser(), cardId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BasicResponse.of("카드가 조회되었습니다.", responseDto));
@@ -51,11 +51,12 @@ public class CardController {
 //                .body(BasicResponse.of("선택한 컬럼의 카드가 조회되었습니다.", responseDto));
 //    }
 
+
     /**
      * 컬럼별 카드 리스트 조회 - 사용자 검색 가능
      */
     @GetMapping
-    public ResponseEntity<BasicResponse<CardListByColumnResponseDto>> findCardListByColumn(@AuthenticationPrincipal UserDetailsImpl userDetails, @Valid @RequestBody CardListByColumnRequestDto requestDto, @RequestParam(required = false) String search) {
+    public ResponseEntity<BasicResponse<CardListByColumnResponseDto>> searchCardListByColumn(@AuthenticationPrincipal UserDetailsImpl userDetails, @Valid @RequestBody CardListByColumnRequestDto requestDto, @RequestParam(required = false) String search) {
         CardListByColumnResponseDto responseDto = cardService.searchCardListByColumn(userDetails.getUser(), requestDto, search);
 
         return ResponseEntity.status(HttpStatus.OK)

@@ -63,10 +63,5 @@ public class Card extends TimeStamped {
         if (this.column.getBoard() != column.getBoard()) {
             throw new CardException(CardErrorCode.INVALID_COLUMN_UPDATE);
         }
-        this.column.getBoard().validateBoardStatus();
-    }
-
-    public void updateColumn(String cardName) {
-        this.cardName = cardName;
     }
 }

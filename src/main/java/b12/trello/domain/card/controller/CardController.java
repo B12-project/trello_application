@@ -51,7 +51,6 @@ public class CardController {
 //                .body(BasicResponse.of("선택한 컬럼의 카드가 조회되었습니다.", responseDto));
 //    }
 
-
     /**
      * 컬럼별 카드 리스트 조회 - 사용자 검색 가능
      */

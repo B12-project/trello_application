@@ -1,6 +1,7 @@
 package b12.trello.domain.card.entity;
 
 import b12.trello.domain.column.entity.Columns;
+import b12.trello.domain.comment.entity.Comment;
 import b12.trello.domain.user.entity.User;
 import b12.trello.global.entity.TimeStamped;
 import b12.trello.global.exception.customException.CardException;
@@ -12,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -36,6 +39,9 @@ public class Card extends TimeStamped {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User worker;
+
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
     @Builder
     public Card(String cardName, String cardContents, LocalDate deadline, Columns column, User worker) {

@@ -55,6 +55,7 @@ public class ColumnService {
 
         checkBoard(requestDto.getBoardId());
 
+
         List<ColumnFindResponseDto> columns = columnRepository.findAllByBoardIdOrderByColumnOrderAsc(
             requestDto.getBoardId()).stream().map(ColumnFindResponseDto::new).toList(); //순서 오름차순으로 컬럼조회
 

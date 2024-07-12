@@ -54,8 +54,10 @@ public class BoardService {
         return new BoardResponseDto(board);
     }
 
-    public BoardResponseDto findBoardById(long id) {
-        Board board = boardRepository.findByIdOrElseThrow(id);
+    public BoardResponseDto findBoardById(User user, long boardId) {
+        Board board = boardRepository.findByIdOrElseThrow(boardId);
+        board.checkBoardDeleted();
+        boardUserRepository.verifyBoardUser(board.getId(), user.getId());
         return new BoardResponseDto(board);
     }
 
@@ -69,7 +71,7 @@ public class BoardService {
 
     public BoardResponseDto modifyBoard(BoardRequestDto boardRequestDto, Long boardId, User user) {
         Board board = boardRepository.findByIdOrElseThrow(boardId);
-
+        board.checkBoardDeleted();
         validateManager(board, user);
 
         board.updateBoard(boardRequestDto.getBoardName(), boardRequestDto.getBoardInfo());
@@ -78,13 +80,15 @@ public class BoardService {
         return new BoardResponseDto(board);
     }
 
+    @Transactional
     // TODO: 소프트 딜리트로 변경하기
     public void deleteBoard(Long boardId, User user) {
         Board board = boardRepository.findByIdOrElseThrow(boardId);
 
         validateManager(board, user);
+        board.updateDeletedAt();
 
-        boardRepository.delete(board);
+//        boardRepository.delete(board);
     }
 
     @Transactional

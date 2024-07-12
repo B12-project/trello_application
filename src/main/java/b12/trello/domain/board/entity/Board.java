@@ -2,7 +2,7 @@ package b12.trello.domain.board.entity;
 
 import b12.trello.domain.boardUser.entity.BoardUser;
 import b12.trello.domain.user.entity.User;
-import b12.trello.global.entity.TimeStamped;
+import b12.trello.global.entity.TimeStampedWithDeletedAt;
 import b12.trello.global.exception.customException.BoardException;
 import b12.trello.global.exception.errorCode.BoardErrorCode;
 import jakarta.persistence.*;
@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Board extends TimeStamped {
+public class Board extends TimeStampedWithDeletedAt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

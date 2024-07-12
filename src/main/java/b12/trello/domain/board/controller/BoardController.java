@@ -54,7 +54,7 @@ public class BoardController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("boardId") Long boardId
     ) {
-        BoardResponseDto boardResponseDto = boardService.findBoardById(boardId);
+        BoardResponseDto boardResponseDto = boardService.findBoardById(userDetails.getUser(), boardId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(BasicResponse

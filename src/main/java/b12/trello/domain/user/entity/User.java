@@ -1,20 +1,19 @@
 package b12.trello.domain.user.entity;
 
-import b12.trello.global.entity.TimeStamped;
+import b12.trello.global.entity.TimeStampedWithDeletedAt;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Entity
 @Getter
 @Table(name="users")
 @NoArgsConstructor
-public class User extends TimeStamped {
+public class User extends TimeStampedWithDeletedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

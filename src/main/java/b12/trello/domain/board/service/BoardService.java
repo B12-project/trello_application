@@ -92,7 +92,6 @@ public class BoardService {
         boardRepository.delete(board);
     }
 
-
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -113,14 +112,18 @@ public class BoardService {
         Optional<User> optionalInvitedUser = findByEmail(boardInviteRequestDto.getUserEmail());
         User foundInvitedUser = optionalInvitedUser.orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND.getErrorDescription()));
 
-
         // 이미 초대된 사용자인지 확인
         if (boardUserRepository.existsByBoardAndUser(board, foundInvitedUser)) {
             throw new IllegalArgumentException(USER_ALREADY_INVITED.getErrorDescription());
         }
 
         // 초대된 사용자를 저장
-        BoardUser boardUser = new BoardUser(board, foundInvitedUser, role);
+        BoardUser boardUser = BoardUser.builder()
+                .board(board)
+                .user(foundInvitedUser)
+                .boardUserRole(role)
+                .build();
+
         boardUserRepository.save(boardUser);
     }
 
@@ -131,7 +134,8 @@ public class BoardService {
                 .collect(Collectors.toList());
     }
 
-    // 특정 유저가 참여 있는 보드 조회
+
+    // 특정 유저가 참여 하고 있는 보드 조회
     public List<BoardResponseDto> findBoardListByUser(User user) {
         List<BoardUser> boardUsers = boardUserRepository.findByUser(user);
         return boardUsers.stream()
@@ -148,7 +152,8 @@ public class BoardService {
     }
 
     private void validateManager(Board board, User user) {
-        if (!boardUserRepository.existsByBoardAndUserAndBoardUserRole(board, user, BoardUser.BoardUserRole.MANAGER)) {
+        BoardUser boardUser = boardUserRepository.findByBoardIdAndUserIdOrElseThrow(board.getId(), user.getId());
+        if (boardUser.getBoardUserRole() != BoardUser.BoardUserRole.MANAGER) {
             throw new IllegalArgumentException(BOARD_MANAGER_ONLY.getErrorDescription());
         }
     }

@@ -77,7 +77,7 @@ public class BoardService {
 
         validateManager(board, user);
 
-        board.update(boardRequestDto);
+        board.update(boardRequestDto.getBoardName(), boardRequestDto.getBoardInfo());
         boardRepository.save(board);
 
         return new BoardResponseDto(board);
@@ -98,11 +98,11 @@ public class BoardService {
     }
 
     @Transactional
-    public void inviteUserByEmail(BoardInviteRequestDto boardInviteRequestDto) {
+    public void inviteUserByEmail(BoardInviteRequestDto boardInviteRequestDto, User inviter) {
         Board board = findBoardById(boardInviteRequestDto.getBoardId());
 
         // 매니저만 초대할 수 있는지 확인
-        if (!isManager(boardInviteRequestDto.getInviter())) {
+        if (!isManager(inviter)) {
             throw new IllegalArgumentException(BOARD_MANAGER_ONLY.getErrorDescription());
         }
 
@@ -110,16 +110,17 @@ public class BoardService {
         BoardUser.BoardUserRole role = boardInviteRequestDto.getBoardUserRole();
 
         // 사용자 이메일로 사용자 찾기
-        User invitedUser = findByEmail(boardInviteRequestDto.getInvitedUser().getEmail())
-                .orElseThrow(() -> new IllegalArgumentException(BoardErrorCode.USER_NOT_FOUND.getErrorDescription()));
+        Optional<User> optionalInvitedUser = findByEmail(boardInviteRequestDto.getUserEmail());
+        User foundInvitedUser = optionalInvitedUser.orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND.getErrorDescription()));
+
 
         // 이미 초대된 사용자인지 확인
-        if (boardUserRepository.existsByBoardAndUser(board, invitedUser)) {
+        if (boardUserRepository.existsByBoardAndUser(board, foundInvitedUser)) {
             throw new IllegalArgumentException(USER_ALREADY_INVITED.getErrorDescription());
         }
 
-        // 초대된 사용자 추가
-        BoardUser boardUser = new BoardUser(board, invitedUser, role);
+        // 초대된 사용자를 저장
+        BoardUser boardUser = new BoardUser(board, foundInvitedUser, role);
         boardUserRepository.save(boardUser);
     }
 
@@ -147,9 +148,7 @@ public class BoardService {
     }
 
     private void validateManager(Board board, User user) {
-        BoardUser boardUser = boardUserRepository.findByBoardAndUser(board, user)
-                .orElseThrow(() -> new IllegalArgumentException(BOARD_MANAGER_ONLY.getErrorDescription()));
-        if (boardUser.getBoardUserRole() != BoardUser.BoardUserRole.MANAGER) {
+        if (!boardUserRepository.existsByBoardAndUserAndBoardUserRole(board, user, BoardUser.BoardUserRole.MANAGER)) {
             throw new IllegalArgumentException(BOARD_MANAGER_ONLY.getErrorDescription());
         }
     }

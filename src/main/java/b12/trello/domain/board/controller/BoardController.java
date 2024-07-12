@@ -133,8 +133,11 @@ public class BoardController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody BoardInviteRequestDto boardInviteRequestDto
     ) {
-        // 초대 기능 호출
-        boardService.inviteUserByEmail(boardInviteRequestDto);
+        // userDetails에서 로그인한 사용자 정보 가져오기
+        User inviter = userDetails.getUser();
+
+        // 나머지 로직 처리
+        boardService.inviteUserByEmail(boardInviteRequestDto, inviter);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

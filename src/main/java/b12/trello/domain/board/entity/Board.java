@@ -1,19 +1,13 @@
 package b12.trello.domain.board.entity;
 
-import b12.trello.domain.board.dto.BoardRequestDto;
 import b12.trello.domain.boardUser.entity.BoardUser;
 import b12.trello.domain.user.entity.User;
 import b12.trello.global.entity.TimeStamped;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Entity
@@ -47,9 +41,9 @@ public class Board extends TimeStamped {
         this.manager = manager;
     }
 
-    public void update(BoardRequestDto boardRequestDto) {
-        this.boardName = boardRequestDto.getBoardName();
-        this.boardInfo = boardRequestDto.getBoardInfo();
+    public void update(String boardName, String boardInfo) {
+        this.boardName = boardName;
+        this.boardInfo = boardInfo;
     }
 
     public void addUser(BoardUser boardUser) {
@@ -60,6 +54,6 @@ public class Board extends TimeStamped {
     public void removeUser(BoardUser boardUser) {
         boardUsers.remove(boardUser);
         boardUser.setBoard(null);
+        // 위 줄은 삭제하지 않습니다. BoardUser 엔티티의 관계를 Board 엔티티와의 연결을 해제하는 중요한 단계
     }
 }
-

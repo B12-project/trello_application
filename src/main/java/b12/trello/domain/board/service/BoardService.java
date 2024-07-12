@@ -33,11 +33,22 @@ public class BoardService {
     private final UserRepository userRepository;
 
     public BoardResponseDto createBoard(BoardRequestDto boardRequestDto, User user) {
-        Board board = new Board(boardRequestDto, user);
+        // 보드 생성
+        Board board = Board.builder()
+                .boardName(boardRequestDto.getBoardName())
+                .boardInfo(boardRequestDto.getBoardInfo())
+                .manager(user)
+                .build();
+
         boardRepository.save(board);
 
         // 보드를 생성한 유저를 매니저로 추가
-        BoardUser boardUser = new BoardUser(board, user, BoardUser.BoardUserRole.MANAGER);
+        BoardUser boardUser = BoardUser.builder()
+                .board(board)
+                .user(user)
+                .boardUserRole(BoardUser.BoardUserRole.MANAGER)
+                .build();
+
         boardUserRepository.save(boardUser);
 
         return new BoardResponseDto(board);

@@ -39,9 +39,11 @@ public class Board extends TimeStamped {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardUser> boardUsers = new ArrayList<>();
 
-    public Board(BoardRequestDto boardRequestDto, User manager) {
-        this.boardName = boardRequestDto.getBoardName();
-        this.boardInfo = boardRequestDto.getBoardInfo();
+    // 빌더 패턴 추가
+    @Builder
+    public Board(String boardName, String boardInfo, User manager) {
+        this.boardName = boardName;
+        this.boardInfo = boardInfo;
         this.manager = manager;
     }
 

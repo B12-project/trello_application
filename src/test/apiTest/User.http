@@ -52,7 +52,50 @@ Content-Type: application/json
   "password": "sparta12!@"
 }
 
-> {% client.global.set("USER_TOKEN", response.headers.valueOf("ACCESS_TOKEN_HEADER")); %}
+> {% client.global.set("USER_TOKEN", response.headers.valueOf("Authorization")); %}
+
+### USER 로그아웃
+DELETE http://localhost:8080/users/logout
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+{
+  "email" : "user@gmail.com",
+  "password": "sparta12!@"
+}
+
+### USER 회원탈퇴
+DELETE http://localhost:8080/users/signout
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+{
+  "email" : "user@gmail.com",
+  "password": "sparta12!@"
+}
+
+### User RefreshToken 재발급
+GET http://localhost:8080/refresh/5
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+
+### User Profile 조회
+GET http://localhost:8080/users/profile
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+### User Profile 수정
+PUT http://localhost:8080/users/profile
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+{
+  "email" : "editedUser@gmail.com",
+  "name": "열자안넘는이름입니다"
+}
+
+
 
 
 ### USER 1 로그인
@@ -81,3 +124,22 @@ Content-Type: application/json
 POST http://localhost:8080/bo
 Content-Type: application/json
 ACCESS_TOKEN_HEADER:{{ADMIN_TOKEN}}
+
+### 컬럼 조회
+GET http://localhost:8080/columns
+Authorization:{{USER_TOKEN}}
+Content-Type: application/json
+
+{
+"boardId":1
+}
+
+### 컬럼생성
+POST http://localhost:8080/columns
+Authorization:{{USER_TOKEN}}
+Content-Type: application/json
+
+{
+  "columnName" : "test1",
+  "boardId" : 1
+}

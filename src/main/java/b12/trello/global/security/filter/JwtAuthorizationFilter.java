@@ -1,6 +1,8 @@
 package b12.trello.global.security.filter;
 
 import b12.trello.domain.user.repository.UserRepository;
+import b12.trello.global.exception.customException.UserException;
+import b12.trello.global.exception.errorCode.UserErrorCode;
 import b12.trello.global.security.UserDetailsServiceImpl;
 import b12.trello.global.security.util.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -35,6 +37,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         // AccessToken 가져오기
         String accessToken = jwtUtil.getAccessTokenFromRequest(request);
+        String refreshToken = jwtUtil.getRefreshTokenFromRequest(request);
+
+//        if (refreshToken == null) {
+//            throw new UserException(UserErrorCode.INVALID_REFRESH_TOKEN);
+//        }
 
         // 토큰 값이 있는지 확인
         if(StringUtils.hasText(accessToken)) {

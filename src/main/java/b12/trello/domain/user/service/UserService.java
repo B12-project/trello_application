@@ -1,11 +1,14 @@
 package b12.trello.domain.user.service;
 
+import b12.trello.domain.user.dto.ProfileRequestDto;
+import b12.trello.domain.user.dto.ProfileResponseDto;
 import b12.trello.domain.user.dto.SignupRequestDto;
 import b12.trello.domain.user.dto.SignupResponseDto;
 import b12.trello.domain.user.entity.User;
 import b12.trello.domain.user.repository.UserRepository;
 import b12.trello.global.exception.customException.UserException;
 import b12.trello.global.exception.errorCode.UserErrorCode;
+import b12.trello.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -47,4 +50,34 @@ public class UserService {
 
         return SignupResponseDto.of(newUser);
     }
+
+    public SignupResponseDto signOut(User user) {
+        SignupResponseDto signupResponseDto = SignupResponseDto.of(user);
+        user.signOut();
+        userRepository.save(user);
+        return signupResponseDto;
+    }
+
+    public SignupResponseDto logOut(User user) {
+        SignupResponseDto signupResponseDto = SignupResponseDto.of(user);
+        user.logOut();
+        userRepository.save(user);
+        return signupResponseDto;
+    }
+
+
+    public ProfileResponseDto getProfile(User user) {
+        return ProfileResponseDto.of(user);
+    }
+
+    public ProfileResponseDto updateProfile(User user, ProfileRequestDto requestDto) {
+        if (userRepository.findByEmail(requestDto.getEmail()).isPresent()) {
+            throw new UserException(UserErrorCode.EMAIL_DUPLICATED);
+        }
+        user.updateProfile(requestDto.getEmail(), requestDto.getName());
+        userRepository.save(user);
+        return ProfileResponseDto.of(user);
+    }
+
+
 }

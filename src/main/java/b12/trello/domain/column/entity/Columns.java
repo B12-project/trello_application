@@ -4,12 +4,14 @@ import b12.trello.domain.board.entity.Board;
 import b12.trello.domain.card.entity.Card;
 import b12.trello.global.entity.TimeStamped;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 @Getter
 @NoArgsConstructor
@@ -20,9 +22,11 @@ public class Columns extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long columnId;
 
+    @Setter
     @Column(nullable = false)
     private String columnName;
 
+    @Setter
     @Column(nullable = false)
     private Long columnOrder;
 
@@ -34,12 +38,11 @@ public class Columns extends TimeStamped {
     private List<Card> cards = new ArrayList<>();
 
     @Builder
-    public Columns(String columnName, Long columnOrder, Board board){
+    public Columns(String columnName, Board board, Long order){
         this.columnName = columnName;
-        this.columnOrder = columnOrder;
         this.board = board;
+        this.columnOrder = order;
     }
-
 
 
 }

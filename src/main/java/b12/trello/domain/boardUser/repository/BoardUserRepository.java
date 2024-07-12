@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BoardUserRepository extends JpaRepository<BoardUser, Long> {
+
     boolean existsByBoardAndUser(Board board, User user);
+
     boolean existsByUserAndBoardUserRole(User user, BoardUser.BoardUserRole boardUserRole);  // 추가
 
     List<BoardUser> findByUser(User user);
@@ -25,7 +27,8 @@ public interface BoardUserRepository extends JpaRepository<BoardUser, Long> {
     Boolean existsBoardUserByBoardIdAndUserId(Long boardId, Long userId);
 
     default BoardUser findByBoardIdAndUserIdOrElseThrow(Long boardId, Long userId) {
-        return findByBoardIdAndUserId(boardId, userId).orElseThrow(() -> new BoardUserException(BoardUserErrorCode.BOARD_USER_NOT_FOUND));
+        return findByBoardIdAndUserId(boardId, userId)
+            .orElseThrow(() -> new BoardUserException(BoardUserErrorCode.BOARD_USER_NOT_FOUND));
     }
 
     default void validateBoardUser(Long boardId, Long userId) {

@@ -9,6 +9,7 @@ import b12.trello.domain.card.dto.response.CardListByColumnResponseDto;
 import b12.trello.domain.card.dto.response.CardReadResponseDto;
 import b12.trello.domain.card.entity.Card;
 import b12.trello.domain.card.repository.CardRepository;
+import b12.trello.domain.card.repository.CardSearchCond;
 import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.column.repository.ColumnRepository;
 import b12.trello.domain.user.entity.User;
@@ -19,6 +20,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+import static b12.trello.domain.card.repository.CardSearchCond.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,8 +32,10 @@ public class CardService {
     private final ColumnRepository columnRepository;
     private final CardRepository cardRepository;
 
+
+
     @Transactional
-    public void createCard(CardCreateRequestDto requestDto) {
+    public void createCard(User user, CardCreateRequestDto requestDto) {
         // 컬럼이 존재하는지 확인
         Columns column = validateAndGetColumnById(requestDto.getColumnId());
 
@@ -37,7 +44,8 @@ public class CardService {
         board.validateBoardStatus();
 
         // 요청한 유저가 해당 보드의 참여자인지 검증
-//        User requestUser = boardUserService.findBoardUser(boardId, user.getId());
+        boardUserService.findBoardUser(board.getId(), user.getId());
+
         User worker = null;
 
         if (requestDto.getUserId() != null) {
@@ -56,24 +64,46 @@ public class CardService {
         cardRepository.save(newCard);
     }
 
-    public CardReadResponseDto findCard(Long cardId) {
+    public CardReadResponseDto findCard(User user, Long cardId) {
         Card card = validateAndGetCardById(cardId);
         return CardReadResponseDto.of(card);
     }
 
-    public CardListByColumnResponseDto findCardListByColumn(CardListByColumnRequestDto requestDto) {
+    public CardListByColumnResponseDto findCardListByColumn(User user, CardListByColumnRequestDto requestDto) {
         Columns column = validateAndGetColumnById(requestDto.getColumnId());
         Board board = column.getBoard();
         board.validateBoardStatus();
 
-//        // 요청한 유저가 해당 보드의 참여자인지 검증
-//        User requestUser = boardUserService.findBoardUser(boardId, user.getId());
+        // 요청한 유저가 해당 보드의 참여자인지 검증
+        boardUserService.findBoardUser(board.getId(), user.getId());
 
         return CardListByColumnResponseDto.of(column);
     }
 
+    public CardListByColumnResponseDto searchCardListByColumn(User user, CardListByColumnRequestDto requestDto, String search) {
+        Columns column = validateAndGetColumnById(requestDto.getColumnId());
+        Board board = column.getBoard();
+        board.validateBoardStatus();
+
+        // 요청한 유저가 해당 보드의 참여자인지 검증
+        boardUserService.findBoardUser(board.getId(), user.getId());
+        CardSearchCond.CardSearchCondBuilder cond = CardSearchCond.builder();
+
+        switch (search != null ? search : COND_NULL) {
+            case COND_WORKER_ID:
+                cond.workerId(requestDto.getWorkerId());
+            case COND_WORKER_EMAIL :
+                cond.workerEmail(requestDto.getWorkerEmail());
+            default:
+                cond.columnId(column.getColumnId());
+        }
+
+        List<Card> cardList = cardRepository.searchCards(cond.build());
+        return CardListByColumnResponseDto.of(column, cardList);
+    }
+
     @Transactional
-    public void modifyCard(Long cardId, CardModifyRequestDto requestDto) {
+    public void modifyCard(User user, Long cardId, CardModifyRequestDto requestDto) {
         // 카드가 존재하는지 확인
         Card card = validateAndGetCardById(cardId);
         card.updateColumn(requestDto.getCardName());
@@ -88,7 +118,7 @@ public class CardService {
         card.validateColumnAndBoard(column);
 
         // 요청한 유저가 해당 보드의 참여자인지 검증 (시큐리티 이후)
-//        User requestUser = boardUserService.findBoardUser(board.getId(), user.getId());
+        boardUserService.findBoardUser(column.getBoard().getId(), user.getId());
 
         // 작업자를 없앨 수도 있기 때문에 null로 설정
         User worker = null;
@@ -110,13 +140,13 @@ public class CardService {
     }
 
     @Transactional
-    public void deleteCard(Long cardId) {
+    public void deleteCard(User user, Long cardId) {
         Card card = validateAndGetCardById(cardId);
         Board board = card.getColumn().getBoard();
         board.validateBoardStatus();
 
-        // 요청한 유저가 해당 보드의 참여자인지 검증 (시큐리티 이후)
-//        User requestUser = boardUserService.findBoardUser(board.getId(), user.getId());
+        boardUserService.findBoardUser(board.getId(), user.getId());
+
         cardRepository.delete(card);
     }
 

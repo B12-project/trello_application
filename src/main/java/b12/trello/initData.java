@@ -7,8 +7,10 @@ import b12.trello.domain.user.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 
@@ -16,6 +18,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class initData {
     private final EntityManager entityManager;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
@@ -26,19 +31,19 @@ public class initData {
         User user1 = User.builder()
                 .email("test1@mail.com")
                 .name("test1")
-                .password("testPassword!")
+                .password(passwordEncoder.encode("testPassword!"))
                 .auth(User.UserAuth.USER)
                 .build();
         User user2 = User.builder()
                 .email("test2@mail.com")
                 .name("test2")
-                .password("testPassword!")
+                .password(passwordEncoder.encode("testPassword!"))
                 .auth(User.UserAuth.USER)
                 .build();
         User user3 = User.builder()
                 .email("test3@mail.com")
                 .name("test3")
-                .password("testPassword!")
+                .password(passwordEncoder.encode("testPassword!"))
                 .auth(User.UserAuth.USER)
                 .build();
         save(user1, user2, user3);

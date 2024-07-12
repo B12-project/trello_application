@@ -54,6 +54,29 @@ Content-Type: application/json
 
 > {% client.global.set("USER_TOKEN", response.headers.valueOf("ACCESS_TOKEN_HEADER")); %}
 
+
+### USER 1 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "email" : "test1@mail.com",
+  "password": "testPassword!"
+}
+
+> {% client.global.set("user1Auth", response.headers.valueOf("Authorization")); %}
+
+### USER 2 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "email" : "test2@mail.com",
+  "password": "testPassword!"
+}
+
+> {% client.global.set("user2Auth", response.headers.valueOf("Authorization")); %}
+
 ### 보드 생성
 POST http://localhost:8080/bo
 Content-Type: application/json

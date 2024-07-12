@@ -2,6 +2,7 @@ package b12.trello.domain.card.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -16,6 +17,6 @@ public class CardModifyRequestDto {
     private String cardContents;
     private Long workerId;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate deadline;
+    @Pattern(message = "yyyy-MM-dd 형식으로 작성해주세요.", regexp = "^(19|20)\\d\\d-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$")
+    private String deadline;
 }

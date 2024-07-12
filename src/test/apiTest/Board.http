@@ -1,6 +1,6 @@
 ### 보드 등록
 POST http://localhost:8080/boards
-Authorization: {{USER_TOKEN}}
+Authorization: {{USER1_TOKEN}}
 Content-Type: application/json
 
 {
@@ -10,23 +10,23 @@ Content-Type: application/json
 
 ### 보드들 전체 조회
 GET http://localhost:8080/boards
-Authorization: {{USER_TOKEN}}
+Authorization: {{USER1_TOKEN}}
 
 ### 특정 boardId를 이용한 보드 상세 조회
 GET http://localhost:8080/boards/1
-Authorization: {{USER_TOKEN}}
+Authorization: {{USER1_TOKEN}}
 
 ### 로그인 된 유저가 참여중인 보드 전체 조회
 GET http://localhost:8080/boards/invitation
-Authorization: {{USER_TOKEN}}
+Authorization: {{USER1_TOKEN}}
 
 ### 로그인 된 유저가 매니저인 경우 매니징하고 있는 전체 보드 조회
 GET http://localhost:8080/boards/manager
-Authorization: {{USER_TOKEN}}
+Authorization: {{USER1_TOKEN}}
 
 ### 보드 수정
 PUT http://localhost:8080/boards/1
-Authorization: {{USER_TOKEN}}
+Authorization: {{USER1_TOKEN}}
 Content-Type: application/json
 
 {
@@ -36,19 +36,19 @@ Content-Type: application/json
 
 ### 보드 삭제
 DELETE http://localhost:8080/boards/1
-Authorization: {{USER_TOKEN}}
+Authorization: {{USER1_TOKEN}}
 
 ### 매니저가 초대할 유저 조회
 GET http://localhost:8080/boards/search/users
-Authorization: {{USER_TOKEN}}
+Authorization: {{USER1_TOKEN}}
 
 ### 보드로 사용자 초대해서 참여자로 만들기
 POST http://localhost:8080/boards/invitation
-Authorization: {{USER_TOKEN}}
+Authorization: {{USER1_TOKEN}}
 Content-Type: application/json
 
 {
   "boardId": 1,
-  "userEmail": "test1@mail.com",
+  "userEmail": "user2@gmail.com",
   "boardUserRole": "INVITEE"
 }

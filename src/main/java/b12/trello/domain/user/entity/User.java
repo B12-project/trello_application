@@ -45,11 +45,7 @@ public class User extends TimeStamped {
     }
 
     public void signOut() {
-        //this.auth = UserAuth.DELETED;
-        // 타임스탬프로 딜리트 시간 넣기
-        this.setDeletedAt(LocalDateTime.now());
-        System.out.println(LocalDateTime.now());
-        System.out.println(this.getDeletedAt());
+        updateDeletedAt();
         this.refreshToken = null;
     }
 

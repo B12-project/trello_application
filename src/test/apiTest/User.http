@@ -41,7 +41,7 @@ Content-Type: application/json
   "password": "sparta12!@"
 }
 
-> {% client.global.set("ADMIN_TOKEN", response.headers.valueOf("Authorization")); %}
+> {% client.global.set("ADMIN_TOKEN", response.headers.valueOf("ACCESS_TOKEN_HEADER")); %}
 
 ### USER 로그인
 POST http://localhost:8080/users/login
@@ -100,4 +100,23 @@ Authorization:{{USER_TOKEN}}
 ### 보드 생성
 POST http://localhost:8080/bo
 Content-Type: application/json
-Authorization:{{ADMIN_TOKEN}}
+ACCESS_TOKEN_HEADER:{{ADMIN_TOKEN}}
+
+### 컬럼 조회
+GET http://localhost:8080/columns
+Authorization:{{USER_TOKEN}}
+Content-Type: application/json
+
+{
+"boardId":1
+}
+
+### 컬럼생성
+POST http://localhost:8080/columns
+Authorization:{{USER_TOKEN}}
+Content-Type: application/json
+
+{
+  "columnName" : "test1",
+  "boardId" : 1
+}

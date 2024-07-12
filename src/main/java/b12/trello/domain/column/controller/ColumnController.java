@@ -4,6 +4,7 @@ import b12.trello.domain.column.dto.ColumnCreateRequestDto;
 import b12.trello.domain.column.dto.ColumnFindResponseDto;
 import b12.trello.domain.column.dto.ColumnFindRequestDto;
 import b12.trello.domain.column.dto.ColumnModifyRequestDto;
+import b12.trello.domain.column.dto.ColumnOrderModifyRequestDto;
 import b12.trello.domain.column.service.ColumnService;
 import b12.trello.global.response.BasicResponse;
 import java.util.List;
@@ -61,10 +62,10 @@ public class ColumnController {
         return ResponseEntity.status(HttpStatus.CREATED).body(BasicResponse.of("컬럼 삭제 완료"));
     }
     //컬럼 순서 변경
-    @PatchMapping("/{columnId}/{order}")
-    public ResponseEntity<BasicResponse<Void>> modifyColumnOrder(@PathVariable Long columnId, @PathVariable Long order) {
+    @PatchMapping("/{columnId}/order")
+    public ResponseEntity<BasicResponse<Void>> modifyColumnOrder(@PathVariable Long columnId, @RequestBody ColumnOrderModifyRequestDto requestDto) {
 
-        columnService.modifyColumnOrder(columnId, order);
+        columnService.modifyColumnOrder(columnId, requestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(BasicResponse.of("컬럼 순서 변경 완료"));
     }

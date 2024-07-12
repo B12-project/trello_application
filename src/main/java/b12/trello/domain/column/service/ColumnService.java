@@ -7,6 +7,7 @@ import b12.trello.domain.column.dto.ColumnCreateRequestDto;
 import b12.trello.domain.column.dto.ColumnFindResponseDto;
 import b12.trello.domain.column.dto.ColumnFindRequestDto;
 import b12.trello.domain.column.dto.ColumnModifyRequestDto;
+import b12.trello.domain.column.dto.ColumnOrderModifyRequestDto;
 import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.column.repository.ColumnRepository;
 import b12.trello.global.exception.customException.column.BoardNotFoundException;
@@ -89,7 +90,9 @@ public class ColumnService {
 
 
     @Transactional
-    public void modifyColumnOrder(Long columnId, Long newOrder) {
+    public void modifyColumnOrder(Long columnId, ColumnOrderModifyRequestDto requestDto) {
+
+        Long newOrder = requestDto.getOrderId();
 
         Columns columns = columnRepository.findById(columnId)
             .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));

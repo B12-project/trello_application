@@ -1,9 +1,6 @@
 package b12.trello.domain.user.controller;
 
-import b12.trello.domain.user.dto.ProfileRequestDto;
-import b12.trello.domain.user.dto.ProfileResponseDto;
-import b12.trello.domain.user.dto.SignupRequestDto;
-import b12.trello.domain.user.dto.SignupResponseDto;
+import b12.trello.domain.user.dto.*;
 import b12.trello.domain.user.service.UserService;
 import b12.trello.global.response.BasicResponse;
 import b12.trello.global.security.UserDetailsImpl;
@@ -63,8 +60,9 @@ public class UserController {
 
     @PutMapping("/password")
     public ResponseEntity<BasicResponse<SignupResponseDto>> updatePassword(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                           @Valid  @RequestBody SignupRequestDto requestDto) {
-        SignupResponseDto responseDto = userService.updatePassword(userDetails.getUser(), requestDto);
+                                                                           @Valid @RequestBody PasswordRequestDto requestDto) {
+        SignupResponseDto responseDto = null;
+        userService.updatePassword(userDetails.getUser(), requestDto);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BasicResponse.of(HttpStatus.OK.value(), "비밀번호를 수정했습니다.", responseDto));

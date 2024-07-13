@@ -59,13 +59,12 @@ public class UserController {
     }
 
     @PutMapping("/password")
-    public ResponseEntity<BasicResponse<SignupResponseDto>> updatePassword(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<BasicResponse<Void>> updatePassword(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                            @Valid @RequestBody PasswordRequestDto requestDto) {
-        SignupResponseDto responseDto = null;
         userService.updatePassword(userDetails.getUser(), requestDto);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(BasicResponse.of(HttpStatus.OK.value(), "비밀번호를 수정했습니다.", responseDto));
+                .body(BasicResponse.of(HttpStatus.OK.value(), "비밀번호를 수정했습니다."));
     }
 
 }

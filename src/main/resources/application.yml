@@ -7,7 +7,6 @@ spring:
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   sql:
     init:
@@ -25,9 +24,5 @@ spring:
           characterEncoding: utf-8
           useUnicode: true
 
-jwt:
-  secret:
-    key: ${JWT-SECRET-KEY}
-
 server:
- port: ${SERVER_PORT:8080}
+  port: 8080

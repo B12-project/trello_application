@@ -1,9 +1,6 @@
 package b12.trello.domain.user.service;
 
-import b12.trello.domain.user.dto.ProfileRequestDto;
-import b12.trello.domain.user.dto.ProfileResponseDto;
-import b12.trello.domain.user.dto.SignupRequestDto;
-import b12.trello.domain.user.dto.SignupResponseDto;
+import b12.trello.domain.user.dto.*;
 import b12.trello.domain.user.entity.User;
 import b12.trello.domain.user.repository.UserRepository;
 import b12.trello.global.exception.customException.UserException;
@@ -12,6 +9,9 @@ import b12.trello.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
+import java.util.Optional;
 
 
 @Service
@@ -71,13 +71,22 @@ public class UserService {
     }
 
     public ProfileResponseDto updateProfile(User user, ProfileRequestDto requestDto) {
-        if (userRepository.findByEmail(requestDto.getEmail()).isPresent()) {
-            throw new UserException(UserErrorCode.EMAIL_DUPLICATED);
-        }
-        user.updateProfile(requestDto.getEmail(), requestDto.getName());
+        user.updateProfile(requestDto.getName());
         userRepository.save(user);
         return ProfileResponseDto.of(user);
     }
 
 
+    public void updatePassword(User user, PasswordRequestDto requestDto) {
+
+        // 동일한 비밀번호로 변경 할 수 없음
+        // 그런데 encode 된 비밀번호가 평문은 같아도 비문이 다른 것 같음...
+        if (passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+            throw new UserException(UserErrorCode.PASSWORD_DUPLICATED);
+        }
+
+        String encodedPassword = passwordEncoder.encode((requestDto.getPassword()));
+        user.updatePassword(Optional.ofNullable(encodedPassword));
+        userRepository.save(user);
+    }
 }

@@ -19,7 +19,6 @@ import b12.trello.global.exception.errorCode.CardErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -97,7 +96,6 @@ public class CardService {
         // 카드가 존재하는지 확인
         Card card = getValidatedCardAndCheckBoardUser(user, cardId);
         Columns column = card.getColumn();
-        checkBoardStatusAndBoardUser(user, column);
 
         if (requestDto.getColumnId() != null) {
             column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
@@ -128,8 +126,8 @@ public class CardService {
     @Transactional
     public void modifyCardColumn(User user, Long cardId, CardColumnModifyRequestDto requestDto) {
         Card card = getValidatedCardAndCheckBoardUser(user, cardId);
-        checkBoardStatusAndBoardUser(user, card.getColumn());
         Columns column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
+        card.validateColumnAndBoard(column);
         card.updateCardColumn(column);
     }
 

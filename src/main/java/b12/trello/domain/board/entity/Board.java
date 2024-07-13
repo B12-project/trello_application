@@ -7,6 +7,7 @@ import b12.trello.global.exception.customException.BoardException;
 import b12.trello.global.exception.errorCode.BoardErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE board SET deleted_at = CURRENT_TIMESTAMP where id = ?")
 public class Board extends TimeStampedWithDeletedAt {
 
     @Id

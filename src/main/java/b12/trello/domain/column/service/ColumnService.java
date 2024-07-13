@@ -66,7 +66,7 @@ public class ColumnService {
     public void modifyColumn(User user, Long columnId, ColumnModifyRequestDto requestDto) {
 
         Columns columns = columnRepository.findByIdOrElseThrow(columnId);
-
+        columns.getBoard().checkBoardDeleted();
         validateManager(columns.getBoard(), user);
 
         columnRepository.existsByColumnNameAndBoardIdOrElseThrow(requestDto.getColumnName(), columns.getBoard().getId());
@@ -76,12 +76,12 @@ public class ColumnService {
         columnRepository.save(columns);
     }
 
-    //컬럼 삭제
+    // 컬럼 삭제
     @Transactional
     public void deleteColumn(User user, Long columnId) {
 
         Columns columns = columnRepository.findByIdOrElseThrow(columnId);
-
+        columns.getBoard().checkBoardDeleted();
         validateManager(columns.getBoard(), user);
 
         columnRepository.deleteById(columnId); //컬럼 삭제
@@ -101,10 +101,12 @@ public class ColumnService {
         Long newOrder = requestDto.getOrderId();
 
         Columns columns = columnRepository.findByIdOrElseThrow(columnId);
+        Board board = columns.getBoard();
+        board.checkBoardDeleted();
 
-        validateManager(columns.getBoard(), user);
+        validateManager(board, user);
 
-        Long boardId = columns.getBoard().getId();
+        Long boardId = board.getId();
 
         // valid 순서인지 확인
         Long maxOrder = columnRepository.countByBoardId(boardId) - 1;

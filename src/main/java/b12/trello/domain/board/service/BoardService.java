@@ -64,6 +64,7 @@ public class BoardService {
     public List<BoardResponseDto> findAll() {
         List<Board> boardlist = boardRepository.findAll();
         return boardlist.stream()
+                .filter(board -> board.getDeletedAt() == null)
                 .sorted(Comparator.comparing(Board::getCreatedAt).reversed())
                 .map(BoardResponseDto::new)
                 .collect(Collectors.toList());
@@ -84,10 +85,10 @@ public class BoardService {
     // TODO: 소프트 딜리트로 변경하기
     public void deleteBoard(Long boardId, User user) {
         Board board = boardRepository.findByIdOrElseThrow(boardId);
-
+        board.checkBoardDeleted();
         validateManager(board, user);
-        board.updateDeletedAt();
-
+//        board.updateDeletedAt();
+        boardRepository.deleteById(boardId);
 //        boardRepository.delete(board);
     }
 
@@ -121,32 +122,39 @@ public class BoardService {
     }
 
     public List<String> findAllUserEmailList() {
-        return userRepository.findAll().stream()
+        return userRepository.findAllByDeletedAtIsNull().stream()
                 .map(User::getEmail)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // 특정 유저가 참여 하고 있는 보드 조회
     public List<BoardResponseDto> findBoardListByUser(User user) {
         List<BoardUser> boardUsers = boardUserRepository.findByUser(user);
-        return boardUsers.stream()
-                .map(boardUser -> new BoardResponseDto(boardUser.getBoard()))
-                .collect(Collectors.toList());
+        return convertToBoardResponseDtoList(boardUsers);
     }
 
     // 특정 유저가 매니징 하고 있는 보드 조회
     public List<BoardResponseDto> findBoardListManagedByUser(User user) {
         List<BoardUser> boardUsers = boardUserRepository.findByUserAndBoardUserRole(user, BoardUser.BoardUserRole.MANAGER);
-        return boardUsers.stream()
-                .map(boardUser -> new BoardResponseDto(boardUser.getBoard()))
-                .collect(Collectors.toList());
+        return convertToBoardResponseDtoList(boardUsers);
     }
 
+    // ColumnService에서 동일하게 사용되고 있는 로직
+    // BoardUserRepository에 default Method로 정의하는 방법
     private void validateManager(Board board, User user) {
         BoardUser boardUser = boardUserRepository.findByBoardIdAndUserIdOrElseThrow(board.getId(), user.getId());
         if (boardUser.getBoardUserRole() != BoardUser.BoardUserRole.MANAGER) {
             throw new BoardException(BOARD_MANAGER_ONLY);
         }
+    }
+
+    private List<BoardResponseDto> convertToBoardResponseDtoList(List<BoardUser> boardUsers) {
+        return boardUsers.stream()
+                .map(BoardUser::getBoard)
+                .filter(board -> board.getDeletedAt() == null)
+                .sorted(Comparator.comparing(Board::getCreatedAt).reversed())
+                .map(BoardResponseDto::new)
+                .collect(Collectors.toList());
     }
 
 //    private boolean isManager(User user) {

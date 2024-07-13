@@ -14,6 +14,7 @@ import b12.trello.domain.card.repository.CardSearchCond;
 import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.column.repository.ColumnRepository;
 import b12.trello.domain.user.entity.User;
+import b12.trello.domain.user.repository.UserRepository;
 import b12.trello.global.exception.customException.CardException;
 import b12.trello.global.exception.errorCode.CardErrorCode;
 import jakarta.transaction.Transactional;
@@ -35,6 +36,7 @@ public class CardService {
     private final BoardUserRepository boardUserRepository;
     private final ColumnRepository columnRepository;
     private final CardRepository cardRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public void createCard(User user, CardCreateRequestDto requestDto) {
@@ -47,6 +49,7 @@ public class CardService {
         if (requestDto.getUserId() != null) {
             // 작업자가 해당 보드의 참여자인지 검증
             worker = boardUserRepository.findByBoardIdAndUserIdOrElseThrow(column.getBoard().getId(), requestDto.getUserId()).getUser();
+            userRepository.verifyUserStatus(worker.getId());
         }
 
         Card newCard = Card.builder()
@@ -103,6 +106,7 @@ public class CardService {
         User worker = null;
         if (requestDto.getWorkerId() != null) {
             worker = boardUserRepository.findByBoardIdAndUserIdOrElseThrow(column.getBoard().getId(), requestDto.getWorkerId()).getUser();
+            userRepository.verifyUserStatus(worker.getId());
         }
 
         card.updateCard(

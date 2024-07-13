@@ -12,10 +12,6 @@ import java.util.Optional;
 
 public interface BoardUserRepository extends JpaRepository<BoardUser, Long> {
 
-    boolean existsByBoardAndUser(Board board, User user);
-
-//    boolean existsByUserAndBoardUserRole(User user, BoardUser.BoardUserRole boardUserRole);  // 추가
-
     List<BoardUser> findByUser(User user);
 
     List<BoardUser> findByUserAndBoardUserRole(User user, BoardUser.BoardUserRole boardUserRole);

@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     Optional<User> findByEmailAndDeletedAtIsNull(String email);
+    boolean existsUserByIdAndDeletedAtIsNull(Long userId);
     Optional<User> findByName(String username);
 
     List<User> findAllByDeletedAtIsNull();
@@ -18,5 +19,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     default User findByEmailOrElseThrow(String email) {
         return findByEmailAndDeletedAtIsNull(email).orElseThrow(() ->
                 new UserException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    default void verifyUserStatus(Long userId) {
+        if(!existsUserByIdAndDeletedAtIsNull(userId)) {
+            throw new UserException(UserErrorCode.SIGN_OUT_USER);
+        }
     }
 }

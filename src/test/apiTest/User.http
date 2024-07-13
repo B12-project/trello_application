@@ -25,7 +25,7 @@ POST http://localhost:8080/users/signup
 Content-Type: application/json
 
 {
-  "email" : "user",
+  "email" : "user@gmail.com",
   "password": "sparta12!@",
   "name" : "user"
 }
@@ -41,16 +41,16 @@ Content-Type: application/json
 
 > {% client.global.set("ADMIN_TOKEN", response.headers.valueOf("Authorization")); %}
 
-### USER 1 로그인
+### USER 로그인
 POST http://localhost:8080/users/login
 Content-Type: application/json
 
 {
-  "email" : "user1@gmail.com",
+  "email" : "user@gmail.com",
   "password": "sparta12!@"
 }
 
-> {% client.global.set("USER1_TOKEN", response.headers.valueOf("Authorization")); %}
+> {% client.global.set("USER_TOKEN", response.headers.valueOf("Authorization")); %}
 
 ### USER 2 로그인
 POST http://localhost:8080/users/login
@@ -99,7 +99,7 @@ Authorization:{{USER1_TOKEN}}
 ### User Profile 수정
 PUT http://localhost:8080/users/profile
 Content-Type: application/json
-Authorization:{{USER1_TOKEN}}
+Authorization:{{USER_TOKEN}}
 
 {
   "email" : "user1@gmail.com",
@@ -109,10 +109,10 @@ Authorization:{{USER1_TOKEN}}
 ### User Password 수정
 PUT http://localhost:8080/users/password
 Content-Type: application/json
-Authorization:{{USER1_TOKEN}}
+Authorization:{{USER_TOKEN}}
 
 {
-  "password": ""
+  "password": "sparta12!@"
 }
 
 

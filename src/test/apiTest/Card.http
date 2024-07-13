@@ -4,9 +4,9 @@ Authorization: {{USER1_TOKEN}}
 Content-Type: application/json
 
 {
-  "columnId": 1,
+  "columnId": 8,
   "cardName": "cardName_3225c6b9ca08",
-  "userId": 3,
+  "userId": 2,
   "deadline": "2024-07-11"
 }
 

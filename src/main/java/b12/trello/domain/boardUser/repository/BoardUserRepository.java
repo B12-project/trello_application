@@ -37,7 +37,7 @@ public interface BoardUserRepository extends JpaRepository<BoardUser, Long> {
     // 이미 보드 참여자인 경우
     default void verifyNotBoardUser(Long boardId, Long userId) {
         if (existsBoardUserByBoardIdAndUserId(boardId, userId)) {
-            throw new BoardUserException(BoardUserErrorCode.BOARD_USER_FORBIDDEN);
+            throw new BoardUserException(BoardUserErrorCode.BOARD_USER_DUPLICATED);
         }
     }
 }

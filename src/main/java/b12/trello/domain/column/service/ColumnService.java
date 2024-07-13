@@ -151,6 +151,4 @@ public class ColumnService {
             throw new ColumnException(ColumnErrorCode.BOARD_MANAGER_ONLY);
         }
     }
-
-
 }

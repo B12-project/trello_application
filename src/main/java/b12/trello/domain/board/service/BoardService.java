@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static b12.trello.global.exception.errorCode.BoardErrorCode.*;
@@ -150,11 +149,4 @@ public class BoardService {
                 .collect(Collectors.toList());
     }
 
-//    private boolean isManager(User user) {
-//        return boardUserRepository.existsByUserAndBoardUserRole(user, BoardUser.BoardUserRole.MANAGER);
-//    }
-//
-//    private boolean isBoardMember(Board board, User user) {
-//        return boardUserRepository.existsByBoardAndUser(board, user);
-//    }
 }

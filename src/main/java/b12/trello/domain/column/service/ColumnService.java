@@ -3,6 +3,7 @@ package b12.trello.domain.column.service;
 import b12.trello.domain.board.entity.Board;
 import b12.trello.domain.board.repository.BoardRepository;
 import b12.trello.domain.boardUser.entity.BoardUser;
+import b12.trello.domain.boardUser.entity.BoardUser.BoardUserRole;
 import b12.trello.domain.boardUser.repository.BoardUserRepository;
 import b12.trello.domain.column.dto.ColumnCreateRequestDto;
 import b12.trello.domain.column.dto.ColumnFindResponseDto;
@@ -51,10 +52,11 @@ public class ColumnService {
     }
 
     //컬럼 조회
-    public List<ColumnFindResponseDto> findColumns(ColumnFindRequestDto requestDto) {
+    public List<ColumnFindResponseDto> findColumns(User user, ColumnFindRequestDto requestDto) {
 
-        checkBoard(requestDto.getBoardId());
+        Board board = checkBoard(requestDto.getBoardId());
 
+        boardUserRepository.verifyBoardUser(board.getId(), user.getId()); // 보드 유저인지 확인
 
         List<ColumnFindResponseDto> columns = columnRepository.findAllByBoardIdOrderByColumnOrderAsc(
             requestDto.getBoardId()).stream().map(ColumnFindResponseDto::new).toList(); //순서 오름차순으로 컬럼조회
@@ -153,5 +155,6 @@ public class ColumnService {
             throw new InvalidUserException(ColumnErrorCode.BOARD_MANAGER_ONLY);
         }
     }
+
 
 }

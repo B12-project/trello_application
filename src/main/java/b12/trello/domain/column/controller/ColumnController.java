@@ -46,9 +46,10 @@ public class ColumnController {
     //컬럼 목록 조회
     @GetMapping
     public ResponseEntity<BasicResponse<List<ColumnFindResponseDto>>> findColumns(
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestBody ColumnFindRequestDto requestDto) {
 
-        List<ColumnFindResponseDto> responseDto = columnService.findColumns(requestDto);
+        List<ColumnFindResponseDto> responseDto = columnService.findColumns(userDetails.getUser(), requestDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼목록", responseDto));
     }

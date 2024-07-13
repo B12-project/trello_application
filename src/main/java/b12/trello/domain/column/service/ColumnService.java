@@ -12,8 +12,8 @@ import b12.trello.domain.column.dto.ColumnOrderModifyRequestDto;
 import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.column.repository.ColumnRepository;
 import b12.trello.domain.user.entity.User;
-import b12.trello.global.exception.customException.ColumnException;
 import b12.trello.global.exception.errorCode.ColumnErrorCode;
+import b12.trello.global.exception.customException.ColumnException;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,9 @@ public class ColumnService {
     public void createColumn(User user, ColumnCreateRequestDto requestDto) {
 
         Board board = checkBoard(requestDto.getBoardId());
+
         validateManager(board, user);
+
         columnRepository.existsByColumnNameAndBoardIdOrElseThrow(requestDto.getColumnName(), requestDto.getBoardId());
 
         Long columnOrder = columnRepository.countByBoardId(requestDto.getBoardId()); //컬럼 마지막 순서 계산

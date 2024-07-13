@@ -60,6 +60,7 @@ Content-Type: application/json
   "name" : "user"
 }
 
+
 ### ADMIN 로그인
 POST http://localhost:8080/users/login
 Content-Type: application/json
@@ -123,7 +124,7 @@ Authorization:{{USER1_TOKEN}}
 ### USER 회원탈퇴
 DELETE http://localhost:8080/users/signout
 Content-Type: application/json
-Authorization:{{USER3_TOKEN}}
+Authorization:{{USER1_TOKEN}}
 
 
 ### User RefreshToken 재발급

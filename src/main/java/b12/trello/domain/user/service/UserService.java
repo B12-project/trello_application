@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -73,13 +76,19 @@ public class UserService {
     }
 
     public ProfileResponseDto updateProfile(User user, ProfileRequestDto requestDto) {
-        if (userRepository.findByEmail(requestDto.getEmail()).isPresent()) {
-            throw new UserException(UserErrorCode.EMAIL_DUPLICATED);
-        }
-        user.updateProfile(requestDto.getEmail(), requestDto.getName());
+        user.updateProfile(requestDto.getName());
         userRepository.save(user);
         return ProfileResponseDto.of(user);
     }
 
 
+    public SignupResponseDto updatePassword(User user, SignupRequestDto requestDto) {
+        // 동일한 비밀번호로 변경 할 수 없음
+        if (Objects.equals(user.getPassword(), requestDto.getPassword())) {
+            throw new UserException(UserErrorCode.PASSWORD_DUPLICATED);
+        }
+        user.updatePassword(Optional.ofNullable(requestDto.getPassword()));
+        userRepository.save(user);
+        return SignupResponseDto.of(user);
+    }
 }

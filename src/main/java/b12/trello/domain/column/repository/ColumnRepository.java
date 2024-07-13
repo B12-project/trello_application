@@ -1,8 +1,7 @@
 package b12.trello.domain.column.repository;
 
 import b12.trello.domain.column.entity.Columns;
-import b12.trello.global.exception.customException.column.ColumnDuplicatedException;
-import b12.trello.global.exception.customException.column.ColumnNotFoundException;
+import b12.trello.global.exception.customException.ColumnException;
 import b12.trello.global.exception.errorCode.ColumnErrorCode;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,12 +20,12 @@ public interface ColumnRepository extends JpaRepository<Columns, Long> {
 
     default void existsByColumnNameAndBoardIdOrElseThrow(String columnName, Long boardId){
         if(existsByColumnNameAndBoardId(columnName, boardId)){
-            throw new ColumnDuplicatedException(ColumnErrorCode.COLUMN_ALREADY_REGISTERED_ERROR);
+            throw new ColumnException(ColumnErrorCode.COLUMN_ALREADY_REGISTERED_ERROR);
         }
     }
 
     default Columns findByIdOrElseThrow(Long columnId){
         return findById(columnId).orElseThrow(() ->
-                new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
+                new ColumnException(ColumnErrorCode.COLUMN_NOT_FOUND));
     }
 }

@@ -3,7 +3,6 @@ package b12.trello.domain.column.service;
 import b12.trello.domain.board.entity.Board;
 import b12.trello.domain.board.repository.BoardRepository;
 import b12.trello.domain.boardUser.entity.BoardUser;
-import b12.trello.domain.boardUser.entity.BoardUser.BoardUserRole;
 import b12.trello.domain.boardUser.repository.BoardUserRepository;
 import b12.trello.domain.column.dto.ColumnCreateRequestDto;
 import b12.trello.domain.column.dto.ColumnFindResponseDto;
@@ -13,8 +12,7 @@ import b12.trello.domain.column.dto.ColumnOrderModifyRequestDto;
 import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.column.repository.ColumnRepository;
 import b12.trello.domain.user.entity.User;
-import b12.trello.global.exception.customException.column.InvalidOrderException;
-import b12.trello.global.exception.customException.column.InvalidUserException;
+import b12.trello.global.exception.customException.ColumnException;
 import b12.trello.global.exception.errorCode.ColumnErrorCode;
 import java.util.List;
 import java.util.Objects;
@@ -113,12 +111,12 @@ public class ColumnService {
         // valid 순서인지 확인
         Long maxOrder = columnRepository.countByBoardId(boardId) - 1;
         if (newOrder < 0 || newOrder > maxOrder) {
-            throw new InvalidOrderException(ColumnErrorCode.INVALID_ORDER);
+            throw new ColumnException(ColumnErrorCode.INVALID_ORDER);
         }
 
         // 순서 변경 로직
         if (Objects.equals(columns.getColumnOrder(), newOrder)) {
-            throw new InvalidOrderException(ColumnErrorCode.INVALID_ORDER);
+            throw new ColumnException(ColumnErrorCode.INVALID_ORDER);
         } else if (columns.getColumnOrder() > newOrder) {
             List<Columns> columnsList = columnRepository.findAllByBoardIdAndColumnOrderBetween(
                 boardId, newOrder, columns.getColumnOrder());
@@ -152,7 +150,7 @@ public class ColumnService {
     // 매니저 권한 확인
     private void validateManager(Board board, User user) {
         if (!boardUserRepository.existsByBoardAndUserAndBoardUserRole(board, user, BoardUser.BoardUserRole.MANAGER)) {
-            throw new InvalidUserException(ColumnErrorCode.BOARD_MANAGER_ONLY);
+            throw new ColumnException(ColumnErrorCode.BOARD_MANAGER_ONLY);
         }
     }
 

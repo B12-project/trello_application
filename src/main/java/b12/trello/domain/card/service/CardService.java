@@ -2,6 +2,7 @@ package b12.trello.domain.card.service;
 
 import b12.trello.domain.board.entity.Board;
 import b12.trello.domain.boardUser.repository.BoardUserRepository;
+import b12.trello.domain.card.dto.request.CardColumnModifyRequestDto;
 import b12.trello.domain.card.dto.request.CardCreateRequestDto;
 import b12.trello.domain.card.dto.request.CardListByColumnRequestDto;
 import b12.trello.domain.card.dto.request.CardModifyRequestDto;
@@ -92,10 +93,11 @@ public class CardService {
     }
 
     @Transactional
-    public void modifyCard(User user, Long cardId, CardModifyRequestDto requestDto) {
+    public CardFindResponseDto modifyCard(User user, Long cardId, CardModifyRequestDto requestDto) {
         // 카드가 존재하는지 확인
         Card card = getValidatedCardAndCheckBoardUser(user, cardId);
         Columns column = card.getColumn();
+        checkBoardStatusAndBoardUser(user, column);
 
         if (requestDto.getColumnId() != null) {
             column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
@@ -120,6 +122,15 @@ public class CardService {
         );
 
         cardRepository.save(card);
+        return CardFindResponseDto.of(card);
+    }
+
+    @Transactional
+    public void modifyCardColumn(User user, Long cardId, CardColumnModifyRequestDto requestDto) {
+        Card card = getValidatedCardAndCheckBoardUser(user, cardId);
+        checkBoardStatusAndBoardUser(user, card.getColumn());
+        Columns column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
+        card.updateCardColumn(column);
     }
 
     @Transactional

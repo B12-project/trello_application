@@ -1,5 +1,6 @@
 package b12.trello.domain.card.controller;
 
+import b12.trello.domain.card.dto.request.CardColumnModifyRequestDto;
 import b12.trello.domain.card.dto.request.CardCreateRequestDto;
 import b12.trello.domain.card.dto.request.CardListByColumnRequestDto;
 import b12.trello.domain.card.dto.request.CardModifyRequestDto;
@@ -65,13 +66,25 @@ public class CardController {
     /**
      * 카드 수정
      */
-    @PatchMapping("/{cardId}")
-    public ResponseEntity<BasicResponse<Void>> modifyCard(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long cardId, @Valid @RequestBody CardModifyRequestDto requestDto) {
-        cardService.modifyCard(userDetails.getUser(), cardId, requestDto);
+    @PutMapping("/{cardId}")
+    public ResponseEntity<BasicResponse<CardFindResponseDto>> modifyCard(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long cardId, @Valid @RequestBody CardModifyRequestDto requestDto) {
+        CardFindResponseDto responseDto = cardService.modifyCard(userDetails.getUser(), cardId, requestDto);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(BasicResponse.of("카드가 수정되었습니다."));
+                .body(BasicResponse.of("카드가 수정되었습니다.", responseDto));
     }
+
+    /**
+     * 카드 컬럼 수정
+     */
+    @PatchMapping("/{cardId}")
+    public ResponseEntity<BasicResponse<Void>> modifyCardColumn(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long cardId, @Valid @RequestBody CardColumnModifyRequestDto requestDto) {
+        cardService.modifyCardColumn(userDetails.getUser(), cardId, requestDto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(BasicResponse.of("카드의 컬럼이 수정되었습니다."));
+    }
+
 
     /**
      * 카드 삭제

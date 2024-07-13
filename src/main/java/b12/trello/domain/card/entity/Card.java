@@ -60,10 +60,10 @@ public class Card extends TimeStamped {
         this.worker = worker;
     }
 
-//    public void updateCardColumn(Columns column) {
-//        validateColumnAndBoard(column);
-//        this.column = column;
-//    }
+    public void updateCardColumn(Columns column) {
+        validateColumnAndBoard(column);
+        this.column = column;
+    }
 
     public void validateColumnAndBoard(Columns column) {
         if (this.column.getBoard() != column.getBoard()) {

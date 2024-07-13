@@ -1,12 +1,12 @@
 ### 카드 생성
 POST http://localhost:8080/cards
-Authorization: {{USER2_TOKEN}}
+Authorization: {{USER1_TOKEN}}
 Content-Type: application/json
 
 {
   "columnId": 1,
   "cardName": "cardName_3225c6b9ca08",
-  "userId": 2,
+  "userId": 1,
   "deadline": "2024-07-11"
 }
 
@@ -119,26 +119,36 @@ Content-Type: application/json
 
 
 ### 카드 수정
-PATCH http://localhost:8080/cards/1
+PUT http://localhost:8080/cards/1
 Content-Type: application/json
-Authorization: {{USER2_TOKEN}}
+Authorization: {{USER1_TOKEN}}
 
 {
+  "columnId": 2,
   "cardName": "제목 수정 2",
   "cardContents": "카드 수정2",
   "deadline": "2024-07-12"
 }
 
 ### 카드 수정
-PATCH http://localhost:8080/cards/1
+PUT http://localhost:8080/cards/1
 Authorization: {{USER2_TOKEN}}
 Content-Type: application/json
 
 {
+  "columnId": 1,
   "cardName": "제목",
-  "workerId": 2,
   "cardContents": "관련 작업 모두 끝내기",
   "deadline": "2024-07-12"
+}
+
+### 카드 컬럼만 수정(드래그 앤 드랍?)
+PATCH http://localhost:8080/cards/1
+Authorization: {{USER1_TOKEN}}
+Content-Type: application/json
+
+{
+  "columnId": 3
 }
 
 ### 카드 수정 실패 - 해당 보드 유저가 아님

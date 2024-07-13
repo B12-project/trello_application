@@ -9,7 +9,7 @@ import b12.trello.domain.boardUser.entity.BoardUser;
 import b12.trello.domain.boardUser.repository.BoardUserRepository;
 import b12.trello.domain.user.entity.User;
 import b12.trello.domain.user.repository.UserRepository;
-import b12.trello.global.exception.errorCode.BoardErrorCode;
+import b12.trello.global.exception.customException.BoardException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,14 +54,11 @@ public class BoardService {
         return new BoardResponseDto(board);
     }
 
-    public BoardResponseDto findById(long id) {
-        Board board = findBoardById(id);
+    public BoardResponseDto findBoardById(User user, long boardId) {
+        Board board = boardRepository.findByIdOrElseThrow(boardId);
+        board.checkBoardDeleted();
+        boardUserRepository.verifyBoardUser(board.getId(), user.getId());
         return new BoardResponseDto(board);
-    }
-
-    private Board findBoardById(long id) {
-        return boardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(BOARD_NOT_FOUND.getErrorDescription()));
     }
 
     public List<BoardResponseDto> findAll() {
@@ -73,57 +70,55 @@ public class BoardService {
     }
 
     public BoardResponseDto modifyBoard(BoardRequestDto boardRequestDto, Long boardId, User user) {
-        Board board = findBoardById(boardId);
-
+        Board board = boardRepository.findByIdOrElseThrow(boardId);
+        board.checkBoardDeleted();
         validateManager(board, user);
 
-        board.update(boardRequestDto.getBoardName(), boardRequestDto.getBoardInfo());
+        board.updateBoard(boardRequestDto.getBoardName(), boardRequestDto.getBoardInfo());
         boardRepository.save(board);
 
         return new BoardResponseDto(board);
     }
 
+    @Transactional
     // TODO: 소프트 딜리트로 변경하기
     public void deleteBoard(Long boardId, User user) {
-        Board board = findBoardById(boardId);
+        Board board = boardRepository.findByIdOrElseThrow(boardId);
 
         validateManager(board, user);
+        board.updateDeletedAt();
 
-        boardRepository.delete(board);
-    }
-
-
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+//        boardRepository.delete(board);
     }
 
     @Transactional
     public void inviteUserByEmail(BoardInviteRequestDto boardInviteRequestDto, User inviter) {
-        Board board = findBoardById(boardInviteRequestDto.getBoardId());
+        Board board = boardRepository.findByIdOrElseThrow(boardInviteRequestDto.getBoardId());
 
         // 매니저만 초대할 수 있는지 확인
-        if (!isManager(inviter)) {
-            throw new IllegalArgumentException(BOARD_MANAGER_ONLY.getErrorDescription());
-        }
+        validateManager(board, inviter);
 
         // 초대할 사용자의 역할 설정
         BoardUser.BoardUserRole role = boardInviteRequestDto.getBoardUserRole();
 
         // 사용자 이메일로 사용자 찾기
-        Optional<User> optionalInvitedUser = findByEmail(boardInviteRequestDto.getUserEmail());
-        User foundInvitedUser = optionalInvitedUser.orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND.getErrorDescription()));
-
+        User foundInvitedUser = userRepository.findByEmailOrElseThrow(boardInviteRequestDto.getUserEmail());
 
         // 이미 초대된 사용자인지 확인
-        if (boardUserRepository.existsByBoardAndUser(board, foundInvitedUser)) {
-            throw new IllegalArgumentException(USER_ALREADY_INVITED.getErrorDescription());
-        }
+//        if (boardUserRepository.existsByBoardAndUser(board, foundInvitedUser)) {
+//            throw new IllegalArgumentException(USER_ALREADY_INVITED.getErrorDescription());
+//        }
+        boardUserRepository.verifyNotBoardUser(board.getId(), foundInvitedUser.getId());
 
         // 초대된 사용자를 저장
-        BoardUser boardUser = new BoardUser(board, foundInvitedUser, role);
+        BoardUser boardUser = BoardUser.builder()
+                .board(board)
+                .user(foundInvitedUser)
+                .boardUserRole(role)
+                .build();
+
         boardUserRepository.save(boardUser);
     }
-
 
     public List<String> findAllUserEmailList() {
         return userRepository.findAll().stream()
@@ -131,7 +126,7 @@ public class BoardService {
                 .collect(Collectors.toList());
     }
 
-    // 특정 유저가 참여 있는 보드 조회
+    // 특정 유저가 참여 하고 있는 보드 조회
     public List<BoardResponseDto> findBoardListByUser(User user) {
         List<BoardUser> boardUsers = boardUserRepository.findByUser(user);
         return boardUsers.stream()
@@ -148,16 +143,17 @@ public class BoardService {
     }
 
     private void validateManager(Board board, User user) {
-        if (!boardUserRepository.existsByBoardAndUserAndBoardUserRole(board, user, BoardUser.BoardUserRole.MANAGER)) {
-            throw new IllegalArgumentException(BOARD_MANAGER_ONLY.getErrorDescription());
+        BoardUser boardUser = boardUserRepository.findByBoardIdAndUserIdOrElseThrow(board.getId(), user.getId());
+        if (boardUser.getBoardUserRole() != BoardUser.BoardUserRole.MANAGER) {
+            throw new BoardException(BOARD_MANAGER_ONLY);
         }
     }
 
-    private boolean isManager(User user) {
-        return boardUserRepository.existsByUserAndBoardUserRole(user, BoardUser.BoardUserRole.MANAGER);
-    }
-
-    private boolean isBoardMember(Board board, User user) {
-        return boardUserRepository.existsByBoardAndUser(board, user);
-    }
+//    private boolean isManager(User user) {
+//        return boardUserRepository.existsByUserAndBoardUserRole(user, BoardUser.BoardUserRole.MANAGER);
+//    }
+//
+//    private boolean isBoardMember(Board board, User user) {
+//        return boardUserRepository.existsByBoardAndUser(board, user);
+//    }
 }

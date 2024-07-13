@@ -2,10 +2,10 @@ package b12.trello.domain.comment.entity;
 
 import b12.trello.domain.card.entity.Card;
 import b12.trello.domain.user.entity.User;
+import b12.trello.global.entity.TimeStamped;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import b12.trello.global.entity.TimeStamped;
 
 @Entity
 @Getter

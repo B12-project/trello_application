@@ -24,5 +24,9 @@ spring:
           characterEncoding: utf-8
           useUnicode: true
 
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY}
+
 server:
   port: 8080

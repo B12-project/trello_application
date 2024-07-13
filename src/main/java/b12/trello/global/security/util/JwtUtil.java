@@ -24,19 +24,19 @@ public class JwtUtil {
     // Token 식별자
     public static final String BEARER_PREFIX = "Bearer ";
 
-    public static final String ACCESS_TOKEN_HEADER = "ACCESS_TOKEN_HEADER";
-    public static final String REFRESH_TOKEN_HEADER = "REFRESH_TOKEN_HEADER";
+    private final String ACCESS_TOKEN_HEADER = "ACCESS_TOKEN_HEADER";
+    private final String REFRESH_TOKEN_HEADER = "REFRESH_TOKEN_HEADER";
 
     // Access Token 만료시간 설정
-    public final long ACCESS_TOKEN_EXPIRATION =  30 * 60 * 1000L; // 30 * 60 * 1000L; // 30분
+    private final long ACCESS_TOKEN_EXPIRATION =  30 * 60 * 1000L; // 30 * 60 * 1000L; // 30분
 
     // Refresh Token 만료기간 설정
-    public final long REFRESH_TOKEN_EXPIRATION = 24 * 60 * 60 * 1000L; // 24시간
+    private final long REFRESH_TOKEN_EXPIRATION = 24 * 60 * 60 * 1000L; // 24시간
 
     // 로그 설정
     public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");
 
-    @Value("${JWT_SECRET_KEY}")
+    @Value("${jwt.secret.key}")
     private String secret;
 
     private Key key;

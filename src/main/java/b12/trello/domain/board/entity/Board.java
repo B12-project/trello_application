@@ -30,19 +30,14 @@ public class Board extends TimeStampedWithDeletedAt {
     @Column
     private String boardInfo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "manager_id", nullable = false)
-    private User manager;
-
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardUser> boardUsers = new ArrayList<>();
 
     // 빌더 패턴 추가
     @Builder
-    public Board(String boardName, String boardInfo, User manager) {
+    public Board(String boardName, String boardInfo) {
         this.boardName = boardName;
         this.boardInfo = boardInfo;
-        this.manager = manager;
     }
 
     public void updateBoard(String boardName, String boardInfo) {

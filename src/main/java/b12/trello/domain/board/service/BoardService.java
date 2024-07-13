@@ -37,7 +37,6 @@ public class BoardService {
         Board board = Board.builder()
                 .boardName(boardRequestDto.getBoardName())
                 .boardInfo(boardRequestDto.getBoardInfo())
-                .manager(user)
                 .build();
 
         boardRepository.save(board);
@@ -82,14 +81,11 @@ public class BoardService {
     }
 
     @Transactional
-    // TODO: 소프트 딜리트로 변경하기
     public void deleteBoard(Long boardId, User user) {
         Board board = boardRepository.findByIdOrElseThrow(boardId);
         board.checkBoardDeleted();
         validateManager(board, user);
-//        board.updateDeletedAt();
         boardRepository.deleteById(boardId);
-//        boardRepository.delete(board);
     }
 
     @Transactional
@@ -106,9 +102,6 @@ public class BoardService {
         User foundInvitedUser = userRepository.findByEmailOrElseThrow(boardInviteRequestDto.getUserEmail());
 
         // 이미 초대된 사용자인지 확인
-//        if (boardUserRepository.existsByBoardAndUser(board, foundInvitedUser)) {
-//            throw new IllegalArgumentException(USER_ALREADY_INVITED.getErrorDescription());
-//        }
         boardUserRepository.verifyNotBoardUser(board.getId(), foundInvitedUser.getId());
 
         // 초대된 사용자를 저장

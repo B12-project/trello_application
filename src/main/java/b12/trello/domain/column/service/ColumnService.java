@@ -33,9 +33,7 @@ public class ColumnService {
     public void createColumn(User user, ColumnCreateRequestDto requestDto) {
 
         Board board = checkBoard(requestDto.getBoardId());
-
         validateManager(board, user);
-
         columnRepository.existsByColumnNameAndBoardIdOrElseThrow(requestDto.getColumnName(), requestDto.getBoardId());
 
         Long columnOrder = columnRepository.countByBoardId(requestDto.getBoardId()); //컬럼 마지막 순서 계산

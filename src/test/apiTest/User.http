@@ -103,7 +103,7 @@ Authorization:{{USER1_TOKEN}}
 ### USER 회원탈퇴
 DELETE http://localhost:8080/users/signout
 Content-Type: application/json
-Authorization:{{USER1_TOKEN}}
+Authorization:{{USER3_TOKEN}}
 
 
 ### User RefreshToken 재발급

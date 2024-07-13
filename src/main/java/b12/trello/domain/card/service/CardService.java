@@ -68,7 +68,6 @@ public class CardService {
     public CardListByColumnResponseDto findCardListByColumn(User user, CardListByColumnRequestDto requestDto) {
         Columns column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
         checkBoardStatusAndBoardUser(user, column);
-
         return CardListByColumnResponseDto.of(column);
     }
 
@@ -77,7 +76,6 @@ public class CardService {
         checkBoardStatusAndBoardUser(user, column);
 
         CardSearchCond.CardSearchCondBuilder cond = CardSearchCond.builder();
-
         switch (search != null ? search : COND_NULL) {
             case COND_WORKER_ID:
                 cond.workerId(requestDto.getWorkerId());
@@ -93,7 +91,6 @@ public class CardService {
 
     @Transactional
     public CardFindResponseDto modifyCard(User user, Long cardId, CardModifyRequestDto requestDto) {
-        // 카드가 존재하는지 확인
         Card card = getValidatedCardAndCheckBoardUser(user, cardId);
         Columns column = card.getColumn();
 
@@ -101,12 +98,9 @@ public class CardService {
             column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
         }
 
-        // 지정한 컬럼이 현재 보드에 속하는지 검증
         card.validateColumnAndBoard(column);
 
-        // 작업자를 없앨 수도 있기 때문에 null로 설정
         User worker = null;
-
         if (requestDto.getWorkerId() != null) {
             worker = boardUserRepository.findByBoardIdAndUserIdOrElseThrow(column.getBoard().getId(), requestDto.getWorkerId()).getUser();
         }

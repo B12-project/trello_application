@@ -4,7 +4,7 @@ Authorization: {{USER1_TOKEN}}
 Content-Type: application/json
 
 {
-  "boardName": "새로운 보드 이름3",
+  "boardName": "새로운 보드 이름1",
   "boardInfo": "새로운 보드 정보"
 }
 

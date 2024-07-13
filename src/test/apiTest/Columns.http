@@ -22,7 +22,7 @@ Authorization:{{USER1_TOKEN}}
 Content-Type: application/json
 
 {
-  "columnName" : "하이4",
+  "columnName" : "하이",
   "boardId" : 1
 }
 
@@ -60,7 +60,7 @@ Authorization:{{USER1_TOKEN}}
 Content-Type: application/json
 
 {
-  "orderId" : 3
+  "orderId" : 1
 }
 
 ### 컬럼 삭제

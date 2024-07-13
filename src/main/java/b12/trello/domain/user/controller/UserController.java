@@ -7,6 +7,7 @@ import b12.trello.domain.user.dto.SignupResponseDto;
 import b12.trello.domain.user.service.UserService;
 import b12.trello.global.response.BasicResponse;
 import b12.trello.global.security.UserDetailsImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class UserController {
 
     private final UserService userService;
     @PostMapping("/signup")
-    public ResponseEntity<BasicResponse<SignupResponseDto>> signUp(@RequestBody SignupRequestDto requestDto) {
+    public ResponseEntity<BasicResponse<SignupResponseDto>> signUp(@Valid @RequestBody SignupRequestDto requestDto) {
         SignupResponseDto responseDto = userService.signUp(requestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -35,7 +36,8 @@ public class UserController {
                 .body(BasicResponse.of(HttpStatus.OK.value(), "회원탈퇴가 완료되었습니다.", responseDto));
     }
 
-    @DeleteMapping("/logout")
+    // 0713 patch로 진행 시 오류가 남
+    @PutMapping("/logout")
     public ResponseEntity<BasicResponse<SignupResponseDto>> logOut(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         SignupResponseDto responseDto = userService.logOut(userDetails.getUser());
 
@@ -57,6 +59,15 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BasicResponse.of(HttpStatus.OK.value(), "회원정보를 수정했습니다.", responseDto));
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<BasicResponse<SignupResponseDto>> updatePassword(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                           @Valid  @RequestBody SignupRequestDto requestDto) {
+        SignupResponseDto responseDto = userService.updatePassword(userDetails.getUser(), requestDto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(BasicResponse.of(HttpStatus.OK.value(), "비밀번호를 수정했습니다.", responseDto));
     }
 
 }

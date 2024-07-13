@@ -2,10 +2,12 @@ package b12.trello.domain.user.entity;
 
 import b12.trello.global.entity.TimeStampedWithDeletedAt;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Optional;
 
@@ -56,8 +58,7 @@ public class User extends TimeStampedWithDeletedAt {
         this.password = newPassword.orElse(this.password);
     }
 
-    public void updateProfile(String email, String name) {
-        this.email = email;
+    public void updateProfile(String name) {
         this.name = name;
     }
 

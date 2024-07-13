@@ -2,7 +2,6 @@ package b12.trello.domain.boardUser.repository;
 
 import b12.trello.domain.board.entity.Board;
 import b12.trello.domain.boardUser.entity.BoardUser;
-import b12.trello.domain.boardUser.entity.BoardUser.BoardUserRole;
 import b12.trello.domain.user.entity.User;
 import b12.trello.global.exception.customException.BoardUserException;
 import b12.trello.global.exception.errorCode.BoardUserErrorCode;
@@ -15,7 +14,7 @@ public interface BoardUserRepository extends JpaRepository<BoardUser, Long> {
 
     boolean existsByBoardAndUser(Board board, User user);
 
-    boolean existsByUserAndBoardUserRole(User user, BoardUser.BoardUserRole boardUserRole);  // 추가
+//    boolean existsByUserAndBoardUserRole(User user, BoardUser.BoardUserRole boardUserRole);  // 추가
 
     List<BoardUser> findByUser(User user);
 
@@ -23,14 +22,26 @@ public interface BoardUserRepository extends JpaRepository<BoardUser, Long> {
 
     Optional<BoardUser> findByBoardIdAndUserId(Long boardId, Long userId);
 
-    boolean existsByBoardAndUserAndBoardUserRole(Board board, User user,
-        BoardUserRole boardUserRole);
+    boolean existsByBoardAndUserAndBoardUserRole(Board board, User user, BoardUser.BoardUserRole boardUserRole);
 
+    Boolean existsBoardUserByBoardIdAndUserId(Long boardId, Long userId);
 
     default BoardUser findByBoardIdAndUserIdOrElseThrow(Long boardId, Long userId) {
         return findByBoardIdAndUserId(boardId, userId)
             .orElseThrow(() -> new BoardUserException(BoardUserErrorCode.BOARD_USER_NOT_FOUND));
     }
 
-}
+    // 보드 참여자가 아닌 경우
+    default void verifyBoardUser(Long boardId, Long userId) {
+        if (!existsBoardUserByBoardIdAndUserId(boardId, userId)) {
+            throw new BoardUserException(BoardUserErrorCode.BOARD_USER_FORBIDDEN);
+        }
+    }
 
+    // 이미 보드 참여자인 경우
+    default void verifyNotBoardUser(Long boardId, Long userId) {
+        if (existsBoardUserByBoardIdAndUserId(boardId, userId)) {
+            throw new BoardUserException(BoardUserErrorCode.BOARD_USER_FORBIDDEN);
+        }
+    }
+}

@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
+
 @Getter
 @NoArgsConstructor
 @Entity
@@ -28,14 +30,12 @@ public class Columns extends TimeStamped {
     @Column(nullable = false)
     private Long columnOrder;
 
-
-//    @OneToMany(mappedBy = "column", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Card> cards = new ArrayList<>();
-
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
+
+    @OneToMany(mappedBy = "column", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Card> cards = new ArrayList<>();
 
     @Builder
     public Columns(String columnName, Board board, Long order){

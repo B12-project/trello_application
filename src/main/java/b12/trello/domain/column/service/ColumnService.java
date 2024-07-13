@@ -12,10 +12,9 @@ import b12.trello.domain.column.dto.ColumnOrderModifyRequestDto;
 import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.column.repository.ColumnRepository;
 import b12.trello.domain.user.entity.User;
-import b12.trello.global.exception.customException.column.BoardNotFoundException;
 import b12.trello.global.exception.customException.column.InvalidOrderException;
 import b12.trello.global.exception.customException.column.InvalidUserException;
-import b12.trello.global.exception.errorCode.column.ColumnErrorCode;
+import b12.trello.global.exception.errorCode.ColumnErrorCode;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +54,7 @@ public class ColumnService {
     public List<ColumnFindResponseDto> findColumns(ColumnFindRequestDto requestDto) {
 
         checkBoard(requestDto.getBoardId());
+
 
         List<ColumnFindResponseDto> columns = columnRepository.findAllByBoardIdOrderByColumnOrderAsc(
             requestDto.getBoardId()).stream().map(ColumnFindResponseDto::new).toList(); //순서 오름차순으로 컬럼조회
@@ -140,12 +140,8 @@ public class ColumnService {
 
     //보드 확인
     private Board checkBoard(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-            .orElseThrow(() -> new BoardNotFoundException(
-                ColumnErrorCode.BOARD_NOT_FOUND));
-        if (board.getDeletedAt() != null) {
-            throw new BoardNotFoundException(ColumnErrorCode.DELETED_BOARD);
-        }
+        Board board = boardRepository.findByIdOrElseThrow(boardId);
+        board.checkBoardDeleted();
         return board;
     }
 

@@ -20,16 +20,35 @@ Content-Type: application/json
   "adminToken": "AC"
 }
 
-### USER 회원가입
+### USER 1 회원가입
 POST http://localhost:8080/users/signup
 Content-Type: application/json
 
 {
-  "email" : "user@gmail.com",
+  "email" : "user1@gmail.com",
   "password": "sparta12!@",
   "name" : "user"
 }
 
+### USER 2 회원가입
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "email" : "user2@gmail.com",
+  "password": "sparta12!@",
+  "name" : "user"
+}
+
+### USER 3 회원가입
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "email" : "user3@gmail.com",
+  "password": "sparta12!@",
+  "name" : "user"
+}
 
 
 ### ADMIN 로그인
@@ -41,82 +60,70 @@ Content-Type: application/json
   "password": "sparta12!@"
 }
 
-> {% client.global.set("ADMIN_TOKEN", response.headers.valueOf("ACCESS_TOKEN_HEADER")); %}
+> {% client.global.set("ADMIN_TOKEN", response.headers.valueOf("Authorization")); %}
 
-### USER 로그인
+### USER 1 로그인
 POST http://localhost:8080/users/login
 Content-Type: application/json
 
 {
-  "email" : "user@gmail.com",
+  "email" : "user1@gmail.com",
   "password": "sparta12!@"
 }
 
-> {% client.global.set("USER_TOKEN", response.headers.valueOf("Authorization")); %}
+> {% client.global.set("USER1_TOKEN", response.headers.valueOf("Authorization")); %}
+
+### USER 2 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "email" : "user2@gmail.com",
+  "password": "sparta12!@"
+}
+
+> {% client.global.set("USER2_TOKEN", response.headers.valueOf("Authorization")); %}
+
+### USER 3 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "email" : "user3@gmail.com",
+  "password": "sparta12!@"
+}
+
+> {% client.global.set("USER3_TOKEN", response.headers.valueOf("Authorization")); %}
 
 ### USER 로그아웃
 DELETE http://localhost:8080/users/logout
-Content-Type: application/json
-Authorization:{{USER_TOKEN}}
+Authorization:{{USER1_TOKEN}}
 
-{
-  "email" : "user@gmail.com",
-  "password": "sparta12!@"
-}
 
 ### USER 회원탈퇴
 DELETE http://localhost:8080/users/signout
 Content-Type: application/json
-Authorization:{{USER_TOKEN}}
+Authorization:{{USER1_TOKEN}}
 
-{
-  "email" : "user@gmail.com",
-  "password": "sparta12!@"
-}
 
 ### User RefreshToken 재발급
 GET http://localhost:8080/refresh/5
 Content-Type: application/json
-Authorization:{{USER_TOKEN}}
+Authorization:{{USER1_TOKEN}}
 
 
 ### User Profile 조회
 GET http://localhost:8080/users/profile
 Content-Type: application/json
-Authorization:{{USER_TOKEN}}
+Authorization:{{USER1_TOKEN}}
 
 ### User Profile 수정
 PUT http://localhost:8080/users/profile
 Content-Type: application/json
-Authorization:{{USER_TOKEN}}
+Authorization:{{USER1_TOKEN}}
 
 {
-  "email" : "editedUser@gmail.com",
+  "email" : "user1@gmail.com",
   "name": "열자안넘는이름입니다"
 }
 
-
-
-### 보드 생성
-POST http://localhost:8080/bo
-Content-Type: application/json
-ACCESS_TOKEN_HEADER:{{ADMIN_TOKEN}}
-
-### 컬럼 조회
-GET http://localhost:8080/columns
-Authorization:{{USER_TOKEN}}
-Content-Type: application/json
-
-{
-"boardId":1
-}
-
-### 컬럼생성
-POST http://localhost:8080/columns
-Authorization:{{USER_TOKEN}}
-Content-Type: application/json
-
-{
-  "columnName" : "test1",
-  "boardId" : 1
-}

@@ -9,6 +9,8 @@ import b12.trello.domain.column.service.ColumnService;
 import b12.trello.global.response.BasicResponse;
 import b12.trello.global.security.UserDetailsImpl;
 import java.util.List;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +35,7 @@ public class ColumnController {
     @PostMapping
     public ResponseEntity<BasicResponse<Void>> createColumn(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @RequestBody ColumnCreateRequestDto requestDto) {
+        @Valid @RequestBody ColumnCreateRequestDto requestDto) {
 
         columnService.createColumn(userDetails.getUser(), requestDto);
 
@@ -77,7 +79,7 @@ public class ColumnController {
     @PatchMapping("/{columnId}/order")
     public ResponseEntity<BasicResponse<Void>> modifyColumnOrder(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @PathVariable Long columnId, @RequestBody ColumnOrderModifyRequestDto requestDto) {
+        @PathVariable Long columnId, @Valid @RequestBody ColumnOrderModifyRequestDto requestDto) {
 
         columnService.modifyColumnOrder(userDetails.getUser(), columnId, requestDto);
 

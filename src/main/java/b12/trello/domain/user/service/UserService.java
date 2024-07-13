@@ -62,7 +62,7 @@ public class UserService {
 
     public SignupResponseDto logOut(User user) {
         SignupResponseDto signupResponseDto = SignupResponseDto.of(user);
-        user.logOut();
+        user.resetRefreshToken();
         userRepository.save(user);
         return signupResponseDto;
     }

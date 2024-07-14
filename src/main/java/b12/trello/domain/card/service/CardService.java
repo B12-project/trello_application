@@ -68,22 +68,22 @@ public class CardService {
         return CardFindResponseDto.of(card);
     }
 
-    public CardListByColumnResponseDto findCardListByColumn(User user, CardListByColumnRequestDto requestDto) {
-        Columns column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
+    public CardListByColumnResponseDto findCardListByColumn(User user, Long columnId) {
+        Columns column = columnRepository.findByIdOrElseThrow(columnId);
         checkBoardStatusAndBoardUser(user, column);
         return CardListByColumnResponseDto.of(column);
     }
 
-    public CardListByColumnResponseDto searchCardListByColumn(User user, CardListByColumnRequestDto requestDto, String search) {
-        Columns column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
+    public CardListByColumnResponseDto searchCardListByColumn(User user, Long columnId, String search, Long workerId, String workerEmail) {
+        Columns column = columnRepository.findByIdOrElseThrow(columnId);
         checkBoardStatusAndBoardUser(user, column);
 
         CardSearchCond.CardSearchCondBuilder cond = CardSearchCond.builder();
         switch (search != null ? search : COND_NULL) {
             case COND_WORKER_ID:
-                cond.workerId(requestDto.getWorkerId());
+                cond.workerId(workerId);
             case COND_WORKER_EMAIL :
-                cond.workerEmail(requestDto.getWorkerEmail());
+                cond.workerEmail(workerEmail);
             default:
                 cond.columnId(column.getColumnId());
         }

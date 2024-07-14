@@ -17,7 +17,7 @@ public class CardCreateRequestDto {
     private String cardName;
 
     private String cardContents;
-    private Long userId;
+    private Long workerId;
 
     @Pattern(message = "yyyy-MM-dd 형식으로 작성해주세요.", regexp = "^(19|20)\\d\\d-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$")
     private String deadline;

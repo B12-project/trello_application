@@ -24,6 +24,10 @@ spring:
           CharSet: utf-8
           characterEncoding: utf-8
           useUnicode: true
+  data:
+    redis:
+      host: localhost
+      port: ${REDIS_PORT}
 
 jwt:
   secret:

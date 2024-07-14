@@ -15,10 +15,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+
+import static org.mockito.BDDMockito.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -38,6 +41,9 @@ public class ConcurrencyTest implements CommonTest {
 
     @Autowired
     private ColumnService columnService;
+
+    @Mock
+    ColumnCreateRequestDto requestDto;
 
     @Nested
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -96,6 +102,7 @@ public class ConcurrencyTest implements CommonTest {
     }
 
     void test(int x) {
+//        given(requestDto.getColumnName()).willReturn("test" + x);
         ColumnCreateRequestDto testRequestDto = new ColumnCreateRequestDto();
         testRequestDto.setColumnName("test" + x);
         testRequestDto.setBoardId(1L);

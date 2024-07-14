@@ -92,6 +92,7 @@ public class ColumnService {
 
 
     @Transactional
+    @DistributedLock(key = "#columnId")
     public void modifyColumnOrder(User user, Long columnId, ColumnOrderModifyRequestDto requestDto) {
 
         Long newOrder = requestDto.getOrderId();

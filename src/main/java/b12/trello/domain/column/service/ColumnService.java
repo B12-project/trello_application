@@ -48,13 +48,13 @@ public class ColumnService {
     }
 
     //컬럼 조회
-    public List<ColumnFindResponseDto> findColumns(User user, ColumnFindRequestDto requestDto) {
+    public List<ColumnFindResponseDto> findColumns(User user, Long boardId) {
 
-        Board board = checkBoard(requestDto.getBoardId());
+        Board board = checkBoard(boardId);
         boardUserRepository.validateBoardUser(board.getId(), user.getId()); // 보드 유저인지 확인
 
         List<ColumnFindResponseDto> columns = columnRepository.findAllByBoardIdOrderByColumnOrderAsc(
-            requestDto.getBoardId()).stream().map(ColumnFindResponseDto::new).toList(); //순서 오름차순으로 컬럼조회
+                boardId).stream().map(ColumnFindResponseDto::new).toList(); //순서 오름차순으로 컬럼조회
 
         return columns;
     }

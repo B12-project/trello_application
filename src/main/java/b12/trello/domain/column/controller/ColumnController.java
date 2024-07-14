@@ -1,10 +1,6 @@
 package b12.trello.domain.column.controller;
 
-import b12.trello.domain.column.dto.ColumnCreateRequestDto;
-import b12.trello.domain.column.dto.ColumnFindResponseDto;
-import b12.trello.domain.column.dto.ColumnFindRequestDto;
-import b12.trello.domain.column.dto.ColumnModifyRequestDto;
-import b12.trello.domain.column.dto.ColumnOrderModifyRequestDto;
+import b12.trello.domain.column.dto.*;
 import b12.trello.domain.column.service.ColumnService;
 import b12.trello.global.response.BasicResponse;
 import b12.trello.global.security.UserDetailsImpl;
@@ -26,14 +22,14 @@ public class ColumnController {
 
     //컬럼 생성
     @PostMapping
-    public ResponseEntity<BasicResponse<Void>> createColumn(
+    public ResponseEntity<BasicResponse<ColumnCreateResponseDto>> createColumn(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody ColumnCreateRequestDto requestDto
     ) {
 
-        columnService.createColumn(userDetails.getUser(), requestDto);
+        ColumnCreateResponseDto responseDto = columnService.createColumn(userDetails.getUser(), requestDto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(BasicResponse.of("컬럼 생성 완료"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(BasicResponse.of(HttpStatus.CREATED.value(), "컬럼 생성 완료", responseDto));
     }
 
 

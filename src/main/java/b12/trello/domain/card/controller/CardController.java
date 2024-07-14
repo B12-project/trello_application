@@ -4,6 +4,7 @@ import b12.trello.domain.card.dto.request.CardColumnModifyRequestDto;
 import b12.trello.domain.card.dto.request.CardCreateRequestDto;
 import b12.trello.domain.card.dto.request.CardListByColumnRequestDto;
 import b12.trello.domain.card.dto.request.CardModifyRequestDto;
+import b12.trello.domain.card.dto.response.CardCreateResponseDto;
 import b12.trello.domain.card.dto.response.CardListByColumnResponseDto;
 import b12.trello.domain.card.dto.response.CardFindResponseDto;
 import b12.trello.domain.card.service.CardService;
@@ -26,14 +27,14 @@ public class CardController {
      * 카드 생성
      */
     @PostMapping
-    public ResponseEntity<BasicResponse<Void>> createCard(
+    public ResponseEntity<BasicResponse<CardCreateResponseDto>> createCard(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody CardCreateRequestDto requestDto
     ) {
-        cardService.createCard(userDetails.getUser(), requestDto);
+        CardCreateResponseDto responseDto = cardService.createCard(userDetails.getUser(), requestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(BasicResponse.of(HttpStatus.CREATED.value(), "카드가 생성되었습니다."));
+                .body(BasicResponse.of(HttpStatus.CREATED.value(), "카드가 생성되었습니다.", responseDto));
     }
 
     /**

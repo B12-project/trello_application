@@ -1,10 +1,6 @@
 package b12.trello.domain.column.controller;
 
-import b12.trello.domain.column.dto.ColumnCreateRequestDto;
-import b12.trello.domain.column.dto.ColumnFindResponseDto;
-import b12.trello.domain.column.dto.ColumnFindRequestDto;
-import b12.trello.domain.column.dto.ColumnModifyRequestDto;
-import b12.trello.domain.column.dto.ColumnOrderModifyRequestDto;
+import b12.trello.domain.column.dto.*;
 import b12.trello.domain.column.service.ColumnService;
 import b12.trello.global.response.BasicResponse;
 import b12.trello.global.security.UserDetailsImpl;
@@ -15,14 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/columns")
 @RestController
@@ -33,23 +22,25 @@ public class ColumnController {
 
     //컬럼 생성
     @PostMapping
-    public ResponseEntity<BasicResponse<Void>> createColumn(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @Valid @RequestBody ColumnCreateRequestDto requestDto) {
+    public ResponseEntity<BasicResponse<ColumnCreateResponseDto>> createColumn(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Valid @RequestBody ColumnCreateRequestDto requestDto
+    ) {
 
-        columnService.createColumn(userDetails.getUser(), requestDto);
+        ColumnCreateResponseDto responseDto = columnService.createColumn(userDetails.getUser(), requestDto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(BasicResponse.of("컬럼 생성 완료"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(BasicResponse.of(HttpStatus.CREATED.value(), "컬럼 생성 완료", responseDto));
     }
 
 
     //컬럼 목록 조회
     @GetMapping
     public ResponseEntity<BasicResponse<List<ColumnFindResponseDto>>> findColumns(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @RequestBody ColumnFindRequestDto requestDto) {
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestParam Long boardId
+    ) {
 
-        List<ColumnFindResponseDto> responseDto = columnService.findColumns(userDetails.getUser(), requestDto);
+        List<ColumnFindResponseDto> responseDto = columnService.findColumns(userDetails.getUser(), boardId);
 
         return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼목록", responseDto));
     }
@@ -57,9 +48,10 @@ public class ColumnController {
     //컬럼 수정
     @PatchMapping("/{columnId}")
     public ResponseEntity<BasicResponse<Void>> modifyColumn(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @PathVariable Long columnId, @RequestBody ColumnModifyRequestDto requestDto) {
-
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long columnId,
+            @RequestBody ColumnModifyRequestDto requestDto
+    ) {
         columnService.modifyColumn(userDetails.getUser(), columnId, requestDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 수정 완료"));
@@ -68,9 +60,9 @@ public class ColumnController {
     //컬럼 삭제
     @DeleteMapping("/{columnId}")
     public ResponseEntity<BasicResponse<Void>> deleteColumn(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @PathVariable Long columnId) {
-
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long columnId
+    ) {
         columnService.deleteColumn(userDetails.getUser(), columnId);
 
         return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 삭제 완료"));
@@ -79,9 +71,10 @@ public class ColumnController {
     //컬럼 순서 변경
     @PatchMapping("/{columnId}/order")
     public ResponseEntity<BasicResponse<Void>> modifyColumnOrder(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @PathVariable Long columnId, @Valid @RequestBody ColumnOrderModifyRequestDto requestDto) {
-
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long columnId,
+            @Valid @RequestBody ColumnOrderModifyRequestDto requestDto
+    ) {
         columnService.modifyColumnOrder(userDetails.getUser(), columnId, requestDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 순서 변경 완료"));

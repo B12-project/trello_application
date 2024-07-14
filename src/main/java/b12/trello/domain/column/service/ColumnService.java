@@ -3,11 +3,7 @@ package b12.trello.domain.column.service;
 import b12.trello.domain.board.entity.Board;
 import b12.trello.domain.board.repository.BoardRepository;
 import b12.trello.domain.boardUser.repository.BoardUserRepository;
-import b12.trello.domain.column.dto.ColumnCreateRequestDto;
-import b12.trello.domain.column.dto.ColumnFindResponseDto;
-import b12.trello.domain.column.dto.ColumnFindRequestDto;
-import b12.trello.domain.column.dto.ColumnModifyRequestDto;
-import b12.trello.domain.column.dto.ColumnOrderModifyRequestDto;
+import b12.trello.domain.column.dto.*;
 import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.column.repository.ColumnRepository;
 import b12.trello.domain.user.entity.User;
@@ -29,7 +25,7 @@ public class ColumnService {
 
 
     //컬럼생성
-    public void createColumn(User user, ColumnCreateRequestDto requestDto) {
+    public ColumnCreateResponseDto createColumn(User user, ColumnCreateRequestDto requestDto) {
 
         Board board = checkBoard(requestDto.getBoardId());
         boardUserRepository.validateBoardManager(board, user);
@@ -45,16 +41,17 @@ public class ColumnService {
             .build(); //컬럼 생성
 
         columnRepository.save(columns);
+        return ColumnCreateResponseDto.of(columns);
     }
 
     //컬럼 조회
-    public List<ColumnFindResponseDto> findColumns(User user, ColumnFindRequestDto requestDto) {
+    public List<ColumnFindResponseDto> findColumns(User user, Long boardId) {
 
-        Board board = checkBoard(requestDto.getBoardId());
+        Board board = checkBoard(boardId);
         boardUserRepository.validateBoardUser(board.getId(), user.getId()); // 보드 유저인지 확인
 
         List<ColumnFindResponseDto> columns = columnRepository.findAllByBoardIdOrderByColumnOrderAsc(
-            requestDto.getBoardId()).stream().map(ColumnFindResponseDto::new).toList(); //순서 오름차순으로 컬럼조회
+                boardId).stream().map(ColumnFindResponseDto::new).toList(); //순서 오름차순으로 컬럼조회
 
         return columns;
     }

@@ -4,10 +4,10 @@ Authorization: {{USER1_TOKEN}}
 Content-Type: application/json
 
 {
-  "columnId": 8,
-  "cardName": "cardName_3225c6b9ca08",
-  "userId": 2,
-  "deadline": "2024-07-11"
+  "columnId": 10,
+  "cardName": "cardName",
+  "workerId": 3,
+  "deadline": "2024-07-20"
 }
 
 ### 카드 생성 - 작업자 없이

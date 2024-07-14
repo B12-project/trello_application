@@ -102,13 +102,11 @@ public class ConcurrencyTest implements CommonTest {
     }
 
     void test(int x) {
-//        given(requestDto.getColumnName()).willReturn("test" + x);
         ColumnCreateRequestDto testRequestDto = new ColumnCreateRequestDto();
         testRequestDto.setColumnName("test" + x);
         testRequestDto.setBoardId(1L);
 
         columnService.createColumn(TEST_USER, testRequestDto);
     }
-
 
 }

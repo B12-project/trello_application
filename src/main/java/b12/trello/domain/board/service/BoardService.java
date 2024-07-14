@@ -9,7 +9,6 @@ import b12.trello.domain.boardUser.entity.BoardUser;
 import b12.trello.domain.boardUser.repository.BoardUserRepository;
 import b12.trello.domain.user.entity.User;
 import b12.trello.domain.user.repository.UserRepository;
-import b12.trello.global.exception.customException.BoardException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static b12.trello.global.exception.errorCode.BoardErrorCode.*;
 
 
 @Slf4j
@@ -32,21 +29,17 @@ public class BoardService {
     private final UserRepository userRepository;
 
     public BoardResponseDto createBoard(BoardRequestDto boardRequestDto, User user) {
-        // 보드 생성
         Board board = Board.builder()
                 .boardName(boardRequestDto.getBoardName())
                 .boardInfo(boardRequestDto.getBoardInfo())
                 .build();
-
         boardRepository.save(board);
 
-        // 보드를 생성한 유저를 매니저로 추가
         BoardUser boardUser = BoardUser.builder()
                 .board(board)
                 .user(user)
                 .boardUserRole(BoardUser.BoardUserRole.MANAGER)
                 .build();
-
         boardUserRepository.save(boardUser);
 
         return new BoardResponseDto(board);
@@ -55,7 +48,7 @@ public class BoardService {
     public BoardResponseDto findBoardById(User user, long boardId) {
         Board board = boardRepository.findByIdOrElseThrow(boardId);
         board.checkBoardDeleted();
-        boardUserRepository.verifyBoardUser(board.getId(), user.getId());
+        boardUserRepository.validateBoardUser(board.getId(), user.getId());
         return new BoardResponseDto(board);
     }
 
@@ -71,7 +64,7 @@ public class BoardService {
     public BoardResponseDto modifyBoard(BoardRequestDto boardRequestDto, Long boardId, User user) {
         Board board = boardRepository.findByIdOrElseThrow(boardId);
         board.checkBoardDeleted();
-        validateManager(board, user);
+        boardUserRepository.validateBoardManager(board, user);
 
         board.updateBoard(boardRequestDto.getBoardName(), boardRequestDto.getBoardInfo());
         boardRepository.save(board);
@@ -83,7 +76,7 @@ public class BoardService {
     public void deleteBoard(Long boardId, User user) {
         Board board = boardRepository.findByIdOrElseThrow(boardId);
         board.checkBoardDeleted();
-        validateManager(board, user);
+        boardUserRepository.validateBoardManager(board, user);
         boardRepository.deleteById(boardId);
     }
 
@@ -92,7 +85,7 @@ public class BoardService {
         Board board = boardRepository.findByIdOrElseThrow(boardInviteRequestDto.getBoardId());
 
         // 매니저만 초대할 수 있는지 확인
-        validateManager(board, inviter);
+        boardUserRepository.validateBoardManager(board, inviter);
 
         // 초대할 사용자의 역할 설정
         BoardUser.BoardUserRole role = boardInviteRequestDto.getBoardUserRole();
@@ -101,7 +94,7 @@ public class BoardService {
         User foundInvitedUser = userRepository.findByEmailOrElseThrow(boardInviteRequestDto.getUserEmail());
 
         // 이미 초대된 사용자인지 확인
-        boardUserRepository.verifyNotBoardUser(board.getId(), foundInvitedUser.getId());
+        boardUserRepository.validateNotBoardUser(board.getId(), foundInvitedUser.getId());
 
         // 초대된 사용자를 저장
         BoardUser boardUser = BoardUser.builder()
@@ -129,15 +122,6 @@ public class BoardService {
     public List<BoardResponseDto> findBoardListManagedByUser(User user) {
         List<BoardUser> boardUsers = boardUserRepository.findByUserAndBoardUserRole(user, BoardUser.BoardUserRole.MANAGER);
         return convertToBoardResponseDtoList(boardUsers);
-    }
-
-    // ColumnService에서 동일하게 사용되고 있는 로직
-    // BoardUserRepository에 default Method로 정의하는 방법
-    private void validateManager(Board board, User user) {
-        BoardUser boardUser = boardUserRepository.findByBoardIdAndUserIdOrElseThrow(board.getId(), user.getId());
-        if (boardUser.getBoardUserRole() != BoardUser.BoardUserRole.MANAGER) {
-            throw new BoardException(BOARD_MANAGER_ONLY);
-        }
     }
 
     private List<BoardResponseDto> convertToBoardResponseDtoList(List<BoardUser> boardUsers) {

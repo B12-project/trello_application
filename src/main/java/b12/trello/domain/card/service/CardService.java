@@ -150,7 +150,7 @@ public class CardService {
     private void checkBoardStatusAndBoardUser(User user, Columns columns) {
         Board board = columns.getBoard();
         board.checkBoardDeleted();
-        boardUserRepository.verifyBoardUser(board.getId(), user.getId());
+        boardUserRepository.validateBoardUser(board.getId(), user.getId());
     }
 
     private LocalDate parseToLocalDate(String deadline) {

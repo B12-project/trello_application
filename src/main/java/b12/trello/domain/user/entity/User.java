@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.validator.constraints.Length;
 
 import java.util.Optional;
@@ -13,6 +14,7 @@ import java.util.Optional;
 @Getter
 @Table(name="users")
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP where id = ?")
 public class User extends TimeStampedWithDeletedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,27 +45,20 @@ public class User extends TimeStampedWithDeletedAt {
         this.auth = auth;
     }
 
-    public void signOut() {
-        updateDeletedAt();
+    public void resetRefreshToken() {
         this.refreshToken = null;
     }
 
-    public void logOut() {
-        refreshToken = null;
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public void updatePassword(Optional<String> newPassword) {
         this.password = newPassword.orElse(this.password);
     }
 
-    public void updateProfile(String email, String name) {
-        this.email = email;
+    public void updateProfile(String name) {
         this.name = name;
-    }
-
-
-    public void updateToken(String refreshToken) {
-        this.refreshToken = refreshToken;
     }
 
     public enum UserAuth {

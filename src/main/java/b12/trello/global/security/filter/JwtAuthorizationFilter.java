@@ -1,12 +1,9 @@
 package b12.trello.global.security.filter;
 
-import b12.trello.domain.user.repository.UserRepository;
-import b12.trello.global.exception.customException.UserException;
-import b12.trello.global.exception.errorCode.UserErrorCode;
+import b12.trello.domain.user.entity.User;
 import b12.trello.global.security.UserDetailsServiceImpl;
 import b12.trello.global.security.util.JwtUtil;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -58,14 +54,19 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             // 토큰에서 사용자 정보 가져오기
             Claims accessTokenClaims = jwtUtil.getUserInfoFromToken(accessToken);
+            String email = accessTokenClaims.getSubject();
+            User findUser = userDetailsService.findUserByUserName(email);
 
-            // 인증 처리
-            try {
-                setAuthentication(accessTokenClaims.getSubject()); // 토큰 내부 값
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                return;
+            if(findUser.getRefreshToken() != null) {
+                // 인증 처리
+                try {
+                    setAuthentication(accessTokenClaims.getSubject()); // 토큰 내부 값
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                    return;
+                }
             }
+
         }
 
         filterChain.doFilter(request, response);

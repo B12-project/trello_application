@@ -4,7 +4,7 @@ Authorization:{{USER1_TOKEN}}
 Content-Type: application/json
 
 {
-  "boardId":1
+  "boardId": 1
 }
 
 ### 컬럼 조회
@@ -13,7 +13,7 @@ Authorization:{{USER1_TOKEN}}
 Content-Type: application/json
 
 {
-  "boardId":1
+  "boardId": 1
 }
 
 ### 컬럼 생성
@@ -22,8 +22,8 @@ Authorization:{{USER1_TOKEN}}
 Content-Type: application/json
 
 {
-  "columnName" : "하이4",
-  "boardId" : 2
+  "columnName" : "하이3",
+  "boardId" : 4
 }
 
 ### 컬럼 생성 실패 - 매니저가 아닌 경우
@@ -60,7 +60,7 @@ Authorization:{{USER1_TOKEN}}
 Content-Type: application/json
 
 {
-  "orderId" : 3
+  "orderId" : 1
 }
 
 ### 컬럼 삭제

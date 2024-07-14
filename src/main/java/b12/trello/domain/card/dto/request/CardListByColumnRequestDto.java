@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class CardListByColumnRequestDto {
-    @NotNull
+    @NotNull(message = "조회할 컬럼 아이디는 필수값입니다.")
     private Long columnId;
     private Long workerId;
     private String workerEmail;

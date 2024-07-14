@@ -20,6 +20,16 @@ Content-Type: application/json
   "adminToken": "AC"
 }
 
+### USER 회원가입
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "email" : "user@gmail.com",
+  "password": "sparta12!@",
+  "name" : "user"
+}
+
 ### USER 1 회원가입
 POST http://localhost:8080/users/signup
 Content-Type: application/json
@@ -61,6 +71,17 @@ Content-Type: application/json
 }
 
 > {% client.global.set("ADMIN_TOKEN", response.headers.valueOf("Authorization")); %}
+
+### USER 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "email" : "user@gmail.com",
+  "password": "sparta12!@"
+}
+
+> {% client.global.set("USER_TOKEN", response.headers.valueOf("Authorization")); %}
 
 ### USER 1 로그인
 POST http://localhost:8080/users/login
@@ -120,10 +141,20 @@ Authorization:{{USER1_TOKEN}}
 ### User Profile 수정
 PUT http://localhost:8080/users/profile
 Content-Type: application/json
-Authorization:{{USER1_TOKEN}}
+Authorization:{{USER_TOKEN}}
 
 {
   "email" : "user1@gmail.com",
   "name": "열자안넘는이름입니다"
 }
+
+### User Password 수정
+PUT http://localhost:8080/users/password
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+{
+  "password": "sparta12!@"
+}
+
 

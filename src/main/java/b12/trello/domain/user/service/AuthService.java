@@ -24,7 +24,7 @@ public class AuthService {
     @Transactional
     public void updateRefreshToken(Long id, String refreshToken) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
-        user.updateToken(refreshToken);
+        user.updateRefreshToken(refreshToken);
         userRepository.save(user);
     }
 

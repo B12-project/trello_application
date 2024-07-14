@@ -10,19 +10,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
+
 public interface BoardUserRepository extends JpaRepository<BoardUser, Long> {
-
-    boolean existsByBoardAndUser(Board board, User user);
-
-//    boolean existsByUserAndBoardUserRole(User user, BoardUser.BoardUserRole boardUserRole);  // 추가
 
     List<BoardUser> findByUser(User user);
 
     List<BoardUser> findByUserAndBoardUserRole(User user, BoardUser.BoardUserRole boardUserRole);
 
     Optional<BoardUser> findByBoardIdAndUserId(Long boardId, Long userId);
-
-    boolean existsByBoardAndUserAndBoardUserRole(Board board, User user, BoardUser.BoardUserRole boardUserRole);
 
     Boolean existsBoardUserByBoardIdAndUserId(Long boardId, Long userId);
 
@@ -31,17 +26,22 @@ public interface BoardUserRepository extends JpaRepository<BoardUser, Long> {
             .orElseThrow(() -> new BoardUserException(BoardUserErrorCode.BOARD_USER_NOT_FOUND));
     }
 
-    // 보드 참여자가 아닌 경우
-    default void verifyBoardUser(Long boardId, Long userId) {
+    default void validateBoardUser(Long boardId, Long userId) {
         if (!existsBoardUserByBoardIdAndUserId(boardId, userId)) {
-            throw new BoardUserException(BoardUserErrorCode.BOARD_USER_FORBIDDEN);
+            throw new BoardUserException(BoardUserErrorCode.BOARD_USER_ONLY);
         }
     }
 
-    // 이미 보드 참여자인 경우
-    default void verifyNotBoardUser(Long boardId, Long userId) {
+    default void validateNotBoardUser(Long boardId, Long userId) {
         if (existsBoardUserByBoardIdAndUserId(boardId, userId)) {
-            throw new BoardUserException(BoardUserErrorCode.BOARD_USER_FORBIDDEN);
+            throw new BoardUserException(BoardUserErrorCode.BOARD_USER_DUPLICATED);
+        }
+    }
+
+    default void validateBoardManager(Board board, User user) {
+        BoardUser boardUser = findByBoardIdAndUserIdOrElseThrow(board.getId(), user.getId());
+        if (boardUser.getBoardUserRole() != BoardUser.BoardUserRole.MANAGER) {
+            throw new BoardUserException(BoardUserErrorCode.BOARD_MANAGER_ONLY);
         }
     }
 }

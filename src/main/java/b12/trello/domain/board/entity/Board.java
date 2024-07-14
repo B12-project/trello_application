@@ -7,6 +7,7 @@ import b12.trello.global.exception.customException.BoardException;
 import b12.trello.global.exception.errorCode.BoardErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE board SET deleted_at = CURRENT_TIMESTAMP where id = ?")
 public class Board extends TimeStampedWithDeletedAt {
 
     @Id
@@ -28,19 +30,14 @@ public class Board extends TimeStampedWithDeletedAt {
     @Column
     private String boardInfo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "manager_id", nullable = false)
-    private User manager;
-
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardUser> boardUsers = new ArrayList<>();
 
     // 빌더 패턴 추가
     @Builder
-    public Board(String boardName, String boardInfo, User manager) {
+    public Board(String boardName, String boardInfo) {
         this.boardName = boardName;
         this.boardInfo = boardInfo;
-        this.manager = manager;
     }
 
     public void updateBoard(String boardName, String boardInfo) {

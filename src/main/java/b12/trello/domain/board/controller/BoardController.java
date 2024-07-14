@@ -100,7 +100,7 @@ public class BoardController {
                         .of(HttpStatus.OK.value(), "보드 수정 성공", boardResponseDto));
     }
 
-    // 보드 삭제 (DeletedAt 으로 변경 )
+    // 보드 삭제
     @DeleteMapping("/{boardId}")
     public ResponseEntity<BasicResponse<Void>> deleteBoard(
             @AuthenticationPrincipal UserDetailsImpl userDetails,

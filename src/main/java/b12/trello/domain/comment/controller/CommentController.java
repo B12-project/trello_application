@@ -1,5 +1,6 @@
 package b12.trello.domain.comment.controller;
 
+import b12.trello.domain.comment.dto.CommentModifyRequestDto;
 import b12.trello.domain.comment.dto.CommentRequestDto;
 import b12.trello.domain.comment.dto.CommentResponseDto;
 import b12.trello.domain.comment.service.CommentService;
@@ -25,23 +26,24 @@ public class CommentController {
 
     // 댓글 생성
     @PostMapping
-    public ResponseEntity<BasicResponse<CommentResponseDto>> createComment(
+    public ResponseEntity<BasicResponse<Void>> createComment(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Valid @RequestBody CommentRequestDto commentRequestDto
+            @Valid @RequestBody CommentRequestDto requestDto
     ) {
-        CommentResponseDto commentResponseDto = commentService.createComment(commentRequestDto, userDetails.getUser());
+        commentService.createComment(requestDto, userDetails.getUser());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(BasicResponse.of(HttpStatus.CREATED.value(), "댓글 등록 성공", commentResponseDto));
+                .body(BasicResponse.of(HttpStatus.CREATED.value(), "댓글 등록 성공"));
     }
 
     // 댓글 전체 조회
     @GetMapping("/{cardId}")
     public ResponseEntity<BasicResponse<List<CommentResponseDto>>> findAllByCardId(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long cardId
     ) {
-        List<CommentResponseDto> comments = commentService.findAllByCardId(cardId);
+        List<CommentResponseDto> comments = commentService.findAllByCardId(userDetails.getUser(), cardId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -50,15 +52,15 @@ public class CommentController {
 
     // 댓글 수정
     @PutMapping("/{commentId}")
-    public ResponseEntity<BasicResponse<CommentResponseDto>> modifyComment(
+    public ResponseEntity<BasicResponse<Void>> modifyComment(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long commentId,
-            @Valid @RequestBody CommentRequestDto commentRequestDto
+            @Valid @RequestBody CommentModifyRequestDto requestDto
     ){
-        CommentResponseDto commentResponseDto = commentService.modifyComment(commentId, commentRequestDto, userDetails.getUser());
+        commentService.modifyComment(commentId, requestDto, userDetails.getUser());
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(BasicResponse.of(HttpStatus.OK.value(), "댓글 수정 성공", commentResponseDto));
+                .body(BasicResponse.of(HttpStatus.OK.value(), "댓글 수정 성공"));
     }
 
     // 댓글 삭제

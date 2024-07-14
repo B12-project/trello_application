@@ -1,27 +1,26 @@
 ### 댓글 작성
 POST http://localhost:8080/comments
 Content-Type: application/json
-Authorization: Bearer {your_token_here}
+Authorization: {{USER1_TOKEN}}
 
 {
-  "cardId": 1,
+  "cardId": 3,
   "content": "This is a new comment."
 }
 
 ### 카드 ID로 댓글 조회
 GET http://localhost:8080/comments/1
-Authorization: Bearer {your_token_here}
+Authorization: {{USER1_TOKEN}}
 
 ### 댓글 수정
 PUT http://localhost:8080/comments/1
 Content-Type: application/json
-Authorization: Bearer {your_token_here}
+Authorization: {{USER1_TOKEN}}
 
 {
-  "cardId": 1,
-  "content": "This is an updated comment."
+  "content": "This is an updated comment2."
 }
 
 ### 댓글 삭제
-DELETE http://localhost:8080/comments/1
-Authorization: Bearer {your_token_here}
+DELETE http://localhost:8080/comments/4
+Authorization: {{USER1_TOKEN}}

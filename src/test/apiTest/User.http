@@ -30,6 +30,37 @@ Content-Type: application/json
   "name" : "user"
 }
 
+### USER 1 회원가입
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "email" : "user1@gmail.com",
+  "password": "sparta12!@",
+  "name" : "user"
+}
+
+### USER 2 회원가입
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "email" : "user2@gmail.com",
+  "password": "sparta12!@",
+  "name" : "user"
+}
+
+### USER 3 회원가입
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "email" : "user3@gmail.com",
+  "password": "sparta12!@",
+  "name" : "user"
+}
+
+
 ### ADMIN 로그인
 POST http://localhost:8080/users/login
 Content-Type: application/json
@@ -51,6 +82,17 @@ Content-Type: application/json
 }
 
 > {% client.global.set("USER_TOKEN", response.headers.valueOf("Authorization")); %}
+
+### USER 1 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "email" : "user1@gmail.com",
+  "password": "sparta12!@"
+}
+
+> {% client.global.set("USER1_TOKEN", response.headers.valueOf("Authorization")); %}
 
 ### USER 2 로그인
 POST http://localhost:8080/users/login

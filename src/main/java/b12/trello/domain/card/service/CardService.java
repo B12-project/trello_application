@@ -14,12 +14,12 @@ import b12.trello.domain.card.repository.CardSearchCond;
 import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.column.repository.ColumnRepository;
 import b12.trello.domain.user.entity.User;
+import b12.trello.domain.user.repository.UserRepository;
 import b12.trello.global.exception.customException.CardException;
 import b12.trello.global.exception.errorCode.CardErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -36,6 +36,7 @@ public class CardService {
     private final BoardUserRepository boardUserRepository;
     private final ColumnRepository columnRepository;
     private final CardRepository cardRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public void createCard(User user, CardCreateRequestDto requestDto) {
@@ -48,6 +49,7 @@ public class CardService {
         if (requestDto.getUserId() != null) {
             // 작업자가 해당 보드의 참여자인지 검증
             worker = boardUserRepository.findByBoardIdAndUserIdOrElseThrow(column.getBoard().getId(), requestDto.getUserId()).getUser();
+            userRepository.verifyUserStatus(worker.getId());
         }
 
         Card newCard = Card.builder()
@@ -69,7 +71,6 @@ public class CardService {
     public CardListByColumnResponseDto findCardListByColumn(User user, CardListByColumnRequestDto requestDto) {
         Columns column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
         checkBoardStatusAndBoardUser(user, column);
-
         return CardListByColumnResponseDto.of(column);
     }
 
@@ -78,7 +79,6 @@ public class CardService {
         checkBoardStatusAndBoardUser(user, column);
 
         CardSearchCond.CardSearchCondBuilder cond = CardSearchCond.builder();
-
         switch (search != null ? search : COND_NULL) {
             case COND_WORKER_ID:
                 cond.workerId(requestDto.getWorkerId());
@@ -94,23 +94,19 @@ public class CardService {
 
     @Transactional
     public CardFindResponseDto modifyCard(User user, Long cardId, CardModifyRequestDto requestDto) {
-        // 카드가 존재하는지 확인
         Card card = getValidatedCardAndCheckBoardUser(user, cardId);
         Columns column = card.getColumn();
-        checkBoardStatusAndBoardUser(user, column);
 
         if (requestDto.getColumnId() != null) {
             column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
         }
 
-        // 지정한 컬럼이 현재 보드에 속하는지 검증
         card.validateColumnAndBoard(column);
 
-        // 작업자를 없앨 수도 있기 때문에 null로 설정
         User worker = null;
-
         if (requestDto.getWorkerId() != null) {
             worker = boardUserRepository.findByBoardIdAndUserIdOrElseThrow(column.getBoard().getId(), requestDto.getWorkerId()).getUser();
+            userRepository.verifyUserStatus(worker.getId());
         }
 
         card.updateCard(
@@ -128,8 +124,8 @@ public class CardService {
     @Transactional
     public void modifyCardColumn(User user, Long cardId, CardColumnModifyRequestDto requestDto) {
         Card card = getValidatedCardAndCheckBoardUser(user, cardId);
-        checkBoardStatusAndBoardUser(user, card.getColumn());
         Columns column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
+        card.validateColumnAndBoard(column);
         card.updateCardColumn(column);
     }
 
@@ -154,7 +150,7 @@ public class CardService {
     private void checkBoardStatusAndBoardUser(User user, Columns columns) {
         Board board = columns.getBoard();
         board.checkBoardDeleted();
-        boardUserRepository.verifyBoardUser(board.getId(), user.getId());
+        boardUserRepository.validateBoardUser(board.getId(), user.getId());
     }
 
     private LocalDate parseToLocalDate(String deadline) {

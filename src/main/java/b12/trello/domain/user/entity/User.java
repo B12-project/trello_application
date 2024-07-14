@@ -2,12 +2,11 @@ package b12.trello.domain.user.entity;
 
 import b12.trello.global.entity.TimeStampedWithDeletedAt;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.Optional;
 
@@ -15,6 +14,7 @@ import java.util.Optional;
 @Getter
 @Table(name="users")
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP where id = ?")
 public class User extends TimeStampedWithDeletedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,13 +45,12 @@ public class User extends TimeStampedWithDeletedAt {
         this.auth = auth;
     }
 
-    public void signOut() {
-        updateDeletedAt();
+    public void resetRefreshToken() {
         this.refreshToken = null;
     }
 
-    public void logOut() {
-        refreshToken = null;
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public void updatePassword(Optional<String> newPassword) {
@@ -60,11 +59,6 @@ public class User extends TimeStampedWithDeletedAt {
 
     public void updateProfile(String name) {
         this.name = name;
-    }
-
-
-    public void updateToken(String refreshToken) {
-        this.refreshToken = refreshToken;
     }
 
     public enum UserAuth {

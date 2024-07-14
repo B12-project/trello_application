@@ -5,7 +5,6 @@ import b12.trello.domain.user.entity.User;
 import b12.trello.domain.user.repository.UserRepository;
 import b12.trello.global.exception.customException.UserException;
 import b12.trello.global.exception.errorCode.UserErrorCode;
-import b12.trello.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,14 +52,17 @@ public class UserService {
 
     public SignupResponseDto signOut(User user) {
         SignupResponseDto signupResponseDto = SignupResponseDto.of(user);
-        user.signOut();
+//        user.signOut();
+//        userRepository.save(user);
+        user.resetRefreshToken();
         userRepository.save(user);
+        userRepository.deleteById(user.getId());
         return signupResponseDto;
     }
 
     public SignupResponseDto logOut(User user) {
         SignupResponseDto signupResponseDto = SignupResponseDto.of(user);
-        user.logOut();
+        user.resetRefreshToken();
         userRepository.save(user);
         return signupResponseDto;
     }

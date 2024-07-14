@@ -6,6 +6,7 @@ import b12.trello.domain.card.dto.request.CardColumnModifyRequestDto;
 import b12.trello.domain.card.dto.request.CardCreateRequestDto;
 import b12.trello.domain.card.dto.request.CardListByColumnRequestDto;
 import b12.trello.domain.card.dto.request.CardModifyRequestDto;
+import b12.trello.domain.card.dto.response.CardCreateResponseDto;
 import b12.trello.domain.card.dto.response.CardListByColumnResponseDto;
 import b12.trello.domain.card.dto.response.CardFindResponseDto;
 import b12.trello.domain.card.entity.Card;
@@ -39,16 +40,16 @@ public class CardService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void createCard(User user, CardCreateRequestDto requestDto) {
+    public CardCreateResponseDto createCard(User user, CardCreateRequestDto requestDto) {
         // 컬럼이 존재하는지 확인
         Columns column = columnRepository.findByIdOrElseThrow(requestDto.getColumnId());
         checkBoardStatusAndBoardUser(user, column);
 
         User worker = null;
 
-        if (requestDto.getUserId() != null) {
+        if (requestDto.getWorkerId() != null) {
             // 작업자가 해당 보드의 참여자인지 검증
-            worker = boardUserRepository.findByBoardIdAndUserIdOrElseThrow(column.getBoard().getId(), requestDto.getUserId()).getUser();
+            worker = boardUserRepository.findByBoardIdAndUserIdOrElseThrow(column.getBoard().getId(), requestDto.getWorkerId()).getUser();
             userRepository.verifyUserStatus(worker.getId());
         }
 
@@ -61,6 +62,7 @@ public class CardService {
                 .build();
 
         cardRepository.save(newCard);
+        return CardCreateResponseDto.of(newCard);
     }
 
     public CardFindResponseDto findCard(User user, Long cardId) {

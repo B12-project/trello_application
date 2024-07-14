@@ -34,7 +34,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
         // AccessToken 가져오기
         String accessToken = jwtUtil.getAccessTokenFromRequest(request);
         String refreshToken = jwtUtil.getRefreshTokenFromRequest(request);
@@ -42,6 +41,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 //        if (refreshToken == null) {
 //            throw new UserException(UserErrorCode.INVALID_REFRESH_TOKEN);
 //        }
+        log.info("현재주소 : "+request.getRequestURL().toString());
+        log.info("accessToken: " + accessToken);
 
         // 토큰 값이 있는지 확인
         if(StringUtils.hasText(accessToken)) {

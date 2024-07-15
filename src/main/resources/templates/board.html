@@ -192,7 +192,18 @@
         }
 
         .user-entry {
-            margin-right: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-entry span {
+            flex-grow: 1;
         }
 
         .user-entry button {
@@ -202,8 +213,8 @@
             border: none;
             cursor: pointer;
             border-radius: 5px;
-            font-size: 14px;
-            margin-left: 10px;
+            font-size: 12px;
+            margin-left: 5px;
             transition: background-color 0.3s ease;
         }
 
@@ -554,14 +565,14 @@
             success: function (response) {
                 const resultsContainer = $('#searchUserResults');
                 resultsContainer.empty(); // 기존 내용을 지움
-                for (const responseElement of response.data) {
-                    const userDiv = $('<div>').addClass('user-entry').text(responseElement);
-                    const inviteBtn = $('<button>').text('일반 초대').click(() => inviteUser(boardId, responseElement, "INVITEE"));
-                    const managerBtn = $('<button>').text('매니저로 초대').click(() => inviteUser(boardId, responseElement, "MANAGER"));
-                    userDiv.append(inviteBtn, managerBtn);
+                response.data.forEach(user => {
+                    const userDiv = $('<div>').addClass('user-entry');
+                    const userName = $('<span>').text(user);
+                    const inviteBtn = $('<button>').text('초대').click(() => inviteUser(boardId, user, "INVITEE"));
+                    const managerBtn = $('<button>').text('매니저').click(() => inviteUser(boardId, user, "MANAGER"));
+                    userDiv.append(userName, inviteBtn, managerBtn);
                     resultsContainer.append(userDiv);
-                }
-
+                });
             },
             error(error, status, request) {
                 console.log("보드 사용자 목록 호출 에러");

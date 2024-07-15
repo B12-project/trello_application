@@ -252,14 +252,34 @@
 <div id="cardDetailsModal" class="modal">
     <div class="modal-content">
         <span class="close-btn">&times;</span>
-        <h2>Card Details</h2>
-        <p id="cardNameDetail">Card Name: <span></span></p>
-        <p id="cardDescriptionDetail">Description: <span></span></p>
-        <p id="cardDueDateDetail">Due Date: <span></span></p>
-<!--        <div class="modal-buttons">-->
-<!--            <button class="modal-button" onclick="openEditCardModal()">Edit</button>-->
-<!--            <button class="modal-button delete-button" onclick="deleteCard()">Delete</button>-->
-<!--        </div>-->
+        <p id="cardNameDetail">제목: <span></span></p>
+        <p id="cardDescriptionDetail">내용: <span></span></p>
+        <p id="cardDueDateDetail">마감기한: <span></span></p>
+        <div class="modal-buttons">
+            <button class="modal-button edit-button">Edit</button>
+            <button class="modal-button delete-button">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- 추가된 카드 수정 모달 -->
+<div id="editCardModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Edit Card</h2>
+        <label for="editCardName" class="modal-label">Card Name:</label>
+        <input type="text" id="editCardName" name="editCardName" class="modal-input" required>
+
+        <label for="editCardContents" class="modal-label">Card Contents:</label>
+        <input type="text" id="editCardContents" name="editCardContents" class="modal-input" required>
+
+        <label for="editWorkerId">Worker:</label>
+        <select id="editWorkerId" name="editWorkerId"></select>
+
+        <label for="editDeadline" class="modal-label">Deadline:</label>
+        <input type="date" id="editDeadline" name="editDeadline" class="modal-input" required>
+
+        <button id="submitEditCardBtn">Save Changes</button>
     </div>
 </div>
 <script>
@@ -606,6 +626,7 @@
                     data: JSON.stringify(CardCreateRequestDto),
                     success: function (response) {
                         console.log("카드 생성 완료");
+                        window.location.reload();
                     },
                     error: function (error) {
                         console.log("카드 생성 에러");
@@ -649,10 +670,7 @@
     }
     function setupCardDetails() {
         // 카드 클릭 이벤트 리스너 추가
-        document.querySelectorAll('.kanban-card').forEach(card => {
-            card.addEventListener('click', function() {
-            });
-        });
+
         document.querySelectorAll('.kanban-card').forEach(card => {
             card.addEventListener('click', function() {
                 showCardDetails(this.id);
@@ -672,10 +690,32 @@
             url: `/cards/${cardId}`,
             contentType: 'application/json',
             success: function (response) {
-                console.log("소속 컬럼 변경 완료");
+                const cardDetails = response.data;
+                /*
+                private Long columnId;
+                private String columnName;
+                private String cardName;
+                private String cardContents;
+                private Long workerId;
+                private LocalDate deadline;
+                private LocalDateTime createdAt;
+                private LocalDateTime modifiedAt;
+                 */
+                document.querySelector('#cardNameDetail span').textContent = cardDetails.cardName;
+                document.querySelector('#cardDescriptionDetail span').textContent = cardDetails.cardContents;
+                document.querySelector('#cardDueDateDetail span').textContent = cardDetails.deadline;
+
+                document.getElementById('cardDetailsModal').style.display = 'block';
+
+                document.querySelector('.modal-buttons .delete-button').onclick = function() {
+                    deleteCard(cardId);
+                };
+                document.querySelector('.modal-buttons .edit-button').onclick = function() {
+                    openEditCardModal(cardId);
+                };
             },
             error: function (error) {
-                console.log("소속 컬럼 변경 실패 에러");
+                console.log("Failed to fetch card details");
             }
         });
 
@@ -696,20 +736,60 @@
     }
 
     // 카드 수정 모달을 여는 함수
-    function openEditCardModal() {
+    function openEditCardModal(cardId) {
         $('#cardDetailsModal').hide();
         $('#editCardModal').show();
+
+        const boardId = new URLSearchParams(window.location.search).get('boardId');
+
+        // Load workers for the dropdown
+        $.ajax({
+            url: `/boards/${boardId}/users`,
+            method: "GET",
+            contentType: 'application/json',
+            success: function(response) {
+                var workers = response.data; // 실제 응답 구조에 따라 조정 필요
+                var workerSelect = $("#editWorkerId");
+                workerSelect.empty(); // 기존 옵션을 지움
+                workers.forEach(function(worker) {
+                    var option = new Option(worker.userName, worker.userId);
+                    workerSelect.append(option);
+                });
+
+                // Load card details after populating the worker dropdown
+                $.ajax({
+                    type: 'GET',
+                    url: `/cards/${cardId}`,
+                    contentType: 'application/json',
+                    success: function (response) {
+                        const cardDetails = response.data;
+                        $('#editCardName').val(cardDetails.cardName);
+                        $('#editCardContents').val(cardDetails.cardContents);
+                        $('#editWorkerId').val(cardDetails.workerId);
+                        $('#editDeadline').val(cardDetails.deadline);
+
+                        $('#submitEditCardBtn').data('card-id', cardId);
+                        $('#editCardModal').show();
+                    },
+                    error: function (error) {
+                        console.log("Failed to fetch card details");
+                    }
+                });
+            },
+            error: function() {
+                console.log("사용자 정보를 불러오는데 실패했습니다.");
+            }
+        });
     }
 
     // 카드 삭제 함수
-    function deleteCard() {
-        const cardId = $('#submitEditCardBtn').data('card-id');
+    function deleteCard(cardId) {
         $.ajax({
-            url: `/api/cards/${cardId}`,
+            url: `/cards/${cardId}`,
             type: 'DELETE',
+            contentType: 'application/json',
             success: function () {
-                loadBoard();
-                $('#cardDetailsModal').hide();
+                window.location.reload();
             },
             error: function (error) {
                 console.error('Error deleting card:', error);
@@ -717,22 +797,24 @@
         });
     }
 
+
     // 수정한 카드 정보를 서버에 전송하는 함수
     $('#submitEditCardBtn').on('click', function () {
         const cardId = $(this).data('card-id');
         const cardData = {
+            columnId: null,
             cardName: $('#editCardName').val(),
-            contents: $('#editCardContents').val(),
+            cardContents: $('#editCardContents').val(),
             workerId: $('#editWorkerId').val(),
             deadline: $('#editDeadline').val()
         };
         $.ajax({
-            url: `/api/cards/${cardId}`,
+            url: `/cards/${cardId}`,
             type: 'PUT',
             contentType: 'application/json',
             data: JSON.stringify(cardData),
             success: function () {
-                loadBoard();
+                window.location.reload();
                 $('#editCardModal').hide();
             },
             error: function (error) {

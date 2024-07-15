@@ -82,6 +82,7 @@ public class ColumnController {
             @PathVariable Long columnId,
             @Valid @RequestBody ColumnOrderModifyRequestDto requestDto
     ) {
+        log.info("modifyColumnOrder");
         columnService.modifyColumnOrder(userDetails.getUser(), columnId, requestDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 순서 변경 완료"));

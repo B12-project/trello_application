@@ -460,25 +460,61 @@
             new Sortable(column, {
                 group: 'shared',
                 animation: 150,
-                onUpdate: function (event) {
-                    // 카드의 현재 위치에 따라 이전과 다음 카드를 찾기
-                    var item = event.item; // 이동된 카드
-                    var prevItem = item.previousElementSibling; // 이전 카드
-                    var nextItem = item.nextElementSibling; // 다음 카드
+                onEnd: function(evt) {
+                    var cardId = evt.item.getAttribute('id');
+                    var oldColumnId = evt.from.getAttribute('id').replace('cards-', '');
+                    var newColumnId = evt.to.getAttribute('id').replace('cards-', '');
 
-                    // 이전과 다음 카드의 Order 값을 찾기
-                    var prevOrder = prevItem ? prevItem.getAttribute('data-order') : '없음';
-                    var nextOrder = nextItem ? nextItem.getAttribute('data-order') : '없음';
-
-                    // 알림창으로 Order 값 표시
-                    alert("이전 카드 Order: " + prevOrder + "\n다음 카드 Order: " + nextOrder);
+                    console.log(`${cardId} / ${oldColumnId} / ${newColumnId}`)
+                    if (oldColumnId !== newColumnId) {
+                        moveCard(cardId, newColumnId);
+                    }
                 }
+                // onUpdate: function (event) {
+                //     // 카드의 현재 위치에 따라 이전과 다음 카드를 찾기
+                //     var item = event.item; // 이동된 카드
+                //     var prevItem = item.previousElementSibling; // 이전 카드
+                //     var nextItem = item.nextElementSibling; // 다음 카드
+                //
+                //     // 이전과 다음 카드의 Order 값을 찾기
+                //     var prevOrder = prevItem ? prevItem.getAttribute('data-order') : '없음';
+                //     var nextOrder = nextItem ? nextItem.getAttribute('data-order') : '없음';
+                //
+                //     // 알림창으로 Order 값 표시
+                //     alert("이전 카드 Order: " + prevOrder + "\n다음 카드 Order: " + nextOrder);
+                // }
             });
         });
 
-        new Sortable(document.getElementById('board'), {
+        var board = document.getElementById('board');
+        new Sortable(board, {
             animation: 150,
-            draggable: '.column'
+            draggable: '.kanban-column', // 드래그 가능한 요소
+            onEnd: function (evt) {
+                var item = evt.item; // 드래그된 요소
+                var newIndex = evt.newIndex + 1; // 새 위치 인덱스 (1부터 시작)
+                var columnId = item.id.replace('column-', ''); // ID에서 숫자만 추출
+                updateColumnOrder(columnId, newIndex);
+            }
+        });
+    }
+    // 서버에 컬럼 순서 변경 요청
+    function updateColumnOrder(columnId,orderId) {
+        var ColumnOrderModifyRequestDto = {
+            orderId: orderId
+        };
+        $.ajax({
+            url: `/columns/${columnId}/order`, // 순서 업데이트 API 엔드포인트
+            method: 'PATCH',
+            contentType: 'application/json',
+            data: JSON.stringify(ColumnOrderModifyRequestDto),
+            success: function(response) {
+                console.log('컬럼 순서가 성공적으로 업데이트 되었습니다.');
+            },
+            error: function(xhr, status, error) {
+                console.log('컬럼 순서 업데이트에 실패했습니다.');
+                console.error("Order update failed:", status, error);
+            }
         });
     }
     function addCard(columnId) {
@@ -561,6 +597,38 @@
             }
         })
     });
+    function moveCard(cardId, newColumnId) {
+        $.ajax({
+            type: 'PATCH',
+            url: `/cards/${cardId}`,
+            contentType: 'application/json',
+            data: JSON.stringify({
+                columnId: newColumnId
+            }),
+            success: function (response) {
+                console.log("소속 컬럼 변경 완료");
+            },
+            error: function (error) {
+                console.log("소속 컬럼 변경 실패 에러");
+            }
+        });
+        // fetch(`/cards/${cardId}`, {
+        //     method: 'PATCH',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({
+        //         columnId: newColumnId
+        //     })
+        // })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         console.log('Card moved successfully', data);
+        //         alert(`카드가 ${newColumnId}번 컬럼으로 이동되었습니다.`);
+        //     })
+        //     .catch(error => console.error('Error moving card:', error));
+    }
+
 </script>
 </body>
 </html>

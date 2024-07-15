@@ -11,9 +11,175 @@
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.css"/>
-    <link rel="stylesheet" href="/css/style.css">
-    <script src="/js/basic.js"></script>
     <title>Kanban Board</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .kanban-board {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .kanban-column {
+            background: #f0f0f0;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 20px;
+            width: 300px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .kanban-column h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .kanban-cards {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .kanban-card {
+            background: #fff;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: grab;
+        }
+
+        .add-card-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+
+        .main-contents {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .kanban-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+
+        button {
+            background-color: #4CAF50; /* Green */
+            color: white;
+            padding: 10px 20px;
+            margin: 10px 0;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 40%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.3s;
+        }
+
+        /* 애니메이션 효과 */
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        /* 닫기 버튼 스타일 */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* 폼 스타일 */
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin: 10px 0 5px;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus {
+            border-color: #4CAF50;
+        }
+
+        form button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        form button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
 <div class="main-contents">
@@ -37,4 +203,159 @@
     </div>
 </div>
 </body>
+<script>
+    const host = 'http://' + window.location.host;
+
+    $(document).ready(function () {
+        const auth = getToken();
+
+        if (auth !== undefined && auth !== '') {
+            $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+                // Request 헤더 설정
+                jqXHR.setRequestHeader('Authorization', auth);
+            });
+        } else {
+            // 토큰이 없으면 기본 로그인 페이지로
+            window.location.href = host + '/users/page/login';
+            return;
+        }
+
+        $.ajax({
+            type: 'GET',
+            url: `/boards/manager`,
+            contentType: 'application/json',
+            success: function (response) {
+                console.log(response.data);
+                $('#kanban-container').append(`<div>관리보드</div>`);
+                for (let i = 0; i < response.data.length; i++) {
+                    const board = response.data[i];
+                    $('#kanban-container').append(
+                        `<div>
+                    <button class="board-button" data-id="${board.id}">
+                        ${board.boardName}
+                    </button>
+                </div>`
+                    );
+                }
+
+                $('#kanban-container').on('click', '.board-button', function() {
+                    const boardId = $(this).data('id');
+                    window.location.href = host + `/page/board?boardId=${boardId}`;
+                });
+
+            },
+            error(error, status, request) {
+                console.log("에러");
+                window.location.href = host + '/users/page/login';
+                //     만료에러면 refresh 재발급 요청, 아니면 로그인 페이지 리다렉트
+            }
+        });
+
+        $.ajax({
+            type: 'GET',
+            url: `/boards/invitation`,
+            contentType: 'application/json',
+            success: function (response) {
+                console.log(response.data);
+                $('#kanban-container').append(`<div>참여보드</div>`);
+                for (let i = 0; i < response.data.length; i++) {
+                    const board = response.data[i];
+                    $('#kanban-container').append(
+                        `<div>
+                    <button class="board-button" data-id="${board.id}">
+                        ${board.boardName}
+                    </button>
+                </div>`
+                    );
+                }
+
+                $('#kanban-container').on('click', '.board-button', function() {
+                    const boardId = $(this).data('id');
+                    window.location.href = host + `/page/board?boardId=${boardId}`;
+                });
+
+            },
+            error(error, status, request) {
+                console.log("에러");
+                window.location.href = host + '/users/page/login';
+                //     만료에러면 refresh 재발급 요청, 아니면 로그인 페이지 리다렉트
+            }
+        });
+
+        // Get the modal
+        var modal = document.getElementById("create-board-modal");
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("create-board-btn");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks the button, open the modal
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Handle form submission
+        $('#create-board-form').submit(function(e) {
+            e.preventDefault();
+            var boardName = $('#board-name').val();
+            var BoardRequestDto = {
+                boardName: boardName,
+                boardInfo: $('#board-info').val()
+            };
+            // Add your board creation logic here
+            $.ajax({
+                type: 'POST',
+                url: `/boards`,
+                contentType: 'application/json',
+                data: JSON.stringify(BoardRequestDto),
+                success: function (response) {
+                    console.log(response.data);
+                    console.log("보드 생성 성공: boardName");
+                    console.log("Board created with name: " + boardName);
+                    modal.style.display = "none";
+                    location.reload(true);
+                },
+                error(error, status, request) {
+                    console.log("보드 생성 실패: boardName");
+                    console.log("Board created with name: " + boardName);
+                    modal.style.display = "none";
+                    location.reload(true);
+                }
+            });
+        });
+    })
+    // End.$(document).ready
+
+    // 토큰 가져오기
+    function getToken() {
+
+        let auth = Cookies.get('Authorization');
+
+        if(auth === undefined) {
+            return '';
+        }
+
+        // kakao 로그인 사용한 경우 Bearer 추가
+        if(auth.indexOf('Bearer') === -1 && auth !== ''){
+            auth = 'Bearer ' + auth;
+        }
+
+        return auth;
+    }
+
+</script>
 </html>

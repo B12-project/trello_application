@@ -12,11 +12,14 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,6 +41,15 @@ public class SecurityConfig {
     private final AuthService authService;
 
     private final UserRepository userRepository;
+
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer(){
+//        return web -> {
+//            web.ignoring()
+//                    .requestMatchers(HttpMethod.GET, "/users/refresh");
+//        };
+//    }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -69,6 +81,7 @@ public class SecurityConfig {
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
 
+
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // resources 접근 허용 설정
@@ -77,6 +90,7 @@ public class SecurityConfig {
                         .requestMatchers("/page/**").permitAll()
                         .requestMatchers("/users/signup").permitAll()
                         .requestMatchers("/users/login").permitAll() // /users/** 로 시작하는 요청 모두 접근 허가 (스웨거의 접근도 여기서 허용 가능) (ex 특정 권한이 있는 사용자만 접근 가능하게도 설정 가능)
+                        .requestMatchers("/users/refresh").permitAll() // Refresh Token URL 인가 처리 없음. //
                         .anyRequest().authenticated() // 위의 요청 제외 모든 요청은 인증처리가 필요
         );
 
@@ -98,4 +112,6 @@ public class SecurityConfig {
         // BCrypt = 비밀번호를 암호화 해주는 Hash 함수(강력한 암호화)
         return new BCryptPasswordEncoder();
     }
+
+
 }

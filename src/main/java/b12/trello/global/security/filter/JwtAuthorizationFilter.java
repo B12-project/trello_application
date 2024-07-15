@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Slf4j(topic = "JWT 검증 및 인가")
 @RequiredArgsConstructor
@@ -30,9 +31,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        // AccessToken 가져오기
-        String accessToken = jwtUtil.getAccessTokenFromRequest(request);
-        String refreshToken = jwtUtil.getRefreshTokenFromRequest(request);
+        if (request.getRequestURI().contains("/refresh")) { // 임시코드
+            filterChain.doFilter(request, response);
+            return;
+        }
+            // AccessToken 가져오기
+            String accessToken = jwtUtil.getAccessTokenFromRequest(request);
+//        String refreshToken = jwtUtil.getRefreshTokenFromRequest(request);
 
 //        if (refreshToken == null) {
 //            throw new UserException(UserErrorCode.INVALID_REFRESH_TOKEN);
@@ -45,31 +50,34 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 && !request.getRequestURL().toString().contains("/static/favicon.ico")
         ) {
 
-            // 있으면 JWT 토큰 substring (가공)
-            accessToken = jwtUtil.substringToken(accessToken);
+                // 있으면 JWT 토큰 substring (가공)
+                accessToken = jwtUtil.substringToken(accessToken);
 
-            // 토큰 검증 시작
-            if (!jwtUtil.validateToken(accessToken)) {
-                log.error("잘못된 토큰 입니다.");
-                return;
-            }
+                // 토큰 검증 시작
+                // SecurityConfig에서 예외처리를 해도 필터는 거치게 된다.
 
-            // 토큰에서 사용자 정보 가져오기
-            Claims accessTokenClaims = jwtUtil.getUserInfoFromToken(accessToken);
-            String email = accessTokenClaims.getSubject();
-            User findUser = userDetailsService.findUserByUserName(email);
-
-            if(findUser.getRefreshToken() != null) {
-                // 인증 처리
-                try {
-                    setAuthentication(accessTokenClaims.getSubject()); // 토큰 내부 값
-                } catch (Exception e) {
-                    log.error(e.getMessage());
+                if (!jwtUtil.validateToken(accessToken)) {
+                    //여기서 반환
                     return;
                 }
-            }
 
-        }
+
+                // 토큰에서 사용자 정보 가져오기
+                Claims accessTokenClaims = jwtUtil.getUserInfoFromToken(accessToken);
+                String email = accessTokenClaims.getSubject();
+                User findUser = userDetailsService.findUserByUserName(email);
+
+                if (findUser.getRefreshToken() != null) {
+                    // 인증 처리
+                    try {
+                        setAuthentication(accessTokenClaims.getSubject()); // 토큰 내부 값
+                    } catch (Exception e) {
+                        log.error(e.getMessage());
+                        return;
+                    }
+                }
+
+            }
 
         filterChain.doFilter(request, response);
     }
@@ -87,6 +95,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private Authentication createAuthentication(String email) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+
+        String[] excludePath = {"/user/refresh"};
+        String path = request.getRequestURI();
+        return Arrays.stream(excludePath).anyMatch(path::startsWith);
     }
 
 }

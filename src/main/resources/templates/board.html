@@ -209,6 +209,7 @@
 <div class="main-contents">
     <button onclick="location.href='/users/page/login'">로그아웃</button>
     <button id="searchUserBtn">Search User</button>
+    <button id="editBoardBtn">Edit Board</button>
     <div id="board-info">
         <h1 id="board-name"></h1>
         <p id="board-description"></p>
@@ -217,6 +218,21 @@
     <div class="kanban-container" id="board">
     </div>
 </div>
+
+<!-- Edit Board Name Modal //김현성 작성-->
+<div id="editBoardNameModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Edit Board Name</h2>
+        <label for="editBoardNameInput" class="modal-label">New Board Name:</label>
+        <input type="text" id="editBoardNameInput" class="modal-input" required>
+        <label for="editBoardDescriptionInput" class="modal-label">New Board Description:</label>
+        <input type="text" id="editBoardDescriptionInput" class="modal-input" required>
+        <button id="submitBoardEditBtn">Save</button>
+        <button class="btn btn-delete" id="deleteBoardBtn">Delete Board</button>
+    </div>
+</div>
+
 
 <!-- Add Card Modal -->
 <div id="addCardModal" class="modal">
@@ -298,6 +314,7 @@
 <script>
     const host = 'http://' + window.location.host;
     let currentColumnId;
+    const boardId = new URLSearchParams(window.location.search).get('boardId');
 
     $(document).ready(function () {
         const auth = getToken();
@@ -315,6 +332,9 @@
         fetchBoardInfo(boardId);
         findColumns(boardId);
         loadWorkers(boardId);
+        $('#editBoardBtn').click(function() {
+            showEditBoardNameModal(boardId); // 보드 ID 전달
+        });
 
         $('.close-search-user-btn').click(function() {
             $('#searchUserModal').hide();
@@ -331,6 +351,16 @@
         fetchBoardInfo(boardId);
         findColumns(boardId);
         loadWorkers(boardId);
+    }
+
+    //김현성 작성
+    function showEditBoardNameModal(boardId) {
+        const currentBoardName = $('#board-name').text();
+        $('#editBoardNameInput').val(currentBoardName);
+        const currentBoardDescription = $('#board-description').text();
+        $('#editBoardDescriptionInput').val(currentBoardDescription);
+        $('#editBoardNameModal').show();
+
     }
 
     function fetchBoardInfo(boardId) {
@@ -374,8 +404,6 @@
                 $('#board').append(
                     `<div class="kanban-column column" id="column-${column.columnId}">
                         <h2>${column.columnName}</h2>
-                        <button class="edit-column-btn" onclick="openEditColumnModal(${column.columnId})">Edit</button>
-        <button class="delete-column-btn" onclick="deleteColumn(${column.columnId})">Delete</button>
                         <div class="kanban-cards" id="cards-${column.columnId}"></div>
                         <button class="add-card-btn" onclick="addCard(${column.columnId})">Add Card</button>
                     </div>`
@@ -590,6 +618,7 @@
         const searchUserModal = document.getElementById('searchUserModal');
         const closeSearchUserBtn = document.getElementsByClassName('close-search-user-btn')[0];
         const searchUserBtn = document.getElementById('searchUserBtn');
+        const submitBoardEditBtn = document.getElementById('submitBoardEditBtn');
 
 
 
@@ -613,6 +642,50 @@
         searchUserBtn.onclick = function () {
             searchUserModal.style.display = 'block';
         }
+
+        $('#submitBoardEditBtn').click(function () {
+            const boardName = $('#editBoardNameInput').val();
+            const boardContents = $('#editBoardDescriptionInput').val();
+
+            var BoardRequestDto = {
+                boardName : boardName,
+                boardInfo : boardContents
+            }
+
+            $.ajax({
+                type: 'PUT',
+                url: `/boards/${boardId}`,
+                contentType: 'application/json',
+                data: JSON.stringify(BoardRequestDto),
+                success: function (response) {
+                    console.log("보드 수정 완료");
+                    window.location.reload();
+                },
+                error: function (error) {
+                    console.log("보드 수정 에러");
+                    window.location.reload();
+                }
+            });
+
+            }
+        )
+
+        $('#deleteBoardBtn').click(function() {
+            if (confirm('Are you sure you want to delete this board?')) {
+                $.ajax({
+                    type: 'DELETE',
+                    url: `/boards/${boardId}`,
+                    success: function() {
+                        alert('Board deleted successfully!');
+                        window.location.href = host + '/boards'; // Redirect after deletion
+                    },
+                    error: function(error) {
+                        console.log("보드 삭제 호출 에러", error);
+                        alert('Failed to delete board.');
+                    }
+                });
+            }
+        });
 
         $('#submitCardBtn').click(function () {
             const cardName = $('#cardName').val();

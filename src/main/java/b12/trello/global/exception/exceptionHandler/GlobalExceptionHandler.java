@@ -61,11 +61,12 @@ public class GlobalExceptionHandler {
     /**
      * 기타 예외 처리
      */
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(Exception.class) //얘가 문제임 우리가 처리한 것 이외의 것도 포함해서 문제가 생김
     protected ResponseEntity<ErrorResponse> handleException(Exception e) {
         log.error("{} 예외 발생, caused By: {} , message: {}", e.getClass(), NestedExceptionUtils.getMostSpecificCause(e), e.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ErrorResponse.of(CommonErrorCode.INTERNAL_SERVER_ERROR));
     }
+    //묶으려면 Exceoption으로 하면 안됨 - Exception.class 최상위라서
 
 }

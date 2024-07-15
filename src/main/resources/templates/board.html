@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Kanban Board</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.css"/>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+        }
+
+        .main-contents {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .logout-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px 0;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .logout-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .kanban-container {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .kanban-column {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            width: 30%;
+            min-width: 200px;
+            transition: transform 0.2s;
+        }
+
+        .kanban-column:hover {
+            transform: scale(1.02);
+        }
+
+        .kanban-column h2 {
+            margin-top: 0;
+            font-size: 18px;
+            background-color: #2196F3;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .kanban-cards {
+            min-height: 50px;
+            padding: 10px 0;
+        }
+
+        .kanban-card {
+            background-color: #fafafa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .kanban-card:hover {
+            background-color: #f1f1f1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-card-btn, .add-column-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .add-card-btn:hover, .add-column-btn:hover {
+            background-color: #45a049;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-label {
+            display: block;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .modal-input {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .modal-input[type="date"] {
+            width: auto;
+        }
+
+        #submitCardBtn {
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        #submitCardBtn:hover {
+            background-color: #45a049;
+        }
+
+        #searchUserModal {
+            display: none;
+            position: fixed;
+            z-index: 2;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .search-user-modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+
+        .search-user-result {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+<body>
+<div class="main-contents">
+    <button onclick="location.href='/users/page/login'">로그아웃</button>
+    <button id="searchUserBtn">Search User</button>
+    <div id="board-info">
+        <h1 id="board-name"></h1>
+        <p id="board-description"></p>
+    </div>
+    <button class="add-column-btn" onclick="addColumn()">Add Column</button>
+    <div class="kanban-container" id="board">
+    </div>
+</div>
+
+<div id="addCardModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Add Card</h2>
+        <label for="cardName" class="modal-label">Card Name:</label>
+        <input type="text" id="cardName" name="cardName" class="modal-input" required>
+
+        <label for="cardContents" class="modal-label">Card Contents:</label>
+        <input type="text" id="cardContents" name="cardContents" class="modal-input" required>
+
+        <label for="workerId">Worker:</label>
+        <select id="workerId" name="workerId"></select>
+
+        <label for="deadline" class="modal-label">Deadline:</label>
+        <input type="date" id="deadline" name="deadline" class="modal-input" required>
+
+        <button id="submitCardBtn">Add Card</button>
+    </div>
+</div>
+
+
+<div id="searchUserModal" class="modal">
+    <div class="search-user-modal-content">
+        <span class="close-search-user-btn">&times;</span>
+        <h2>사용자 목록</h2>
+        <div id="searchUserResults"></div>
+    </div>
+</div>
+<script>
+    const host = 'http://' + window.location.host;
+    let currentColumnId;
+
+    $(document).ready(function () {
+        const auth = getToken();
+        const boardId = new URLSearchParams(window.location.search).get('boardId');
+
+        if (auth !== undefined && auth !== '') {
+            $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+                jqXHR.setRequestHeader('Authorization', auth);
+            });
+        } else {
+            window.location.href = host + '/users/page/login';
+            return;
+        }
+
+        fetchBoardInfo(boardId);
+        findColumns(boardId);
+        loadWorkers(boardId);
+
+        $('.close-search-user-btn').click(function() {
+            $('#searchUserModal').hide();
+        });
+
+        // 모달 열기 버튼에 사용자 목록 로딩 기능을 연결
+        $('#searchUserBtn').click(function() {
+            $('#searchUserModal').show();
+            loadUsers(boardId); // 사용자 목록을 로드
+        });
+    });
+
+    function fetchBoardInfo(boardId) {
+        $.ajax({
+            type: 'GET',
+            url: `/boards/${boardId}`,
+            contentType: 'application/json',
+            success: function (response) {
+                $('#board-name').text(response.data.boardName);
+                $('#board-description').text(response.data.boardInfo);
+                $('#board-id').text(response.data.id);
+            },
+            error: function (error) {
+                console.log("보드 정보 호출 에러");
+                window.location.href = host + '/users/page/login';
+                return;
+            }
+        });
+    }
+
+    function addColumn() {
+        const columnName = prompt('Enter column name:');
+        if (columnName) {
+            const boardId = new URLSearchParams(window.location.search).get('boardId');
+            const columnCreateRequestDto = {
+                boardId: boardId,
+                columnName: columnName
+            };
+            createColumns(columnCreateRequestDto);
+        }
+    }
+
+    function createColumns(columnCreateRequestDto) {
+        $.ajax({
+            type: 'POST',
+            url: `/columns`,
+            contentType: 'application/json',
+            data: JSON.stringify(columnCreateRequestDto),
+            success: function (response) {
+                const column = response.data;
+                $('#board').append(
+                    `<div class="kanban-column column" id="column-${column.columnId}">
+                        <h2>${column.columnName}</h2>
+                        <div class="kanban-cards" id="cards-${column.columnId}"></div>
+                        <button class="add-card-btn" onclick="addCard(${column.columnId})">Add Card</button>
+                    </div>`
+                );
+                initializeSortable();
+            },
+            error(error, status, request) {
+                console.log("컬럼 생성 실패");
+            }
+        });
+    }
+
+    function findColumns(boardId) {
+        $.ajax({
+            type: 'GET',
+            url: `/columns?boardId=${boardId}`,
+            contentType: 'application/json',
+            success: function (response) {
+                for (let i = 0; i < response.data.length; i++) {
+                    const column = response.data[i];
+                    $('#board').append(
+                        `<div class="kanban-column column" id="column-${column.columnId}">
+                        <h2>${column.columnName}</h2>
+                        <div class="kanban-cards" id="cards-${column.columnId}">
+                        </div>
+                        <button class="add-card-btn" onclick="addCard(${column.columnId})">Add Card</button>
+                    </div>`
+                    );
+                    findCards(column.columnId);
+                }
+                initializeSortable();
+            },
+            error(error, status, request) {
+                console.log("columns 호출 에러");
+            }
+        });
+    }
+
+    function findCards(columnId) {
+        $.ajax({
+            type: 'GET',
+            url: `/cards?columnId=${columnId}`,
+            contentType: 'application/json',
+            success: function (response) {
+                for (const card of response.data.cardList) {
+                    $(`#cards-${response.data.columnId}`).append(
+                        `<div class="kanban-card" id="${card.cardId}" draggable="true">${card.cardName}</div>`
+                    );
+                }
+                initializeSortable();
+            },
+            error(error, status, request) {
+                console.log("cards 호출 에러");
+            }
+        });
+    }
+
+    // 사용자 검색용 유저 목록 출력 함수
+    function loadUsers(boardId) {
+        $.ajax({
+            type: 'GET',
+            url: `/boards/search/users`,
+            contentType: 'application/json',
+            success: function (response) {
+                const resultsContainer = $('#searchUserResults');
+                resultsContainer.empty(); // 기존 내용을 지움
+                for (const responseElement of response.data) {
+                    const userDiv = $('<div>').addClass('user-entry').text(responseElement);
+                    const inviteBtn = $('<button>').text('일반 초대').click(() => inviteUser(boardId, responseElement, "INVITEE"));
+                    const managerBtn = $('<button>').text('매니저로 초대').click(() => inviteUser(boardId, responseElement, "MANAGER"));
+                    userDiv.append(inviteBtn, managerBtn);
+                    resultsContainer.append(userDiv);
+                }
+
+            },
+            error(error, status, request) {
+                console.log("보드 사용자 목록 호출 에러");
+            }
+        });
+    }
+    function inviteUser(boardId, userEmail, boardUserRole) {
+        // 서버에 초대 요청을 보내는 API 호출
+        var BoardInviteRequestDto = {
+            boardId: boardId,
+            userEmail: userEmail,
+            boardUserRole: boardUserRole
+        };
+        $.ajax({
+            url: '/boards/invitation',
+            method: 'POST',
+            data: JSON.stringify(BoardInviteRequestDto),
+            contentType: 'application/json',
+            success: function() {
+                alert(`${userEmail}님이 정상적으로 초대되었습니다.`);
+            },
+            error: function() {
+                alert('사용자 초대 실패');
+            }
+        });
+    }
+
+    function loadWorkers(boardId) {
+        // 여기서 API 호출을 구현합니다. 예시는 로컬 데이터를 사용합니다.
+        // 실제로는 서버에서 사용자 목록을 가져오는 API 요청 코드로 대체해야 합니다.
+        $.ajax({
+            url: `/boards/${boardId}/users`, // API 엔드포인트 경로를 설정하세요.
+            method: "GET",
+            contentType: 'application/json',
+            success: function(response) {
+                // response는 사용자 배열을 포함해야 합니다.
+                var workers = response.data; // 실제 응답 구조에 따라 조정 필요
+                var workerSelect = $("#workerId");
+                workers.forEach(function(worker) {
+                    // 각 사용자에 대해 옵션 요소를 생성하고 드롭다운에 추가
+                    var option = new Option(worker.userName, worker.userId);
+                    workerSelect.append(option);
+                });
+            },
+            error: function() {
+                console.log("사용자 정보를 불러오는데 실패했습니다.");
+            }
+        });
+    }
+
+    function getToken() {
+        let auth = Cookies.get('Authorization');
+        if (auth === undefined) {
+            return '';
+        }
+        if (auth.indexOf('Bearer') === -1 && auth !== '') {
+            auth = 'Bearer ' + auth;
+        }
+        return auth;
+    }
+
+    function initializeSortable() {
+        var columns = document.querySelectorAll('.kanban-cards');
+        columns.forEach(column => {
+            new Sortable(column, {
+                group: 'shared',
+                animation: 150,
+                onUpdate: function (event) {
+                    // 카드의 현재 위치에 따라 이전과 다음 카드를 찾기
+                    var item = event.item; // 이동된 카드
+                    var prevItem = item.previousElementSibling; // 이전 카드
+                    var nextItem = item.nextElementSibling; // 다음 카드
+
+                    // 이전과 다음 카드의 Order 값을 찾기
+                    var prevOrder = prevItem ? prevItem.getAttribute('data-order') : '없음';
+                    var nextOrder = nextItem ? nextItem.getAttribute('data-order') : '없음';
+
+                    // 알림창으로 Order 값 표시
+                    alert("이전 카드 Order: " + prevOrder + "\n다음 카드 Order: " + nextOrder);
+                }
+            });
+        });
+
+        new Sortable(document.getElementById('board'), {
+            animation: 150,
+            draggable: '.column'
+        });
+    }
+    function addCard(columnId) {
+        currentColumnId = columnId;
+        document.getElementById('addCardModal').style.display = 'block';
+    }
+    $(document).ready(function () {
+        const modal = document.getElementById('addCardModal');
+        const closeModalBtn = document.getElementsByClassName('close-btn')[0];
+        const submitCardBtn = document.getElementById('submitCardBtn');
+        const searchUserModal = document.getElementById('searchUserModal');
+        const closeSearchUserBtn = document.getElementsByClassName('close-search-user-btn')[0];
+        const searchUserBtn = document.getElementById('searchUserBtn');
+
+
+
+        closeModalBtn.onclick = function () {
+            modal.style.display = 'none';
+        }
+
+        closeSearchUserBtn.onclick = function () {
+            searchUserModal.style.display = 'none';
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+            if (event.target == searchUserModal) {
+                searchUserModal.style.display = 'none';
+            }
+        }
+
+        searchUserBtn.onclick = function () {
+            searchUserModal.style.display = 'block';
+        }
+
+        $('#submitCardBtn').click(function () {
+            const cardName = $('#cardName').val();
+            const cardContents = $('#cardContents').val();
+            const workerId = $('#workerId').val();
+            const deadline = $('#deadline').val();
+            if (cardName && cardContents && workerId && deadline) {
+                const column = document.getElementById(`cards-${currentColumnId}`);
+                const newCard = document.createElement('div');
+                newCard.className = 'kanban-card';
+                newCard.textContent = cardName;
+                newCard.setAttribute('draggable', 'true');
+                newCard.id = 'card-' + Date.now();
+                column.appendChild(newCard);
+                modal.style.display = 'none';
+                $('#cardName').val('');
+                $('#cardContents').val('');
+                $('#workerId').val('');
+                $('#deadline').val('');
+                initializeSortable();
+
+                var CardCreateRequestDto = {
+                    columnId: currentColumnId,
+                    cardName: cardName,
+                    cardContents: cardContents,
+                    workerId: workerId,
+                    deadline: deadline
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: `/cards`,
+                    contentType: 'application/json',
+                    data: JSON.stringify(CardCreateRequestDto),
+                    success: function (response) {
+                        console.log("카드 생성 완료");
+                    },
+                    error: function (error) {
+                        console.log("카드 생성 에러");
+                    }
+                });
+            } else {
+                alert("모든 필드를 입력해 주세요.");
+            }
+        })
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+### USER 1 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "email" : "q",
+  "password": "q"
+}
+
+> {% client.global.set("ACCESS_TOKEN", response.headers.valueOf("Authorization")); %}
+
+### User Profile 조회
+GET http://localhost:8080/users/profile
+Content-Type: application/json
+Authorization:{{ACCESS_TOKEN}}
+
+#### 보드 등록
+#POST http://localhost:8080/boards
+#Authorization: {{USER1_TOKEN}}
+#Content-Type: application/json
+#
+#{
+#  "boardName": "새로운 보드 이름3",
+#  "boardInfo": "새로운 보드 정보"
+#}
+
+### 보드들 전체 조회
+GET http://localhost:8080/boards/manager
+Authorization: {{ACCESS_TOKEN}}
+
+### 컬럼 생성1
+POST http://localhost:8080/columns
+Authorization:{{ACCESS_TOKEN}}
+Content-Type: application/json
+
+{
+  "columnName" : "하이4",
+  "boardId" : 5
+}
+### 컬럼 생성2
+POST http://localhost:8080/columns
+Authorization:{{ACCESS_TOKEN}}
+Content-Type: application/json
+
+{
+  "columnName" : "하이5",
+  "boardId" : 5
+}
+### 컬럼 생성3
+POST http://localhost:8080/columns
+Authorization:{{ACCESS_TOKEN}}
+Content-Type: application/json
+
+{
+  "columnName" : "하이6",
+  "boardId" : 5
+}
+### 컬럼 조회
+GET http://localhost:8080/columns
+Authorization:{{ACCESS_TOKEN}}
+Content-Type: application/json
+
+{
+  "boardId":7
+}
+### 카드 생성1
+POST http://localhost:8080/cards
+Authorization: {{ACCESS_TOKEN}}
+Content-Type: application/json
+
+{
+  "columnId": 1,
+  "cardName": "cardName_3225c6b9ca08",
+  "userId": 1,
+  "deadline": "2024-07-11"
+}
+### 카드 생성2
+POST http://localhost:8080/cards
+Authorization: {{ACCESS_TOKEN}}
+Content-Type: application/json
+
+{
+  "columnId": 1,
+  "cardName": "cardName_3225c6b9ca08",
+  "userId": 1,
+  "deadline": "2024-07-11"
+}
+### 카드 생성3
+POST http://localhost:8080/cards
+Authorization: {{ACCESS_TOKEN}}
+Content-Type: application/json
+
+{
+  "columnId": 1,
+  "cardName": "cardName_3225c6b9ca08",
+  "userId": 1,
+  "deadline": "2024-07-11"
+}

@@ -43,6 +43,4 @@ public class Columns extends TimeStamped {
         this.board = board;
         this.columnOrder = order;
     }
-
-
 }

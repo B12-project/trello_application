@@ -41,7 +41,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         log.info("accessToken: " + accessToken);
 
         // 토큰 값이 있는지 확인
-        if(StringUtils.hasText(accessToken)) {
+        if(StringUtils.hasText(accessToken)
+                && !request.getRequestURL().toString().contains("/static/favicon.ico")
+        ) {
 
             // 있으면 JWT 토큰 substring (가공)
             accessToken = jwtUtil.substringToken(accessToken);

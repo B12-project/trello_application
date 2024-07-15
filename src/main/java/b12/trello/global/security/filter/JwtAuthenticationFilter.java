@@ -85,7 +85,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
         log.info("로그인 성공 JWT 생성");
-        Long id = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getId();
+        //Long id = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getId();
         String email = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         User.UserAuth auth = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getAuth();
 
@@ -94,9 +94,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         // 토큰을 헤더에 전달
         jwtUtil.addJwtToHeader(response, JwtUtil.AUTHORIZATION_HEADER, accessToken);
+        jwtUtil.addJwtToHeader(response, JwtUtil.REFRESH_TOKEN_HEADER, refreshToken);
 
         // refreshToken Entity 에 저장
-        authService.updateRefreshToken(id, refreshToken);
+        authService.updateRefreshToken(email, jwtUtil.substringToken(refreshToken));
 
         // 확인용
         log.info("accessToken: " + accessToken);

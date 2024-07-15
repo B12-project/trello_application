@@ -14,7 +14,8 @@ import java.util.Optional;
 @Getter
 @Table(name="users")
 @NoArgsConstructor
-@SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP where id = ?")
+// 조회 시 @Where를 사용하면 소프트 딜리트 된 걸 제외하고 조회 할 수 있음
+@SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP where id = ?") //삭제가 들어왔을 때 업데이트 문을 대신 나가도록
 public class User extends TimeStampedWithDeletedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

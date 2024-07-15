@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.hibernate.query.sqm.tree.SqmNode.log;
+
 
 @Service
 @RequiredArgsConstructor
@@ -79,15 +81,27 @@ public class UserService {
     }
 
 
-    public void updatePassword(User user, PasswordRequestDto requestDto) {
+    public void updatePassword(User user, String currentPassword, String newPassword) {
 
-        // 동일한 비밀번호로 변경 할 수 없음
-        // 그런데 encode 된 비밀번호가 평문은 같아도 비문이 다른 것 같음...
-        if (passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-            throw new UserException(UserErrorCode.PASSWORD_DUPLICATED);
+
+//        log.info(user.getName());
+//        log.info(currentPassword);
+//        log.info(newPassword);
+
+        if (currentPassword == null || newPassword == null) {
+            throw new IllegalArgumentException("Passwords cannot be null");
         }
 
-        String encodedPassword = passwordEncoder.encode((requestDto.getPassword()));
+        // 현재 비밀번호가 일치하는지 확인
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        // 새로운 비밀번호가 동일한지 확인
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new UserException(UserErrorCode.PASSWORD_DUPLICATED);
+        }
+        String encodedPassword = passwordEncoder.encode(newPassword);
         user.updatePassword(Optional.ofNullable(encodedPassword));
         userRepository.save(user);
     }

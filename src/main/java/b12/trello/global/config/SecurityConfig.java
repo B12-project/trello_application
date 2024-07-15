@@ -84,11 +84,19 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
-                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // resources 접근 허용 설정 (이게 왜 필요할까?)
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // resources 접근 허용 설정
+                        .requestMatchers("/").permitAll() // 메인 페이지 요청 허가
+                        .requestMatchers("/users/page/**").permitAll()
+                        .requestMatchers("/page/**").permitAll()
                         .requestMatchers("/users/signup").permitAll()
                         .requestMatchers("/users/login").permitAll() // /users/** 로 시작하는 요청 모두 접근 허가 (스웨거의 접근도 여기서 허용 가능) (ex 특정 권한이 있는 사용자만 접근 가능하게도 설정 가능)
                         .requestMatchers("/users/refresh").permitAll() // Refresh Token URL 인가 처리 없음. //
                         .anyRequest().authenticated() // 위의 요청 제외 모든 요청은 인증처리가 필요
+        );
+
+        http.formLogin((formLogin) ->
+                formLogin
+                        .loginPage("/users/page/login").permitAll()
         );
 
         // 필터 관리 (동작 순서 지정)

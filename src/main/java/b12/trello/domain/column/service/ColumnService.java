@@ -12,9 +12,11 @@ import b12.trello.global.exception.customException.ColumnException;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ColumnService {
@@ -37,7 +39,7 @@ public class ColumnService {
         Columns columns = Columns.builder()
             .board(board)
             .columnName(requestDto.getColumnName())
-            .order(columnOrder)
+            .order(columnOrder+1)
             .build(); //컬럼 생성
 
         columnRepository.save(columns);
@@ -103,8 +105,9 @@ public class ColumnService {
         Long boardId = board.getId();
 
         // valid 순서인지 확인
-        Long maxOrder = columnRepository.countByBoardId(boardId) - 1;
+        Long maxOrder = columnRepository.countByBoardId(boardId);
         if (newOrder < 0 || newOrder > maxOrder) {
+            log.info("순서 범위 오류, 현재값: "+newOrder+", 최대값: "+maxOrder);
             throw new ColumnException(ColumnErrorCode.INVALID_ORDER);
         }
 
@@ -139,5 +142,11 @@ public class ColumnService {
         Board board = boardRepository.findByIdOrElseThrow(boardId);
         board.checkBoardDeleted();
         return board;
+    }
+
+    public ColumnFindResponseDto findColumn(Long columnId) {
+        Columns columns = columnRepository.findByIdOrElseThrow(columnId);
+
+        return new ColumnFindResponseDto(columns);
     }
 }

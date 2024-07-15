@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .signup-container {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .signup-container h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .signup-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .password-requirements {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .signup-container button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+
+        .signup-container .login-btn {
+            background-color: #007bff;
+        }
+
+        .admin-section {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="signup-form">
+    <div class="signup-container">
+        <h1>Sign Up</h1>
+        <input type="email" id="email" placeholder="Enter email">
+        <input type="password" id="password" placeholder="Enter password">
+        <div class="password-requirements">
+            비밀번호는 영문 대,소문자와 숫자, 특수기호가 적어도 1개 이상씩 포함된 8~20자입니다.
+        </div>
+        <input type="text" id="name" placeholder="Enter name">
+        <div>
+            <label>
+                <input type="checkbox" id="is-admin-checkbox" onchange="toggleAdminKey()"> Sign up as admin
+            </label>
+        </div>
+        <div class="admin-section" id="admin-section">
+            <input type="text" id="admin-key" placeholder="Enter admin key">
+        </div>
+        <button onclick="onSignUp()">Sign Up</button>
+        <button class="login-btn" onclick="location.href='/users/page/login'">Login</button>
+    </div>
+    <div id="signup-failed" style="display:none" class="alert alert-danger" role="alert">회원가입에 실패하였습니다.</div>
+</div>
+
+<script>
+    function toggleAdminKey() {
+        const adminSection = document.getElementById('admin-section');
+        const isAdminCheckbox = document.getElementById('is-admin-checkbox');
+        adminSection.style.display = isAdminCheckbox.checked ? 'block' : 'none';
+    }
+
+    const href = location.href;
+    const queryString = href.substring(href.indexOf("?") + 1)
+    if (queryString === 'error') {
+        const errorDiv = document.getElementById('signup-failed');
+        errorDiv.style.display = 'block';
+    }
+
+    const host = 'http://' + window.location.host;
+
+    function onSignUp() {
+        let email = document.getElementById('email').value;
+        let password = document.getElementById('password').value;
+        let name = document.getElementById('name').value;
+        let isAdmin = document.getElementById('is-admin-checkbox').checked;
+        let adminKey = isAdmin ? document.getElementById('admin-key').value : null;
+
+        const data = {
+            email: email,
+            password: password,
+            name: name,
+            adminKey: adminKey
+        };
+
+        fetch('/users/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("Sign Up Successful");
+                    window.location.href = host + '/users/page/login';
+                } else {
+                    throw new Error("Sign Up Failed");
+                }
+            })
+            .catch(error => {
+                alert(error.message);
+                window.location.href = host + '/users/page/signup?error';
+            });
+    }
+</script>
+</body>
+</html>

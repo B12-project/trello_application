@@ -14,11 +14,13 @@ import b12.trello.domain.board.entity.Board;
 import b12.trello.domain.boardUser.repository.BoardUserRepository;
 import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.comment.dto.CommentModifyRequestDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -36,7 +38,7 @@ public class CommentService {
         Comment comment = Comment.builder()
                 .card(card)
                 .user(user)
-                .Contents(requestDto.getContent())
+                .contents(requestDto.getContent())
                 .build();
 
         commentRepository.save(comment);
@@ -68,6 +70,7 @@ public class CommentService {
         Comment comment = getValidatedCommentAndCheckBoardUser(user, commentId);
 
         if (!comment.getUser().getId().equals(user.getId())) {
+            log.info("asdf");
             throw new CommentException(CommentErrorCode.ACCESS_DENIED);
         }
 

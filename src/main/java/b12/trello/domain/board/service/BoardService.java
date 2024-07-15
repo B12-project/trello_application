@@ -132,5 +132,4 @@ public class BoardService {
                 .map(BoardResponseDto::new)
                 .collect(Collectors.toList());
     }
-
 }

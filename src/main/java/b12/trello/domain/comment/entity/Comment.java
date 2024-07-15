@@ -29,9 +29,9 @@ public class Comment extends TimeStamped {
     private User user;
 
     @Column(nullable = false)
-    private String Contents;
+    private String contents;
 
     public void update(String content) {
-        this.Contents = content;
+        this.contents = content;
     }
 }

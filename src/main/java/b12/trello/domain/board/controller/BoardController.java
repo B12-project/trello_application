@@ -3,7 +3,9 @@ package b12.trello.domain.board.controller;
 import b12.trello.domain.board.dto.BoardInviteRequestDto;
 import b12.trello.domain.board.dto.BoardRequestDto;
 import b12.trello.domain.board.dto.BoardResponseDto;
+import b12.trello.domain.board.dto.BoardUserResponseDto;
 import b12.trello.domain.board.service.BoardService;
+import b12.trello.domain.boardUser.service.BoardUserService;
 import b12.trello.domain.user.entity.User;
 import b12.trello.global.response.BasicResponse;
 import b12.trello.global.security.UserDetailsImpl;
@@ -24,6 +26,7 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
+    private final BoardUserService boardUserService;
 
     // 보드 등록
     @PostMapping
@@ -133,7 +136,9 @@ public class BoardController {
     ) {
         // userDetails에서 로그인한 사용자 정보 가져오기
         User inviter = userDetails.getUser();
-
+        log.info("꺼내보기1: "+boardInviteRequestDto.getBoardId());
+        log.info("꺼내보기2: "+boardInviteRequestDto.getUserEmail());
+        log.info("꺼내보기3: "+boardInviteRequestDto.getBoardUserRole());
         // 나머지 로직 처리
         boardService.inviteUserByEmail(boardInviteRequestDto, inviter);
 
@@ -143,4 +148,16 @@ public class BoardController {
                         .of(HttpStatus.OK.value(), "사용자 초대 성공"));
     }
 
+    // 현재 보드에 참여중인 유저 조회
+    @GetMapping("/{boardId}/users")
+    public ResponseEntity<BasicResponse<List<BoardUserResponseDto>>> findUsersInBoard(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long boardId
+    ) {
+        List<BoardUserResponseDto> users = boardUserService.findUsersInBoard(boardId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(BasicResponse
+                        .of("보드 사용자 조회 성공", users));
+    }
 }

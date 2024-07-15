@@ -282,6 +282,19 @@
         <button id="submitEditCardBtn">Save Changes</button>
     </div>
 </div>
+
+
+<div id="editColumnModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Edit Column</h2>
+        <label for="editColumnName" class="modal-label">Column Name:</label>
+        <input type="text" id="editColumnName" name="editColumnName" class="modal-input" required>
+        <div id="columnNameError" class="error-message" style="display: none; color: red;">컬럼 이름은 필수값입니다.</div>
+        <button id="submitEditColumnBtn">Save Changes</button>
+    </div>
+</div>
+
 <script>
     const host = 'http://' + window.location.host;
     let currentColumnId;
@@ -313,6 +326,12 @@
             loadUsers(boardId); // 사용자 목록을 로드
         });
     });
+
+    function loadBoard(boardId) {
+        fetchBoardInfo(boardId);
+        findColumns(boardId);
+        loadWorkers(boardId);
+    }
 
     function fetchBoardInfo(boardId) {
         $.ajax({
@@ -355,6 +374,8 @@
                 $('#board').append(
                     `<div class="kanban-column column" id="column-${column.columnId}">
                         <h2>${column.columnName}</h2>
+                        <button class="edit-column-btn" onclick="openEditColumnModal(${column.columnId})">Edit</button>
+        <button class="delete-column-btn" onclick="deleteColumn(${column.columnId})">Delete</button>
                         <div class="kanban-cards" id="cards-${column.columnId}"></div>
                         <button class="add-card-btn" onclick="addCard(${column.columnId})">Add Card</button>
                     </div>`
@@ -378,6 +399,8 @@
                     $('#board').append(
                         `<div class="kanban-column column" id="column-${column.columnId}">
                         <h2>${column.columnName}</h2>
+                        <button class="edit-column-btn" onclick="openEditColumnModal(${column.columnId})">Edit</button>
+        <button class="delete-column-btn" onclick="deleteColumn(${column.columnId})">Delete</button>
                         <div class="kanban-cards" id="cards-${column.columnId}">
                         </div>
                         <button class="add-card-btn" onclick="addCard(${column.columnId})">Add Card</button>
@@ -823,10 +846,69 @@
         });
     });
 
+    // 컬럼 수정 모달을 여는 함수
+    function openEditColumnModal(columnId) {
+        $.ajax({
+            url: `/columns/${columnId}`,
+            type: 'GET',
+            success: function (response) {
+                console.log('Column data:', response); // 데이터 확인
+                $('#editColumnName').val(response.data.columnName);
+                $('#submitEditColumnBtn').data('column-id', columnId);
+                $('#editColumnModal').show();
+            },
+            error: function (error) {
+                console.error('Error fetching column data:', error);
+            }
+        });
+    }
+
+    // 컬럼 삭제 함수
+    function deleteColumn(columnId) {
+        $.ajax({
+            url: `/columns/${columnId}`,
+            type: 'DELETE',
+            success: function () {
+                window.location.reload()
+            },
+            error: function (error) {
+                console.error('Error deleting column:', error);
+            }
+        });
+    }
+
+    // 수정한 컬럼 정보를 서버에 전송하는 함수
+    $('#submitEditColumnBtn').on('click', function () {
+        const columnId = $(this).data('column-id');
+        const columnName =  $('#editColumnName').val();
+
+        if (!columnName) {
+            $('#columnNameError').show(); // 에러 메시지 표시
+            return; // 유효성 검사를 통과하지 못하면 전송하지 않음
+        }
+        const columnData = {
+            columnName: columnName
+        };
+        $.ajax({
+            url: `/columns/${columnId}`,
+            type: 'PATCH',
+            contentType: 'application/json',
+            data: JSON.stringify(columnData),
+            success: function () {
+                window.location.reload()
+                $('#editColumnModal').hide();
+            },
+            error: function (error) {
+                console.error('Error updating column:', error);
+            }
+        });
+    });
+
     // 모달 닫기 버튼 핸들러
     $('.close-btn').on('click', function () {
         $(this).closest('.modal').hide();
     });
+
 
 </script>
 </body>

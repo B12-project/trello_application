@@ -143,4 +143,10 @@ public class ColumnService {
         board.checkBoardDeleted();
         return board;
     }
+
+    public ColumnFindResponseDto findColumn(Long columnId) {
+        Columns columns = columnRepository.findByIdOrElseThrow(columnId);
+
+        return new ColumnFindResponseDto(columns);
+    }
 }

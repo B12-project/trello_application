@@ -35,10 +35,13 @@ public class ColumnController {
     }
 
 
-//    @GetMapping
-//    public ResponseEntity<BasicResponse<String>> asdf() {
-//        return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼목록", "아니왜"));
-//    }
+    @GetMapping("/{columnId}")
+    public ResponseEntity<BasicResponse<ColumnFindResponseDto>> findColumn(
+            @PathVariable Long columnId
+    ) {
+        ColumnFindResponseDto responseDto = columnService.findColumn(columnId);
+        return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 단일 조회 성공", responseDto));
+    }
 
     //컬럼 목록 조회
     @GetMapping

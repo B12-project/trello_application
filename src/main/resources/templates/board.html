@@ -23,19 +23,20 @@
             text-align: center;
         }
 
-        .logout-btn {
-            background-color: #f44336;
+        .logout-btn, .add-column-btn, .add-card-btn, #submitCardBtn, #submitEditCardBtn, #submitEditColumnBtn {
+            background-color: #4CAF50;
             color: white;
             padding: 10px 20px;
-            margin: 10px 0;
             border: none;
             cursor: pointer;
             border-radius: 5px;
             font-size: 16px;
+            margin: 10px 0;
+            transition: background-color 0.3s ease;
         }
 
-        .logout-btn:hover {
-            background-color: #d32f2f;
+        .logout-btn:hover, .add-column-btn:hover, .add-card-btn:hover, #submitCardBtn:hover, #submitEditCardBtn:hover, #submitEditColumnBtn:hover {
+            background-color: #45a049;
         }
 
         .kanban-container {
@@ -46,12 +47,12 @@
         }
 
         .kanban-column {
-            background-color: #fff;
+            background-color: #ffffff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 15px;
+            padding: 20px;
             width: 30%;
-            min-width: 200px;
+            min-width: 250px;
             transition: transform 0.2s;
         }
 
@@ -61,7 +62,7 @@
 
         .kanban-column h2 {
             margin-top: 0;
-            font-size: 18px;
+            font-size: 20px;
             background-color: #2196F3;
             color: white;
             padding: 10px;
@@ -77,8 +78,8 @@
             background-color: #fafafa;
             border: 1px solid #ccc;
             border-radius: 5px;
-            padding: 10px;
-            margin: 5px 0;
+            padding: 15px;
+            margin: 10px 0;
             cursor: pointer;
             transition: background-color 0.2s, box-shadow 0.2s;
         }
@@ -86,21 +87,6 @@
         .kanban-card:hover {
             background-color: #f1f1f1;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .add-card-btn, .add-column-btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-
-        .add-card-btn:hover, .add-column-btn:hover {
-            background-color: #45a049;
         }
 
         .modal {
@@ -112,32 +98,33 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgb(0,0,0);
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.5);
         }
 
         .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
+            background-color: #fff;
+            margin: 10% auto;
             padding: 20px;
             border: 1px solid #888;
             width: 80%;
-            max-width: 400px;
+            max-width: 500px;
             border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
-        .close-btn {
+        .close-btn, .close-search-user-btn {
             color: #aaa;
             float: right;
             font-size: 28px;
             font-weight: bold;
+            cursor: pointer;
         }
 
-        .close-btn:hover,
-        .close-btn:focus {
+        .close-btn:hover, .close-search-user-btn:hover,
+        .close-btn:focus, .close-search-user-btn:focus {
             color: black;
             text-decoration: none;
-            cursor: pointer;
         }
 
         .modal-label {
@@ -148,52 +135,49 @@
 
         .modal-input {
             width: calc(100% - 20px);
-            padding: 8px;
+            padding: 10px;
             margin-top: 5px;
             border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .modal-input[type="date"] {
-            width: auto;
-        }
-
-        #submitCardBtn {
-            margin-top: 20px;
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
             border-radius: 5px;
             font-size: 14px;
         }
 
-        #submitCardBtn:hover {
-            background-color: #45a049;
+        .modal-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
         }
 
-        #searchUserModal {
+        .modal-buttons .modal-button {
+            background-color: #2196F3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-buttons .modal-button:hover {
+            background-color: #1976D2;
+        }
+
+        .error-message {
+            color: red;
             display: none;
-            position: fixed;
-            z-index: 2;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0, 0, 0);
-            background-color: rgba(0, 0, 0, 0.4);
         }
 
         .search-user-modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
+            background-color: #fff;
+            margin: 5% auto;
             padding: 20px;
             border: 1px solid #888;
             width: 80%;
             max-width: 600px;
             border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
         .search-user-result {
@@ -202,7 +186,97 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             background-color: #fafafa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+
+        .user-entry {
+            margin-right: 10px;
+        }
+
+        .user-entry button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-left: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-entry button:hover {
+            background-color: #45a049;
+        }
+
+        #comments-section {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #comments-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .comment {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .comment .comment-text {
+            margin-bottom: 5px;
+        }
+
+        .comment .comment-actions {
+            text-align: right;
+        }
+
+        .comment .comment-actions button {
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-left: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .comment .comment-actions button:hover {
+            background-color: #d32f2f;
+        }
+
+        #newCommentText {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #addCommentBtn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        #addCommentBtn:hover {
+            background-color: #45a049;
+        }
+
     </style>
 </head>
 <body>
@@ -275,6 +349,12 @@
             <button class="modal-button edit-button">Edit</button>
             <button class="modal-button delete-button">Delete</button>
         </div>
+        <div id="comments-section">
+            <h3>Comments</h3>
+            <div id="comments-list"></div>
+            <textarea id="newCommentText" placeholder="Add a comment..."></textarea>
+            <button id="addCommentBtn">Add Comment</button>
+        </div>
     </div>
 </div>
 
@@ -315,6 +395,7 @@
     const host = 'http://' + window.location.host;
     let currentColumnId;
     const boardId = new URLSearchParams(window.location.search).get('boardId');
+    let currentCardId;
 
     $(document).ready(function () {
         const auth = getToken();
@@ -677,7 +758,7 @@
                     url: `/boards/${boardId}`,
                     success: function() {
                         alert('Board deleted successfully!');
-                        window.location.href = host + '/boards'; // Redirect after deletion
+                        window.location.href = host; // Redirect after deletion
                     },
                     error: function(error) {
                         console.log("보드 삭제 호출 에러", error);
@@ -780,6 +861,7 @@
     }
 
     function showCardDetails(cardId) {
+        currentCardId = cardId
         // 여기서 서버로부터 카드 상세 정보를 불러오는 AJAX 요청을 보낼 수 있습니다.
         $.ajax({
             type: 'GET',
@@ -809,6 +891,7 @@
                 document.querySelector('.modal-buttons .edit-button').onclick = function() {
                     openEditCardModal(cardId);
                 };
+                loadComments(cardId);
             },
             error: function (error) {
                 console.log("Failed to fetch card details");
@@ -981,6 +1064,98 @@
     $('.close-btn').on('click', function () {
         $(this).closest('.modal').hide();
     });
+    function loadComments(cardId) {
+        /*
+        private Long id;
+        private Long cardId;
+        private String username;
+        private String content;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+         */
+        $.ajax({
+            type: 'GET',
+            url: `/comments/${cardId}`,
+            contentType: 'application/json',
+            success: function (response) {
+                const commentsList = document.getElementById('comments-list');
+                commentsList.innerHTML = '';
+                response.data.forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment';
+                    commentElement.innerHTML = `
+                    <div class="comment-text">
+                        <strong>${comment.username}:</strong> ${comment.content}
+                    </div>
+                    <div class="comment-actions">
+                        <button onclick="deleteComment(${comment.id}, ${cardId})">Delete</button>
+                        <button onclick="editComment(${comment.id}, '${comment.content}', ${cardId})">Edit</button>
+                    </div>
+                `;
+                    commentsList.appendChild(commentElement);
+                });
+            },
+            error: function (error) {
+                console.log("Failed to load comments");
+            }
+        });
+    }
+
+    document.getElementById('addCommentBtn').onclick = function() {
+        const cardId = currentCardId;
+        const content = document.getElementById('newCommentText').value;
+        console.log($(this).data());
+        if (content) {
+            $.ajax({
+                type: 'POST',
+                url: `/comments`,
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    cardId: cardId,
+                    content: content
+                }),
+                success: function () {
+                    document.getElementById('newCommentText').value = '';
+                    loadComments(cardId);
+                },
+                error: function (error) {
+                    console.log("Failed to add comment");
+                }
+            });
+        }
+    };
+
+    function deleteComment(commentId, cardId) {
+        $.ajax({
+            type: 'DELETE',
+            url: `/comments/${commentId}`,
+            contentType: 'application/json',
+            success: function () {
+                loadComments(cardId);
+            },
+            error: function (error) {
+                console.log("Failed to delete comment");
+            }
+        });
+    }
+
+    function editComment(commentId, currentText, cardId) {
+        const newText = prompt("Edit your comment:", currentText);
+        if (newText && newText !== currentText) {
+            $.ajax({
+                type: 'PUT',
+                url: `/comments/${commentId}`,
+                contentType: 'application/json',
+                data: JSON.stringify({ content: newText }),
+                success: function () {
+                    loadComments(cardId);
+                },
+                error: function (error) {
+                    console.log("Failed to edit comment");
+                }
+            });
+        }
+    }
 
 
 </script>

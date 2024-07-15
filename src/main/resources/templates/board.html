@@ -218,6 +218,7 @@
     </div>
 </div>
 
+<!-- Add Card Modal -->
 <div id="addCardModal" class="modal">
     <div class="modal-content">
         <span class="close-btn">&times;</span>
@@ -238,12 +239,27 @@
     </div>
 </div>
 
-
+<!-- Search User Modal -->
 <div id="searchUserModal" class="modal">
     <div class="search-user-modal-content">
         <span class="close-search-user-btn">&times;</span>
         <h2>사용자 목록</h2>
         <div id="searchUserResults"></div>
+    </div>
+</div>
+
+<!-- Card Details Modal -->
+<div id="cardDetailsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Card Details</h2>
+        <p id="cardNameDetail">Card Name: <span></span></p>
+        <p id="cardDescriptionDetail">Description: <span></span></p>
+        <p id="cardDueDateDetail">Due Date: <span></span></p>
+<!--        <div class="modal-buttons">-->
+<!--            <button class="modal-button" onclick="openEditCardModal()">Edit</button>-->
+<!--            <button class="modal-button delete-button" onclick="deleteCard()">Delete</button>-->
+<!--        </div>-->
     </div>
 </div>
 <script>
@@ -369,6 +385,7 @@
                     );
                 }
                 initializeSortable();
+                setupCardDetails();
             },
             error(error, status, request) {
                 console.log("cards 호출 에러");
@@ -412,7 +429,8 @@
             data: JSON.stringify(BoardInviteRequestDto),
             contentType: 'application/json',
             success: function() {
-                alert(`${userEmail}님이 정상적으로 초대되었습니다.`);
+                // alert(`${userEmail}님이 정상적으로 초대되었습니다.`);
+                window.location.reload();
             },
             error: function() {
                 alert('사용자 초대 실패');
@@ -429,6 +447,7 @@
             contentType: 'application/json',
             success: function(response) {
                 // response는 사용자 배열을 포함해야 합니다.
+                console.log(response.data);
                 var workers = response.data; // 실제 응답 구조에 따라 조정 필요
                 var workerSelect = $("#workerId");
                 workers.forEach(function(worker) {
@@ -628,6 +647,104 @@
         //     })
         //     .catch(error => console.error('Error moving card:', error));
     }
+    function setupCardDetails() {
+        // 카드 클릭 이벤트 리스너 추가
+        document.querySelectorAll('.kanban-card').forEach(card => {
+            card.addEventListener('click', function() {
+            });
+        });
+        document.querySelectorAll('.kanban-card').forEach(card => {
+            card.addEventListener('click', function() {
+                showCardDetails(this.id);
+            });
+        });
+
+        // 모달 닫기 버튼 설정
+        document.querySelector('#cardDetailsModal .close-btn').onclick = function() {
+            document.getElementById('cardDetailsModal').style.display = 'none';
+        };
+    }
+
+    function showCardDetails(cardId) {
+        // 여기서 서버로부터 카드 상세 정보를 불러오는 AJAX 요청을 보낼 수 있습니다.
+        $.ajax({
+            type: 'GET',
+            url: `/cards/${cardId}`,
+            contentType: 'application/json',
+            success: function (response) {
+                console.log("소속 컬럼 변경 완료");
+            },
+            error: function (error) {
+                console.log("소속 컬럼 변경 실패 에러");
+            }
+        });
+
+        // 아래는 임시 데이터를 사용한 예시입니다.
+        const cardDetails = {
+            name: "Example Card",
+            description: "This is an example card.",
+            dueDate: "2024-07-20"
+        };
+
+        // 모달 내용을 채움
+        document.querySelector('#cardNameDetail span').textContent = cardDetails.name;
+        document.querySelector('#cardDescriptionDetail span').textContent = cardDetails.description;
+        document.querySelector('#cardDueDateDetail span').textContent = cardDetails.dueDate;
+
+        // 모달 표시
+        document.getElementById('cardDetailsModal').style.display = 'block';
+    }
+
+    // 카드 수정 모달을 여는 함수
+    function openEditCardModal() {
+        $('#cardDetailsModal').hide();
+        $('#editCardModal').show();
+    }
+
+    // 카드 삭제 함수
+    function deleteCard() {
+        const cardId = $('#submitEditCardBtn').data('card-id');
+        $.ajax({
+            url: `/api/cards/${cardId}`,
+            type: 'DELETE',
+            success: function () {
+                loadBoard();
+                $('#cardDetailsModal').hide();
+            },
+            error: function (error) {
+                console.error('Error deleting card:', error);
+            }
+        });
+    }
+
+    // 수정한 카드 정보를 서버에 전송하는 함수
+    $('#submitEditCardBtn').on('click', function () {
+        const cardId = $(this).data('card-id');
+        const cardData = {
+            cardName: $('#editCardName').val(),
+            contents: $('#editCardContents').val(),
+            workerId: $('#editWorkerId').val(),
+            deadline: $('#editDeadline').val()
+        };
+        $.ajax({
+            url: `/api/cards/${cardId}`,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(cardData),
+            success: function () {
+                loadBoard();
+                $('#editCardModal').hide();
+            },
+            error: function (error) {
+                console.error('Error updating card:', error);
+            }
+        });
+    });
+
+    // 모달 닫기 버튼 핸들러
+    $('.close-btn').on('click', function () {
+        $(this).closest('.modal').hide();
+    });
 
 </script>
 </body>

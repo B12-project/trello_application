@@ -302,7 +302,7 @@
         <button id="delete-account-btn">회원 탈퇴</button>
     </div>
 </div>
-
+</body>
 <script>
     const host = 'http://' + window.location.host;
 
@@ -324,6 +324,8 @@
             url: `/users/profile`,
             contentType: 'application/json',
             success: function (response) {
+                console.log("유저 정보 수령");
+                console.log(response);
                 $('#username-display').text(response.data.name + '님');
                 $('#profile-name').val(response.data.name);
                 $('#profile-email').val(response.data.email);

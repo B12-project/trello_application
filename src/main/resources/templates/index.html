@@ -82,8 +82,16 @@
             margin-top: 20px;
         }
 
+        /*신민금 수정 시작*/
 
-        button {
+        .header-buttons {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            padding: 20px;
+        }
+
+        .header-buttons button {
             background-color: #4CAF50; /* Green */
             color: white;
             padding: 10px 20px;
@@ -94,9 +102,11 @@
             font-size: 16px;
         }
 
-        button:hover {
+        .header-buttons button:hover {
             background-color: #45a049;
         }
+
+        /*신민금 수정 끝 부분*/
 
         /* 모달 스타일 */
         .modal {
@@ -154,7 +164,13 @@
             font-size: 14px;
         }
 
-        input[type="text"] {
+        /*신민금 수정 시작2
+        모달 안 텍스트와 비밀 번호 input 설정
+
+        */
+
+        input[type="text"],
+        input[type="password"] {
             padding: 10px;
             margin-bottom: 20px;
             border: 1px solid #ccc;
@@ -162,9 +178,12 @@
             font-size: 14px;
         }
 
-        input[type="text"]:focus {
+        input[type="text"]:focus,
+        input[type="password"]:focus {
             border-color: #4CAF50;
         }
+
+        /*신민금 수정 끝2*/
 
         form button {
             background-color: #4CAF50;
@@ -182,12 +201,18 @@
     </style>
 </head>
 <body>
-<div class="main-contents">
+<div class="header-buttons">
+    <!-- 로그인한 유저 이름을 표시 신민금 수정 -->
+    <span id="username-display"></span>
+    <button id="profile-view-btn">프로필 조회</button>
     <button onclick="location.href='/users/page/login'">로그아웃</button>
     <button id="create-board-btn">보드생성</button>
+</div>
+<div class="main-contents">
     <div class="kanban-container" id="kanban-container" ondrop="dropOnBoard(event)" ondragover="allowDrop(event)">
     </div>
 </div>
+<!-- 로그인한 유저 이름을 표시 신민금 수정 -->
 <!-- Modal Structure -->
 <div id="create-board-modal" class="modal">
     <div class="modal-content">
@@ -202,6 +227,29 @@
         </form>
     </div>
 </div>
+<!-- 프로필 조회 모달 신민금 수정-->
+<div id="profile-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>프로필 조회</h2>
+        <form id="profile-form">
+            <label for="profile-name">이름:</label>
+            <input type="text" id="profile-name" name="profile-name" required>
+            <label for="profile-email">이메일:</label>
+            <input type="text" id="profile-email" name="profile-email" readonly>
+            <button type="button" id="profile-update-btn">수정</button>
+        </form>
+        <form id="password-form" style="margin-top: 20px;">
+            <h3>비밀번호 변경</h3>
+            <label for="current-password">현재 비밀번호:</label>
+            <input type="password" id="current-password" name="current-password" required>
+            <label for="new-password">새 비밀번호:</label>
+            <input type="password" id="new-password" name="new-password" required>
+            <button type="submit">변경</button>
+        </form>
+    </div>
+</div>
+<!-- 프로필 조회 모달 신민금 수정-->
 </body>
 <script>
     const host = 'http://' + window.location.host;
@@ -219,6 +267,27 @@
             window.location.href = host + '/users/page/login';
             return;
         }
+
+        // 로그인한 유저 정보 가져오기 신민금 수정
+        $.ajax({
+            type: 'GET',
+            url: `/users/profile`,
+            contentType: 'application/json',
+            success: function (response) {
+                $('#username-display').text(response.data.name + '님');
+                $('#profile-name').val(response.data.name);
+                $('#profile-email').val(response.data.email);
+            },
+            error: function (error) {
+                console.log("유저 정보 가져오기 실패", error);
+                window.location.href = host + '/users/page/login';
+            }
+        });
+
+
+
+
+
 
         $.ajax({
             type: 'GET',
@@ -308,6 +377,28 @@
             }
         }
 
+        // 프로필 모달 신민금 수정
+        var profileModal = document.getElementById("profile-modal");
+        var profileViewBtn = document.getElementById("profile-view-btn");
+        var profileClose = document.getElementsByClassName("close")[1];
+
+        profileViewBtn.onclick = function() {
+            profileModal.style.display = "block";
+        }
+
+        profileClose.onclick = function() {
+            profileModal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == profileModal) {
+                profileModal.style.display = "none";
+            }
+        }
+        // 프로필 모달 신민금 수정
+
+
+
         // Handle form submission
         $('#create-board-form').submit(function(e) {
             e.preventDefault();
@@ -337,7 +428,73 @@
                 }
             });
         });
-    })
+
+
+
+        // 프로필 수정 처리 신민금 추가
+        $('#profile-update-btn').click(function() {
+            var profileRequestDto = {
+                name: $('#profile-name').val()
+            };
+
+            $.ajax({
+                type: 'PUT',
+                url: `/users/profile`,
+                contentType: 'application/json',
+                data: JSON.stringify(profileRequestDto),
+                success: function(response) {
+                    console.log("프로필 수정 성공");
+                    profileModal.style.display = "none";
+                    location.reload(true);
+                },
+                error: function(error) {
+                    console.log("프로필 수정 실패", error);
+                    profileModal.style.display = "none";
+                }
+            });
+        });
+
+        // 비밀번호 변경 처리 신민금 추가
+        $('#password-form').submit(function(e) {
+            e.preventDefault();
+            var passwordRequestDto = {
+                password: $('#current-password').val(),
+                newPassword: $('#new-password').val()
+            };
+
+            $.ajax({
+                type: 'PUT',
+                url: `/users/password`,
+                contentType: 'application/json',
+                data: JSON.stringify(passwordRequestDto),
+                success: function(response) {
+                    console.log("비밀번호 변경 성공");
+                    profileModal.style.display = "none";
+                    location.reload(true);
+                },
+                error: function(error) {
+                    console.log("비밀번호 변경 실패", error);
+                    profileModal.style.display = "none";
+                }
+            });
+        });
+
+        // 로그아웃 처리
+        $('#logout-btn').click(function() {
+            $.ajax({
+                type: 'PUT',
+                url: `/users/logout`,
+                success: function(response) {
+                    console.log("로그아웃 성공");
+                    window.location.href = host + '/users/page/login';
+                },
+                error: function(error) {
+                    console.log("로그아웃 실패", error);
+                }
+            });
+        });
+    });
+
     // End.$(document).ready
 
     // 토큰 가져오기

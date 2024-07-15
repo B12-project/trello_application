@@ -21,6 +21,8 @@ public interface BoardUserRepository extends JpaRepository<BoardUser, Long> {
 
     Boolean existsBoardUserByBoardIdAndUserId(Long boardId, Long userId);
 
+    List<BoardUser> findByBoardId(Long boardId);
+
     default BoardUser findByBoardIdAndUserIdOrElseThrow(Long boardId, Long userId) {
         return findByBoardIdAndUserId(boardId, userId)
             .orElseThrow(() -> new BoardUserException(BoardUserErrorCode.BOARD_USER_NOT_FOUND));
@@ -44,4 +46,5 @@ public interface BoardUserRepository extends JpaRepository<BoardUser, Long> {
             throw new BoardUserException(BoardUserErrorCode.BOARD_MANAGER_ONLY);
         }
     }
+
 }

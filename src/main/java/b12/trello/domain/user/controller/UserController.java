@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import static java.lang.Math.log;
+import static org.hibernate.query.sqm.tree.SqmNode.log;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -60,8 +63,17 @@ public class UserController {
 
     @PutMapping("/password")
     public ResponseEntity<BasicResponse<Void>> updatePassword(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                           @Valid @RequestBody PasswordRequestDto requestDto) {
-        userService.updatePassword(userDetails.getUser(), requestDto);
+                                                              @Valid @RequestBody PasswordRequestDto requestDto) {
+
+        String currentPassword = requestDto.getPassword();
+        String newPassword = requestDto.getNewPassword();
+
+//        log.info(currentPassword);
+//        log.info(newPassword);
+
+
+        // 비밀번호 변경 로직
+        userService.updatePassword(userDetails.getUser(), currentPassword, newPassword);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(BasicResponse.of(HttpStatus.OK.value(), "비밀번호를 수정했습니다."));

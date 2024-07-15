@@ -8,11 +8,13 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RequestMapping("/columns")
 @RestController
 @RequiredArgsConstructor
@@ -32,6 +34,14 @@ public class ColumnController {
         return ResponseEntity.status(HttpStatus.CREATED).body(BasicResponse.of(HttpStatus.CREATED.value(), "컬럼 생성 완료", responseDto));
     }
 
+
+    @GetMapping("/{columnId}")
+    public ResponseEntity<BasicResponse<ColumnFindResponseDto>> findColumn(
+            @PathVariable Long columnId
+    ) {
+        ColumnFindResponseDto responseDto = columnService.findColumn(columnId);
+        return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 단일 조회 성공", responseDto));
+    }
 
     //컬럼 목록 조회
     @GetMapping
@@ -75,6 +85,7 @@ public class ColumnController {
             @PathVariable Long columnId,
             @Valid @RequestBody ColumnOrderModifyRequestDto requestDto
     ) {
+        log.info("modifyColumnOrder");
         columnService.modifyColumnOrder(userDetails.getUser(), columnId, requestDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 순서 변경 완료"));

@@ -114,7 +114,7 @@ public class BoardService {
 
     // 특정 유저가 참여 하고 있는 보드 조회
     public List<BoardResponseDto> findBoardListByUser(User user) {
-        List<BoardUser> boardUsers = boardUserRepository.findByUser(user);
+        List<BoardUser> boardUsers = boardUserRepository.findByUserAndBoardUserRole(user, BoardUser.BoardUserRole.INVITEE);
         return convertToBoardResponseDtoList(boardUsers);
     }
 

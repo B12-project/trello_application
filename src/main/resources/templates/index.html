@@ -247,6 +247,8 @@
             <input type="password" id="new-password" name="new-password" required>
             <button type="submit">변경</button>
         </form>
+        <!-- 회원 탈퇴 버튼 추가 -->
+        <button id="delete-account-btn">회원 탈퇴</button>
     </div>
 </div>
 <!-- 프로필 조회 모달 신민금 수정-->
@@ -477,6 +479,24 @@
                     profileModal.style.display = "none";
                 }
             });
+        });
+
+        // 회원 탈퇴 버튼 클릭 시
+        $('#delete-account-btn').click(function() {
+            if (confirm("정말로 회원 탈퇴하시겠습니까?")) {
+                $.ajax({
+                    type: 'DELETE',
+                    url: '/users/signout',
+                    success: function(response) {
+                        alert("회원 탈퇴가 완료되었습니다.");
+                        window.location.href = host + '/users/page/login';
+                    },
+                    error: function(error) {
+                        console.log("회원 탈퇴 실패", error);
+                        alert("회원 탈퇴 중 오류가 발생했습니다.");
+                    }
+                });
+            }
         });
 
         // 로그아웃 처리

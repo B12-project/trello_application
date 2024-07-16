@@ -95,14 +95,15 @@
         })
             .done(function (res, status, xhr) {
                 const token = xhr.getResponseHeader('Authorization');
-
                 Cookies.set('Authorization', token, {path: '/'})
 
                 $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
                     jqXHR.setRequestHeader('Authorization', token);
                 });
-
                 window.location.href = host;
+                // 토큰 재발급 테스트 코드
+                // alert("토큰 재발급요청");
+                // tokenRequest();
             })
             .fail(function (jqXHR, textStatus) {
                 window.location.href = host + '/users/page/login?error'

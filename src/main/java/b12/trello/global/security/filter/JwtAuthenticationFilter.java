@@ -10,11 +10,13 @@ import b12.trello.global.security.UserDetailsImpl;
 import b12.trello.global.security.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -92,17 +94,28 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String accessToken = jwtUtil.createAccessToken(email);
         String refreshToken = jwtUtil.createRefreshToken(email);
 
+
         // 토큰을 헤더에 전달
         jwtUtil.addJwtToHeader(response, JwtUtil.AUTHORIZATION_HEADER, accessToken);
-        jwtUtil.addJwtToHeader(response, JwtUtil.REFRESH_TOKEN_HEADER, refreshToken);
+        // 일반 쿠키 저장
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        response.addCookie(refreshTokenCookie);
+        // HTTPOnly 쿠키 저장
+//        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
+//                .httpOnly(true)
+//                .secure(true)
+//                .path("/")
+//                .sameSite("None")
+//                .build();
+//        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
         // refreshToken Entity 에 저장
-        authService.updateRefreshToken(email, jwtUtil.substringToken(refreshToken));
+        authService.updateRefreshToken(email, refreshToken);
 
         // 확인용
-        log.info("accessToken: " + accessToken);
-        log.info("refreshToken: " + refreshToken);
-        log.info("email: " + email);
+//        log.info("accessToken: " + accessToken);
+//        log.info("refreshToken: " + refreshToken);
+//        log.info("email: " + email);
 
         // 로그인 성공 메세지
         response.setContentType("application/json");

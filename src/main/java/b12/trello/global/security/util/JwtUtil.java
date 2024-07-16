@@ -29,6 +29,7 @@ public class JwtUtil {
     public static final String BEARER_PREFIX = "Bearer ";
 
     // Access Token 만료시간 설정
+//    private final long ACCESS_TOKEN_EXPIRATION =  30 * 60 * 1000L; // 30 * 60 * 1000L; // 30분
     private final long ACCESS_TOKEN_EXPIRATION =  30 * 60 * 1000L; // 30 * 60 * 1000L; // 30분
 
     // Refresh Token 만료기간 설정
@@ -72,8 +73,7 @@ public class JwtUtil {
         // 생성시간
         Date date = new Date();
 
-        return BEARER_PREFIX +
-                Jwts.builder()
+        return Jwts.builder()
                     .setSubject(email)
                     .setExpiration(new Date(date.getTime() + REFRESH_TOKEN_EXPIRATION))
                     .setIssuedAt(date)

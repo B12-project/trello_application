@@ -402,7 +402,6 @@
         <button id="submitEditColumnBtn">Save Changes</button>
     </div>
 </div>
-
 <script>
     const host = 'http://' + window.location.host;
     let currentColumnId;
@@ -410,17 +409,114 @@
     let currentCardId;
 
     $(document).ready(function () {
-        const auth = getToken();
+        tokenCheck().then(
+            () => make()
+        );
+    });
+
+    function tokenCheck() {
+        return new Promise((resolve, reject) => {
+            getToken().then(
+                () => serverConnect().then(
+                    (resolve) => {
+                        if (resolve === 401) {
+                            console.log("재발급 요청...");
+                            tokenRequest().then(
+                                () => getToken().then(
+                                    () => serverConnect().then(
+                                        (resolve) => {
+                                            if (resolve === 401) {
+                                                console.log("재발급 요청...");
+                                                window.location.href = host + '/users/page/login';
+                                            } else {
+                                                window.location.reload();
+                                            }
+                                        }
+                                    )
+                                )
+                            );
+                        }
+                    }
+                )
+            )
+            resolve();
+        });
+    }
+
+    function getToken() {
+        return new Promise((resolve, reject) => {
+            auth = Cookies.get('Authorization');
+            if (auth !== undefined && auth !== '') {
+                $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+                    jqXHR.setRequestHeader('Authorization', auth);
+                });
+            } else {
+                window.location.href = host + '/users/page/login';
+            }
+            resolve();
+        });
+    }
+
+    function tokenRequest() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                type: 'GET',
+                url: `/users/refresh`,
+                contentType: 'application/json',
+                success: function (response, status, xhr) {
+                    console.log({
+                        msg: "토큰 재발급 성공",
+                        data: response,
+                        상태: status + " : " + xhr.status
+                    });
+                    const token = xhr.getResponseHeader('Authorization');
+                    Cookies.set('Authorization', token, {path: '/'})
+
+                    $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+                        jqXHR.setRequestHeader('Authorization', token);
+                    });
+                    resolve();
+                },
+                error: function (xhr, status, error) {
+                    console.log({
+                        msg: "토큰 재발급 실패" + error,
+                        상태: status + " : " + xhr.status
+                    });
+                    resolve();
+                }
+            });
+        });
+    }
+
+    function serverConnect() {
+        return new Promise((resolve, reject) => {
+            // 로그인한 유저 정보 가져오기
+            $.ajax({
+                type: 'GET',
+                url: `/users/profile`,
+                contentType: 'application/json',
+                success: function (response, status, xhr) {
+                    console.log({
+                        msg: "프로필 요청 성공",
+                        data: response,
+                        상태: status + " : " + xhr.status
+                    });
+                    resolve(xhr.status);
+                },
+                error: function (xhr, status, error) {
+                    console.log({
+                        msg: "프로필 요청 실패" + error,
+                        상태: status + " : " + xhr.status
+                    });
+                    resolve(xhr.status);
+                }
+            });
+        });
+    }
+
+    function make() {
         const boardId = new URLSearchParams(window.location.search).get('boardId');
 
-        if (auth !== undefined && auth !== '') {
-            $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-                jqXHR.setRequestHeader('Authorization', auth);
-            });
-        } else {
-            window.location.href = host + '/users/page/login';
-            return;
-        }
         // 로그인한 유저 정보 가져오기
         $.ajax({
             type: 'GET',
@@ -432,26 +528,25 @@
             },
             error: function (error) {
                 console.log("유저 정보 가져오기 실패", error);
-                window.location.href = host + '/users/page/login';
             }
         });
         fetchBoardInfo(boardId);
         findColumns(boardId);
         loadWorkers(boardId);
-        $('#editBoardBtn').click(function() {
+        $('#editBoardBtn').click(function () {
             showEditBoardNameModal(boardId); // 보드 ID 전달
         });
 
-        $('.close-search-user-btn').click(function() {
+        $('.close-search-user-btn').click(function () {
             $('#searchUserModal').hide();
         });
 
         // 모달 열기 버튼에 사용자 목록 로딩 기능을 연결
-        $('#searchUserBtn').click(function() {
+        $('#searchUserBtn').click(function () {
             $('#searchUserModal').show();
             loadUsers(boardId); // 사용자 목록을 로드
         });
-    });
+    }
 
     function loadBoard(boardId) {
         fetchBoardInfo(boardId);
@@ -481,8 +576,6 @@
             },
             error: function (error) {
                 console.log("보드 정보 호출 에러");
-                window.location.href = host + '/users/page/login';
-                return;
             }
         });
     }
@@ -509,7 +602,9 @@
                 const column = response.data;
                 $('#board').append(
                     `<div class="kanban-column column" id="column-${column.columnId}">
-                        <h2>${column.columnName}</h2>
+                        <h2>${column.columnName}
+                        </h2><button class="edit-column-btn" onclick="openEditColumnModal(${column.columnId})">Edit</button>
+                        <button class="delete-column-btn" onclick="deleteColumn(${column.columnId})">Delete</button>
                         <div class="kanban-cards" id="cards-${column.columnId}"></div>
                         <button class="add-card-btn" onclick="addCard(${column.columnId})">Add Card</button>
                     </div>`
@@ -593,6 +688,7 @@
             }
         });
     }
+
     function inviteUser(boardId, userEmail, boardUserRole) {
         // 서버에 초대 요청을 보내는 API 호출
         var BoardInviteRequestDto = {
@@ -605,14 +701,14 @@
             method: 'POST',
             data: JSON.stringify(BoardInviteRequestDto),
             contentType: 'application/json',
-            success: function() {
+            success: function () {
                 alert(`${userEmail}님이 정상적으로 초대되었습니다.`);
                 window.location.reload();
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 const errorResponse = xhr.responseJSON;
                 const errorMessage = errorResponse ? errorResponse.message : 'An unexpected error occurred';
-                alert('Error: ' + errorMessage);
+                // alert('Error: ' + errorMessage);
                 // alert('사용자 초대 실패');
             }
         });
@@ -625,33 +721,22 @@
             url: `/boards/${boardId}/users`, // API 엔드포인트 경로를 설정하세요.
             method: "GET",
             contentType: 'application/json',
-            success: function(response) {
+            success: function (response) {
                 // response는 사용자 배열을 포함해야 합니다.
                 console.log(response.data);
                 var workers = response.data; // 실제 응답 구조에 따라 조정 필요
                 var workerSelect = $("#workerId");
                 workerSelect.append(new Option("No Worker", null))
-                workers.forEach(function(worker) {
+                workers.forEach(function (worker) {
                     // 각 사용자에 대해 옵션 요소를 생성하고 드롭다운에 추가
-                    var option = new Option(worker.userName, worker.userId);
+                    var option = new Option(worker.email, worker.userId);
                     workerSelect.append(option);
                 });
             },
-            error: function() {
+            error: function () {
                 console.log("사용자 정보를 불러오는데 실패했습니다.");
             }
         });
-    }
-
-    function getToken() {
-        let auth = Cookies.get('Authorization');
-        if (auth === undefined) {
-            return '';
-        }
-        if (auth.indexOf('Bearer') === -1 && auth !== '') {
-            auth = 'Bearer ' + auth;
-        }
-        return auth;
     }
 
     function initializeSortable() {
@@ -660,7 +745,7 @@
             new Sortable(column, {
                 group: 'shared',
                 animation: 150,
-                onEnd: function(evt) {
+                onEnd: function (evt) {
                     var cardId = evt.item.getAttribute('id');
                     var oldColumnId = evt.from.getAttribute('id').replace('cards-', '');
                     var newColumnId = evt.to.getAttribute('id').replace('cards-', '');
@@ -698,8 +783,9 @@
             }
         });
     }
+
     // 서버에 컬럼 순서 변경 요청
-    function updateColumnOrder(columnId,orderId) {
+    function updateColumnOrder(columnId, orderId) {
         var ColumnOrderModifyRequestDto = {
             orderId: orderId
         };
@@ -708,10 +794,10 @@
             method: 'PATCH',
             contentType: 'application/json',
             data: JSON.stringify(ColumnOrderModifyRequestDto),
-            success: function(response) {
+            success: function (response) {
                 console.log('컬럼 순서가 성공적으로 업데이트 되었습니다.');
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 alertError(xhr);
                 console.log('컬럼 순서 업데이트에 실패했습니다.');
                 console.error("Order update failed:", status, error);
@@ -719,10 +805,12 @@
             }
         });
     }
+
     function addCard(columnId) {
         currentColumnId = columnId;
         document.getElementById('addCardModal').style.display = 'block';
     }
+
     $(document).ready(function () {
         const modal = document.getElementById('addCardModal');
         const closeModalBtn = document.getElementsByClassName('close-btn')[0];
@@ -731,7 +819,6 @@
         const closeSearchUserBtn = document.getElementsByClassName('close-search-user-btn')[0];
         const searchUserBtn = document.getElementById('searchUserBtn');
         const submitBoardEditBtn = document.getElementById('submitBoardEditBtn');
-
 
 
         closeModalBtn.onclick = function () {
@@ -756,44 +843,44 @@
         }
 
         $('#submitBoardEditBtn').click(function () {
-            const boardName = $('#editBoardNameInput').val();
-            const boardContents = $('#editBoardDescriptionInput').val();
+                const boardName = $('#editBoardNameInput').val();
+                const boardContents = $('#editBoardDescriptionInput').val();
 
-            var BoardRequestDto = {
-                boardName : boardName,
-                boardInfo : boardContents
-            }
-
-            $.ajax({
-                type: 'PUT',
-                url: `/boards/${boardId}`,
-                contentType: 'application/json',
-                data: JSON.stringify(BoardRequestDto),
-                success: function (response) {
-                    console.log("보드 수정 완료");
-                    window.location.reload();
-                },
-                error: function (error) {
-                    console.log("보드 수정 에러");
-                    window.location.reload();
+                var BoardRequestDto = {
+                    boardName: boardName,
+                    boardInfo: boardContents
                 }
-            });
+
+                $.ajax({
+                    type: 'PUT',
+                    url: `/boards/${boardId}`,
+                    contentType: 'application/json',
+                    data: JSON.stringify(BoardRequestDto),
+                    success: function (response) {
+                        console.log("보드 수정 완료");
+                        window.location.reload();
+                    },
+                    error: function (error) {
+                        console.log("보드 수정 에러");
+                        window.location.reload();
+                    }
+                });
 
             }
         )
 
-        $('#deleteBoardBtn').click(function() {
+        $('#deleteBoardBtn').click(function () {
             if (confirm('Are you sure you want to delete this board?')) {
                 $.ajax({
                     type: 'DELETE',
                     url: `/boards/${boardId}`,
-                    success: function() {
+                    success: function () {
                         alert('Board deleted successfully!');
                         window.location.href = host; // Redirect after deletion
                     },
-                    error: function(error) {
+                    error: function (error) {
                         console.log("보드 삭제 호출 에러", error);
-                        alert('Failed to delete board.');
+                        // alert('Failed to delete board.');
                     }
                 });
             }
@@ -846,6 +933,7 @@
             }
         })
     });
+
     function moveCard(cardId, newColumnId) {
         $.ajax({
             type: 'PATCH',
@@ -877,17 +965,18 @@
         //     })
         //     .catch(error => console.error('Error moving card:', error));
     }
+
     function setupCardDetails() {
         // 카드 클릭 이벤트 리스너 추가
 
         document.querySelectorAll('.kanban-card').forEach(card => {
-            card.addEventListener('click', function() {
+            card.addEventListener('click', function () {
                 showCardDetails(this.id);
             });
         });
 
         // 모달 닫기 버튼 설정
-        document.querySelector('#cardDetailsModal .close-btn').onclick = function() {
+        document.querySelector('#cardDetailsModal .close-btn').onclick = function () {
             document.getElementById('cardDetailsModal').style.display = 'none';
         };
     }
@@ -918,10 +1007,10 @@
 
                 document.getElementById('cardDetailsModal').style.display = 'block';
 
-                document.querySelector('.modal-buttons .delete-button').onclick = function() {
+                document.querySelector('.modal-buttons .delete-button').onclick = function () {
                     deleteCard(cardId);
                 };
-                document.querySelector('.modal-buttons .edit-button').onclick = function() {
+                document.querySelector('.modal-buttons .edit-button').onclick = function () {
                     openEditCardModal(cardId);
                 };
                 loadComments(cardId);
@@ -959,13 +1048,13 @@
             url: `/boards/${boardId}/users`,
             method: "GET",
             contentType: 'application/json',
-            success: function(response) {
+            success: function (response) {
                 var workers = response.data; // 실제 응답 구조에 따라 조정 필요
                 var workerSelect = $("#editWorkerId");
                 workerSelect.empty(); // 기존 옵션을 지움
                 workerSelect.append(new Option("No worker", null))
-                workers.forEach(function(worker) {
-                    var option = new Option(worker.userName, worker.userId);
+                workers.forEach(function (worker) {
+                    var option = new Option(worker.email, worker.userId);
                     workerSelect.append(option);
                 });
 
@@ -989,9 +1078,9 @@
                     }
                 });
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 // 수정
-                alertError(xhr);
+                // alertError(xhr);
                 console.log("사용자 정보를 불러오는데 실패했습니다.");
             }
         });
@@ -1073,7 +1162,7 @@
     // 수정한 컬럼 정보를 서버에 전송하는 함수
     $('#submitEditColumnBtn').on('click', function () {
         const columnId = $(this).data('column-id');
-        const columnName =  $('#editColumnName').val();
+        const columnName = $('#editColumnName').val();
 
         if (!columnName) {
             $('#columnNameError').show(); // 에러 메시지 표시
@@ -1102,6 +1191,7 @@
     $('.close-btn').on('click', function () {
         $(this).closest('.modal').hide();
     });
+
     function loadComments(cardId) {
         /*
         private Long id;
@@ -1139,7 +1229,7 @@
         });
     }
 
-    document.getElementById('addCommentBtn').onclick = function() {
+    document.getElementById('addCommentBtn').onclick = function () {
         const cardId = currentCardId;
         const content = document.getElementById('newCommentText').value;
         console.log($(this).data());
@@ -1185,7 +1275,7 @@
                 type: 'PUT',
                 url: `/comments/${commentId}`,
                 contentType: 'application/json',
-                data: JSON.stringify({ content: newText }),
+                data: JSON.stringify({content: newText}),
                 success: function () {
                     loadComments(cardId);
                 },

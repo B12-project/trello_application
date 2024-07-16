@@ -16,6 +16,7 @@ public class CardFindResponseDto {
     private String cardName;
     private String cardContents;
     private Long workerId;
+    private String workerEmail;
     private LocalDate deadline;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -28,6 +29,7 @@ public class CardFindResponseDto {
                 .cardName(card.getCardName())
                 .cardContents(card.getCardContents())
                 .workerId(worker != null ? worker.getId() : null)
+                .workerEmail(worker != null ? worker.getEmail() : null)
                 .deadline(card.getDeadline())
                 .createdAt(card.getCreatedAt())
                 .modifiedAt(card.getModifiedAt())

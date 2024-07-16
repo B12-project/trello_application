@@ -355,6 +355,7 @@
         <span class="close-btn">&times;</span>
         <p id="cardNameDetail">제목: <span></span></p>
         <p id="cardDescriptionDetail">내용: <span></span></p>
+        <p id="cardWorkerDetail">작업자: <span></span></p>
         <p id="cardDueDateDetail">마감기한: <span></span></p>
         <div class="modal-buttons">
             <button class="modal-button edit-button">Edit</button>
@@ -605,11 +606,14 @@
             data: JSON.stringify(BoardInviteRequestDto),
             contentType: 'application/json',
             success: function() {
-                // alert(`${userEmail}님이 정상적으로 초대되었습니다.`);
+                alert(`${userEmail}님이 정상적으로 초대되었습니다.`);
                 window.location.reload();
             },
-            error: function() {
-                alert('사용자 초대 실패');
+            error: function(xhr) {
+                const errorResponse = xhr.responseJSON;
+                const errorMessage = errorResponse ? errorResponse.message : 'An unexpected error occurred';
+                alert('Error: ' + errorMessage);
+                // alert('사용자 초대 실패');
             }
         });
     }
@@ -626,6 +630,7 @@
                 console.log(response.data);
                 var workers = response.data; // 실제 응답 구조에 따라 조정 필요
                 var workerSelect = $("#workerId");
+                workerSelect.append(new Option("No Worker", null))
                 workers.forEach(function(worker) {
                     // 각 사용자에 대해 옵션 요소를 생성하고 드롭다운에 추가
                     var option = new Option(worker.userName, worker.userId);
@@ -707,8 +712,10 @@
                 console.log('컬럼 순서가 성공적으로 업데이트 되었습니다.');
             },
             error: function(xhr, status, error) {
+                alertError(xhr);
                 console.log('컬럼 순서 업데이트에 실패했습니다.');
                 console.error("Order update failed:", status, error);
+                window.location.reload();
             }
         });
     }
@@ -796,8 +803,8 @@
             const cardName = $('#cardName').val();
             const cardContents = $('#cardContents').val();
             const workerId = $('#workerId').val();
-            const deadline = $('#deadline').val();
-            if (cardName && cardContents && workerId && deadline) {
+            const deadline = $('#deadline').val() === "" ? null : $('#deadline').val();
+            if (cardName && workerId) {
                 const column = document.getElementById(`cards-${currentColumnId}`);
                 const newCard = document.createElement('div');
                 newCard.className = 'kanban-card';
@@ -831,10 +838,11 @@
                     },
                     error: function (error) {
                         console.log("카드 생성 에러");
+                        alertError(error);
                     }
                 });
             } else {
-                alert("모든 필드를 입력해 주세요.");
+                alert("카드 이름은 필수값입니다.");
             }
         })
     });
@@ -905,6 +913,7 @@
                  */
                 document.querySelector('#cardNameDetail span').textContent = cardDetails.cardName;
                 document.querySelector('#cardDescriptionDetail span').textContent = cardDetails.cardContents;
+                document.querySelector('#cardWorkerDetail span').textContent = cardDetails.workerEmail;
                 document.querySelector('#cardDueDateDetail span').textContent = cardDetails.deadline;
 
                 document.getElementById('cardDetailsModal').style.display = 'block';
@@ -954,6 +963,7 @@
                 var workers = response.data; // 실제 응답 구조에 따라 조정 필요
                 var workerSelect = $("#editWorkerId");
                 workerSelect.empty(); // 기존 옵션을 지움
+                workerSelect.append(new Option("No worker", null))
                 workers.forEach(function(worker) {
                     var option = new Option(worker.userName, worker.userId);
                     workerSelect.append(option);
@@ -979,7 +989,9 @@
                     }
                 });
             },
-            error: function() {
+            error: function(xhr) {
+                // 수정
+                alertError(xhr);
                 console.log("사용자 정보를 불러오는데 실패했습니다.");
             }
         });
@@ -1009,7 +1021,7 @@
             cardName: $('#editCardName').val(),
             cardContents: $('#editCardContents').val(),
             workerId: $('#editWorkerId').val(),
-            deadline: $('#editDeadline').val()
+            deadline: $('#editDeadline').val() === "" ? null : $('#editDeadline').val()
         };
         $.ajax({
             url: `/cards/${cardId}`,
@@ -1052,6 +1064,7 @@
                 window.location.reload()
             },
             error: function (error) {
+                alertError(error);
                 console.error('Error deleting column:', error);
             }
         });
@@ -1079,6 +1092,7 @@
                 $('#editColumnModal').hide();
             },
             error: function (error) {
+                alertError(error);
                 console.error('Error updating column:', error);
             }
         });
@@ -1158,6 +1172,7 @@
                 loadComments(cardId);
             },
             error: function (error) {
+                alertError(error);
                 console.log("Failed to delete comment");
             }
         });
@@ -1175,10 +1190,17 @@
                     loadComments(cardId);
                 },
                 error: function (error) {
+                    alertError(error);
                     console.log("Failed to edit comment");
                 }
             });
         }
+    }
+
+    function alertError(xhr) {
+        const errorResponse = xhr.responseJSON;
+        const errorMessage = errorResponse ? errorResponse.message : 'An unexpected error occurred';
+        alert('Error: ' + errorMessage);
     }
 
 

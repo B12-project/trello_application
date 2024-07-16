@@ -24,6 +24,10 @@ repositories {
 }
 
 dependencies {
+    // 동시성 제어
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.17.0'
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -48,6 +52,17 @@ dependencies {
 
     // Bean Validation API - NotBlank
     implementation 'javax.validation:validation-api:2.0.1.Final'
+
+
+
+    // TEST
+    testRuntimeOnly 'com.h2database:h2'
+    testCompileOnly 'org.projectlombok:lombok'
+    testCompileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+
 }
 
 tasks.named('test') {

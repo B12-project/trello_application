@@ -23,19 +23,16 @@ import java.util.Date;
 public class JwtUtil {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String REFRESH_TOKEN_HEADER = "REFRESH_TOKEN_HEADER";
+
     // Token 식별자
     public static final String BEARER_PREFIX = "Bearer ";
 
-
-    private final String ACCESS_TOKEN_HEADER = "ACCESS_TOKEN_HEADER";
-    public static final String REFRESH_TOKEN_HEADER = "REFRESH_TOKEN_HEADER";
-
     // Access Token 만료시간 설정
-    private final long ACCESS_TOKEN_EXPIRATION =  1 * 60 * 1000L; // 30 * 60 * 1000L; // 30분
+    private final long ACCESS_TOKEN_EXPIRATION =  30 * 60 * 1000L; // 30 * 60 * 1000L; // 30분
 
     // Refresh Token 만료기간 설정
-    //private final long REFRESH_TOKEN_EXPIRATION = 24 * 60 * 60 * 1000L; // 24시간
-    private final long REFRESH_TOKEN_EXPIRATION = 2 * 60 * 1000L; // 24시간
+    private final long REFRESH_TOKEN_EXPIRATION = 24 * 60 * 60 * 1000L; // 24시간
 
     // 로그 설정
     public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");

@@ -7,6 +7,7 @@ import b12.trello.domain.column.dto.*;
 import b12.trello.domain.column.entity.Columns;
 import b12.trello.domain.column.repository.ColumnRepository;
 import b12.trello.domain.user.entity.User;
+import b12.trello.global.distributedLock.DistributedLock;
 import b12.trello.global.exception.errorCode.ColumnErrorCode;
 import b12.trello.global.exception.customException.ColumnException;
 import java.util.List;
@@ -27,6 +28,7 @@ public class ColumnService {
 
 
     //컬럼생성
+    @DistributedLock(key = "#requestDto.getBoardId()")
     public ColumnCreateResponseDto createColumn(User user, ColumnCreateRequestDto requestDto) {
 
         Board board = checkBoard(requestDto.getBoardId());
@@ -92,6 +94,7 @@ public class ColumnService {
 
 
     @Transactional
+    @DistributedLock(key = "#columnId")
     public void modifyColumnOrder(User user, Long columnId, ColumnOrderModifyRequestDto requestDto) {
 
         Long newOrder = requestDto.getOrderId();

@@ -111,16 +111,6 @@
             transform: scale(1.02);
         }
 
-        .kanban-column h3 {
-            text-align: center;
-            color: #333;
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            margin: -20px -20px 10px -20px;
-        }
-
         .kanban-cards {
             flex: 1;
             display: flex;
@@ -183,8 +173,12 @@
         }
 
         @keyframes fadeIn {
-            from {opacity: 0;}
-            to {opacity: 1;}
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .close {
@@ -305,27 +299,19 @@
 </body>
 <script>
     const host = 'http://' + window.location.host;
-
+    let auth;
+    pageInitialize();
     $(document).ready(function () {
-        const auth = getToken();
-
-        if (auth !== undefined && auth !== '') {
-            $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-                jqXHR.setRequestHeader('Authorization', auth);
-            });
-        } else {
-            window.location.href = host + '/users/page/login';
-            return;
-        }
-
         // 로그인한 유저 정보 가져오기
         $.ajax({
             type: 'GET',
             url: `/users/profile`,
             contentType: 'application/json',
             success: function (response) {
-                console.log("유저 정보 수령");
-                console.log(response);
+                console.log({
+                    msg:"유저 정보 수령",
+                    data: response
+                });
                 $('#username-display').text(response.data.name + '님');
                 $('#profile-name').val(response.data.name);
                 $('#profile-email').val(response.data.email);
@@ -334,7 +320,7 @@
                 console.log("유저 정보 가져오기 실패", error);
                 window.location.href = host + '/users/page/login';
             }
-        });
+        })
 
         // 랜덤한 은은한 색상 생성 함수
         function getRandomPastelColor() {
@@ -357,13 +343,13 @@
                     );
                 }
 
-                $('#manager-kanban-container').on('click', '.kanban-column', function() {
+                $('#manager-kanban-container').on('click', '.kanban-column', function () {
                     const boardId = $(this).data('id');
                     window.location.href = host + `/page/board?boardId=${boardId}`;
                 });
             },
             error(error, status, request) {
-                console.log("에러");
+                console.log("관리보드 데이터 수령 실패");
                 window.location.href = host + '/users/page/login';
             }
         });
@@ -378,22 +364,21 @@
                     const board = response.data[i];
                     $('#invited-kanban-container').append(
                         `<div class="kanban-column" data-id="${board.id}" style="background-color: ${getRandomPastelColor()}">
-                            <h3>${board.boardName}</h3>
+                            ${board.boardName}
                         </div>`
                     );
                 }
 
-                $('#invited-kanban-container').on('click', '.kanban-column', function() {
+                $('#invited-kanban-container').on('click', '.kanban-column', function () {
                     const boardId = $(this).data('id');
                     window.location.href = host + `/page/board?boardId=${boardId}`;
                 });
             },
             error(error, status, request) {
-                console.log("에러");
+                console.log("참여보드 데이터 수령 실패");
                 window.location.href = host + '/users/page/login';
             }
         });
-
         // Get the modal
         var modal = document.getElementById("create-board-modal");
 
@@ -404,17 +389,17 @@
         var span = document.getElementsByClassName("close")[0];
 
         // When the user clicks the button, open the modal
-        btn.onclick = function() {
+        btn.onclick = function () {
             modal.style.display = "block";
         }
 
         // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
+        span.onclick = function () {
             modal.style.display = "none";
         }
 
         // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             if (event.target == modal) {
                 modal.style.display = "none";
             }
@@ -425,22 +410,22 @@
         var profileViewBtn = document.getElementById("profile-view-btn");
         var profileClose = document.getElementsByClassName("close")[1];
 
-        profileViewBtn.onclick = function() {
+        profileViewBtn.onclick = function () {
             profileModal.style.display = "block";
         }
 
-        profileClose.onclick = function() {
+        profileClose.onclick = function () {
             profileModal.style.display = "none";
         }
 
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             if (event.target == profileModal) {
                 profileModal.style.display = "none";
             }
         }
 
         // Handle form submission
-        $('#create-board-form').submit(function(e) {
+        $('#create-board-form').submit(function (e) {
             e.preventDefault();
             var boardName = $('#board-name').val();
             var BoardRequestDto = {
@@ -467,7 +452,7 @@
         });
 
         // 프로필 수정 처리
-        $('#profile-update-btn').click(function() {
+        $('#profile-update-btn').click(function () {
             var profileRequestDto = {
                 name: $('#profile-name').val()
             };
@@ -477,12 +462,12 @@
                 url: `/users/profile`,
                 contentType: 'application/json',
                 data: JSON.stringify(profileRequestDto),
-                success: function(response) {
+                success: function (response) {
                     console.log("프로필 수정 성공");
                     profileModal.style.display = "none";
                     location.reload(true);
                 },
-                error: function(error) {
+                error: function (error) {
                     console.log("프로필 수정 실패", error);
                     profileModal.style.display = "none";
                 }
@@ -490,7 +475,7 @@
         });
 
         // 비밀번호 변경 처리
-        $('#password-form').submit(function(e) {
+        $('#password-form').submit(function (e) {
             e.preventDefault();
             var passwordRequestDto = {
                 password: $('#current-password').val(),
@@ -502,12 +487,12 @@
                 url: `/users/password`,
                 contentType: 'application/json',
                 data: JSON.stringify(passwordRequestDto),
-                success: function(response) {
+                success: function (response) {
                     console.log("비밀번호 변경 성공");
                     profileModal.style.display = "none";
                     location.reload(true);
                 },
-                error: function(error) {
+                error: function (error) {
                     console.log("비밀번호 변경 실패", error);
                     profileModal.style.display = "none";
                 }
@@ -515,16 +500,16 @@
         });
 
         // 회원 탈퇴 버튼 클릭 시
-        $('#delete-account-btn').click(function() {
+        $('#delete-account-btn').click(function () {
             if (confirm("정말로 회원 탈퇴하시겠습니까?")) {
                 $.ajax({
                     type: 'DELETE',
                     url: '/users/signout',
-                    success: function(response) {
+                    success: function (response) {
                         alert("회원 탈퇴가 완료되었습니다.");
                         window.location.href = host + '/users/page/login';
                     },
-                    error: function(error) {
+                    error: function (error) {
                         console.log("회원 탈퇴 실패", error);
                         alert("회원 탈퇴 중 오류가 발생했습니다.");
                     }
@@ -533,34 +518,92 @@
         });
 
         // 로그아웃 처리
-        $('#logout-btn').click(function() {
+        $('#logout-btn').click(function () {
             $.ajax({
                 type: 'PUT',
                 url: `/users/logout`,
-                success: function(response) {
+                success: function (response) {
                     console.log("로그아웃 성공");
                     window.location.href = host + '/users/page/login';
                 },
-                error: function(error) {
+                error: function (error) {
                     console.log("로그아웃 실패", error);
                 }
             });
         });
     });
 
-    // 토큰 가져오기
-    function getToken() {
-        let auth = Cookies.get('Authorization');
-
-        if(auth === undefined) {
-            return '';
-        }
-
-        if(auth.indexOf('Bearer') === -1 && auth !== ''){
-            auth = 'Bearer ' + auth;
-        }
-
-        return auth;
+    function pageInitialize() {
+        getToken();
+        serverConnect(function (status) {
+            if (status === 401) {
+                tokenRequest();
+                // 재시도
+                getToken();
+                serverConnect(function (status) {
+                    if(status === 401) {
+                        window.location.href = host + '/users/page/login';
+                    }
+                });
+            }
+        });
     }
+
+    function getToken() {
+        auth = Cookies.get('Authorization');
+        if (auth !== undefined && auth !== '') {
+            $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+                jqXHR.setRequestHeader('Authorization', auth);
+            });
+        } else {
+            window.location.href = host + '/users/page/login';
+        }
+    }
+
+    function serverConnect(callback) {
+        // 로그인한 유저 정보 가져오기
+        $.ajax({
+            type: 'GET',
+            url: `/users/profile`,
+            contentType: 'application/json',
+            success: function (response, status, xhr) {
+                console.log({
+                    msg: "프로필 요청 성공",
+                    data: response,
+                    상태: status + " : " + xhr.status
+                });
+                callback(xhr.status);
+            },
+            error: function (xhr, status, error) {
+                console.log({
+                    msg: "프로필 요청 실패" + error,
+                    상태: status + " : " + xhr.status
+                });
+                callback(xhr.status);
+            }
+        });
+    }
+
+    function tokenRequest() {
+        $.ajax({
+            type: 'GET',
+            url: `/users/refresh`, // 토큰 재발급 API 엔드포인트
+            contentType: 'application/json',
+            success: function (response, status, xhr) {
+                console.log({
+                    msg: "토큰 재발급 성공",
+                    data: response,
+                    상태: status + " : " + xhr.status
+                });
+            },
+            error: function (xhr, status, error) {
+                console.log({
+                    msg: "토큰 재발급 실패"+error,
+                    상태: status + " : " + xhr.status
+                });
+            }
+        });
+    }
+
 </script>
 </html>

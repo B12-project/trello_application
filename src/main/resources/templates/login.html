@@ -95,18 +95,40 @@
         })
             .done(function (res, status, xhr) {
                 const token = xhr.getResponseHeader('Authorization');
-
                 Cookies.set('Authorization', token, {path: '/'})
 
                 $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
                     jqXHR.setRequestHeader('Authorization', token);
                 });
-
+                // 응답 헤더 확인
+                // alert("토큰 재발급요청");
+                // tokenRequest();
                 window.location.href = host;
             })
             .fail(function (jqXHR, textStatus) {
                 window.location.href = host + '/users/page/login?error'
             });
+    }
+
+    function tokenRequest() {
+        $.ajax({
+            type: 'GET',
+            url: `/users/refresh`, // 토큰 재발급 API 엔드포인트
+            contentType: 'application/json',
+            success: function (response, status, xhr) {
+                console.log({
+                    msg: "토큰 재발급 성공",
+                    data: response,
+                    상태: status + " : " + xhr.status
+                });
+            },
+            error: function (xhr, status, error) {
+                console.log({
+                    msg: "토큰 재발급 실패"+error,
+                    상태: status + " : " + xhr.status
+                });
+            }
+        });
     }
 </script>
 </html>

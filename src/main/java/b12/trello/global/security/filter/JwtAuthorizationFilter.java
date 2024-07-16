@@ -41,7 +41,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             log.info("쿠키 있음");
             Cookie[] cookies = request.getCookies();
             for (Cookie cookie : cookies) {
-                log.info(cookie.getValue());
+                log.info(cookie.getName() +" : "+ cookie.getValue());
             }
         }
 

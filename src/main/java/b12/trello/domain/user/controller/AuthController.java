@@ -21,8 +21,7 @@ public class AuthController {
     public ResponseEntity<String> reissueToken(
             @CookieValue(name = "refreshToken") String refreshToken,
             HttpServletResponse response) {
-
-        log.info("Refresh token: " + refreshToken);
+        log.info("reissueToken.Refresh token: " + refreshToken);
         String newAccessToken = authService.reissueAccessToken(refreshToken, response);
         return new ResponseEntity<>(newAccessToken, HttpStatus.OK);
     }

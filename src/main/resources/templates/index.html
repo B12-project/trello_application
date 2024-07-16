@@ -300,8 +300,14 @@
 <script>
     const host = 'http://' + window.location.host;
     let auth;
-    pageInitialize();
     $(document).ready(function () {
+        tokenCheck().then(
+            () => make()
+        );
+    });
+
+    function make() {
+        // debugger
         // 로그인한 유저 정보 가져오기
         $.ajax({
             type: 'GET',
@@ -309,7 +315,7 @@
             contentType: 'application/json',
             success: function (response) {
                 console.log({
-                    msg:"유저 정보 수령",
+                    msg: "유저 정보 수령",
                     data: response
                 });
                 $('#username-display').text(response.data.name + '님');
@@ -318,7 +324,6 @@
             },
             error: function (error) {
                 console.log("유저 정보 가져오기 실패", error);
-                window.location.href = host + '/users/page/login';
             }
         })
 
@@ -350,7 +355,6 @@
             },
             error(error, status, request) {
                 console.log("관리보드 데이터 수령 실패");
-                window.location.href = host + '/users/page/login';
             }
         });
 
@@ -376,7 +380,6 @@
             },
             error(error, status, request) {
                 console.log("참여보드 데이터 수령 실패");
-                window.location.href = host + '/users/page/login';
             }
         });
         // Get the modal
@@ -531,79 +534,107 @@
                 }
             });
         });
-    });
+    }
 
-    function pageInitialize() {
-        getToken();
-        serverConnect(function (status) {
-            if (status === 401) {
-                tokenRequest();
-                // 재시도
-                getToken();
-                serverConnect(function (status) {
-                    if(status === 401) {
-                        window.location.href = host + '/users/page/login';
+    function tokenCheck() {
+        return new Promise((resolve, reject) => {
+            getToken().then(
+                () => serverConnect().then(
+                    (resolve) => {
+                        if (resolve === 401) {
+                            console.log("재발급 요청...");
+                            tokenRequest().then(
+                                () => getToken().then(
+                                    () => serverConnect().then(
+                                        (resolve) => {
+                                            if (resolve === 401) {
+                                                console.log("재발급 요청...");
+                                                window.location.href = host + '/users/page/login';
+                                            }else{
+                                                window.location.href = host;
+                                            }
+                                        }
+                                    )
+                                )
+                            );
+                        }
                     }
-                });
-            }
+                )
+            )
+            resolve();
         });
     }
-
     function getToken() {
-        auth = Cookies.get('Authorization');
-        if (auth !== undefined && auth !== '') {
-            $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-                jqXHR.setRequestHeader('Authorization', auth);
-            });
-        } else {
-            window.location.href = host + '/users/page/login';
-        }
-    }
-
-    function serverConnect(callback) {
-        // 로그인한 유저 정보 가져오기
-        $.ajax({
-            type: 'GET',
-            url: `/users/profile`,
-            contentType: 'application/json',
-            success: function (response, status, xhr) {
-                console.log({
-                    msg: "프로필 요청 성공",
-                    data: response,
-                    상태: status + " : " + xhr.status
+        return new Promise((resolve, reject) => {
+            auth = Cookies.get('Authorization');
+            if (auth !== undefined && auth !== '') {
+                $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+                    jqXHR.setRequestHeader('Authorization', auth);
                 });
-                callback(xhr.status);
-            },
-            error: function (xhr, status, error) {
-                console.log({
-                    msg: "프로필 요청 실패" + error,
-                    상태: status + " : " + xhr.status
-                });
-                callback(xhr.status);
+            } else {
+                window.location.href = host + '/users/page/login';
             }
+            resolve();
         });
     }
 
     function tokenRequest() {
-        $.ajax({
-            type: 'GET',
-            url: `/users/refresh`, // 토큰 재발급 API 엔드포인트
-            contentType: 'application/json',
-            success: function (response, status, xhr) {
-                console.log({
-                    msg: "토큰 재발급 성공",
-                    data: response,
-                    상태: status + " : " + xhr.status
-                });
-            },
-            error: function (xhr, status, error) {
-                console.log({
-                    msg: "토큰 재발급 실패"+error,
-                    상태: status + " : " + xhr.status
-                });
-            }
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                type: 'GET',
+                url: `/users/refresh`,
+                contentType: 'application/json',
+                success: function (response, status, xhr) {
+                    console.log({
+                        msg: "토큰 재발급 성공",
+                        data: response,
+                        상태: status + " : " + xhr.status
+                    });
+                    const token = xhr.getResponseHeader('Authorization');
+                    Cookies.set('Authorization', token, {path: '/'})
+
+                    $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+                        jqXHR.setRequestHeader('Authorization', token);
+                    });
+                    resolve();
+                },
+                error: function (xhr, status, error) {
+                    console.log({
+                        msg: "토큰 재발급 실패" + error,
+                        상태: status + " : " + xhr.status
+                    });
+                    resolve();
+                }
+            });
         });
     }
+
+    function serverConnect() {
+        return new Promise((resolve, reject) => {
+            // 로그인한 유저 정보 가져오기
+            $.ajax({
+                type: 'GET',
+                url: `/users/profile`,
+                contentType: 'application/json',
+                success: function (response, status, xhr) {
+                    console.log({
+                        msg: "프로필 요청 성공",
+                        data: response,
+                        상태: status + " : " + xhr.status
+                    });
+                    resolve(xhr.status);
+                },
+                error: function (xhr, status, error) {
+                    console.log({
+                        msg: "프로필 요청 실패" + error,
+                        상태: status + " : " + xhr.status
+                    });
+                    resolve(xhr.status);
+                }
+            });
+        });
+    }
+
 
 </script>
 </html>

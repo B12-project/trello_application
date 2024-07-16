@@ -1,7 +1,94 @@
 package b12.trello.domain.column.controller;
 
-import org.springframework.web.bind.annotation.RestController;
+import b12.trello.domain.column.dto.*;
+import b12.trello.domain.column.service.ColumnService;
+import b12.trello.global.response.BasicResponse;
+import b12.trello.global.security.UserDetailsImpl;
+import java.util.List;
 
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+@Slf4j
+@RequestMapping("/columns")
 @RestController
+@RequiredArgsConstructor
 public class ColumnController {
+
+    private final ColumnService columnService;
+
+    //컬럼 생성
+    @PostMapping
+    public ResponseEntity<BasicResponse<ColumnCreateResponseDto>> createColumn(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Valid @RequestBody ColumnCreateRequestDto requestDto
+    ) {
+
+        ColumnCreateResponseDto responseDto = columnService.createColumn(userDetails.getUser(), requestDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(BasicResponse.of(HttpStatus.CREATED.value(), "컬럼 생성 완료", responseDto));
+    }
+
+
+    @GetMapping("/{columnId}")
+    public ResponseEntity<BasicResponse<ColumnFindResponseDto>> findColumn(
+            @PathVariable Long columnId
+    ) {
+        ColumnFindResponseDto responseDto = columnService.findColumn(columnId);
+        return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 단일 조회 성공", responseDto));
+    }
+
+    //컬럼 목록 조회
+    @GetMapping
+    public ResponseEntity<BasicResponse<List<ColumnFindResponseDto>>> findColumns(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestParam Long boardId
+    ) {
+
+        List<ColumnFindResponseDto> responseDto = columnService.findColumns(userDetails.getUser(), boardId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼목록", responseDto));
+    }
+
+    //컬럼 수정
+    @PatchMapping("/{columnId}")
+    public ResponseEntity<BasicResponse<Void>> modifyColumn(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long columnId,
+            @RequestBody ColumnModifyRequestDto requestDto
+    ) {
+        columnService.modifyColumn(userDetails.getUser(), columnId, requestDto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 수정 완료"));
+    }
+
+    //컬럼 삭제
+    @DeleteMapping("/{columnId}")
+    public ResponseEntity<BasicResponse<Void>> deleteColumn(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long columnId
+    ) {
+        columnService.deleteColumn(userDetails.getUser(), columnId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 삭제 완료"));
+    }
+
+    //컬럼 순서 변경
+    @PatchMapping("/{columnId}/order")
+    public ResponseEntity<BasicResponse<Void>> modifyColumnOrder(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long columnId,
+            @Valid @RequestBody ColumnOrderModifyRequestDto requestDto
+    ) {
+        log.info("modifyColumnOrder");
+        columnService.modifyColumnOrder(userDetails.getUser(), columnId, requestDto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(BasicResponse.of("컬럼 순서 변경 완료"));
+    }
+
 }

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+            integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.css"/>
+    <title>Kanban Board</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #ffffff, #f4f4f9);
+        }
+
+        .header-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 20px 20px 5%;
+            background-color: #333;
+            color: white;
+        }
+
+        .header-buttons .left-buttons, .header-buttons .right-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-buttons button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            margin: 0;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .header-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        .main-contents {
+            padding: 20px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .section {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            width: 40%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section:hover {
+            transform: scale(1.02);
+        }
+
+        .section h2 {
+            text-align: center;
+            color: #333;
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: -20px -20px 10px -20px;
+        }
+
+        .kanban-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .kanban-column {
+            align-self: center;
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            width: 70%;
+            min-height: 70px;
+            font-size: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            margin-bottom: 10px;
+            cursor: pointer;
+            align-items: center;
+        }
+
+        .kanban-column:hover {
+            transform: scale(1.02);
+        }
+
+        .kanban-column h3 {
+            text-align: center;
+            color: #333;
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: -20px -20px 10px -20px;
+        }
+
+        .kanban-cards {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .kanban-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .kanban-card:hover {
+            background-color: #f1f1f1;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .add-card-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-card-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 40%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin: 10px 0 5px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #007bff;
+        }
+
+        form button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        form button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="header-buttons">
+    <div class="left-buttons">
+        <span id="username-display"></span>
+    </div>
+    <div class="right-buttons">
+        <button id="profile-view-btn">프로필 조회</button>
+        <button onclick="location.href='/users/page/login'">로그아웃</button>
+        <button id="create-board-btn">보드생성</button>
+    </div>
+</div>
+<div class="main-contents">
+    <div class="section" id="manager-boards">
+        <h2>관리보드</h2>
+        <div class="kanban-container" id="manager-kanban-container">
+        </div>
+    </div>
+    <div class="section" id="invited-boards">
+        <h2>참여보드</h2>
+        <div class="kanban-container" id="invited-kanban-container">
+        </div>
+    </div>
+</div>
+
+<div id="create-board-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>보드 생성</h2>
+        <form id="create-board-form">
+            <label for="board-name">보드 이름:</label>
+            <input type="text" id="board-name" name="board-name" required>
+            <label for="board-info">내용:</label>
+            <input type="text" id="board-info" name="board-info" required>
+            <button type="submit">생성</button>
+        </form>
+    </div>
+</div>
+
+<div id="profile-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>프로필 조회</h2>
+        <form id="profile-form">
+            <label for="profile-name">이름:</label>
+            <input type="text" id="profile-name" name="profile-name" required>
+            <label for="profile-email">이메일:</label>
+            <input type="text" id="profile-email" name="profile-email" readonly>
+            <button type="button" id="profile-update-btn">수정</button>
+        </form>
+        <form id="password-form" style="margin-top: 20px;">
+            <h3>비밀번호 변경</h3>
+            <label for="current-password">현재 비밀번호:</label>
+            <input type="password" id="current-password" name="current-password" required>
+            <label for="new-password">새 비밀번호:</label>
+            <input type="password" id="new-password" name="new-password" required>
+            <button type="submit">변경</button>
+        </form>
+        <button id="delete-account-btn">회원 탈퇴</button>
+    </div>
+</div>
+</body>
+<script>
+    const host = 'http://' + window.location.host;
+
+    $(document).ready(function () {
+        const auth = getToken();
+
+        if (auth !== undefined && auth !== '') {
+            $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+                jqXHR.setRequestHeader('Authorization', auth);
+            });
+        } else {
+            window.location.href = host + '/users/page/login';
+            return;
+        }
+
+        // 로그인한 유저 정보 가져오기
+        $.ajax({
+            type: 'GET',
+            url: `/users/profile`,
+            contentType: 'application/json',
+            success: function (response) {
+                console.log("유저 정보 수령");
+                console.log(response);
+                $('#username-display').text(response.data.name + '님');
+                $('#profile-name').val(response.data.name);
+                $('#profile-email').val(response.data.email);
+            },
+            error: function (error) {
+                console.log("유저 정보 가져오기 실패", error);
+                window.location.href = host + '/users/page/login';
+            }
+        });
+
+        // 랜덤한 은은한 색상 생성 함수
+        function getRandomPastelColor() {
+            const hue = Math.floor(Math.random() * 360);
+            return `hsl(${hue}, 100%, 90%)`;
+        }
+
+        // 관리보드 데이터 가져오기
+        $.ajax({
+            type: 'GET',
+            url: `/boards/manager`,
+            contentType: 'application/json',
+            success: function (response) {
+                for (let i = 0; i < response.data.length; i++) {
+                    const board = response.data[i];
+                    $('#manager-kanban-container').append(
+                        `<div class="kanban-column" data-id="${board.id}" style="background-color: ${getRandomPastelColor()}">
+                            ${board.boardName}
+                        </div>`
+                    );
+                }
+
+                $('#manager-kanban-container').on('click', '.kanban-column', function() {
+                    const boardId = $(this).data('id');
+                    window.location.href = host + `/page/board?boardId=${boardId}`;
+                });
+            },
+            error(error, status, request) {
+                console.log("에러");
+                window.location.href = host + '/users/page/login';
+            }
+        });
+
+        // 참여보드 데이터 가져오기
+        $.ajax({
+            type: 'GET',
+            url: `/boards/invitation`,
+            contentType: 'application/json',
+            success: function (response) {
+                for (let i = 0; i < response.data.length; i++) {
+                    const board = response.data[i];
+                    $('#invited-kanban-container').append(
+                        `<div class="kanban-column" data-id="${board.id}" style="background-color: ${getRandomPastelColor()}">
+                            <h3>${board.boardName}</h3>
+                        </div>`
+                    );
+                }
+
+                $('#invited-kanban-container').on('click', '.kanban-column', function() {
+                    const boardId = $(this).data('id');
+                    window.location.href = host + `/page/board?boardId=${boardId}`;
+                });
+            },
+            error(error, status, request) {
+                console.log("에러");
+                window.location.href = host + '/users/page/login';
+            }
+        });
+
+        // Get the modal
+        var modal = document.getElementById("create-board-modal");
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("create-board-btn");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks the button, open the modal
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // 프로필 모달
+        var profileModal = document.getElementById("profile-modal");
+        var profileViewBtn = document.getElementById("profile-view-btn");
+        var profileClose = document.getElementsByClassName("close")[1];
+
+        profileViewBtn.onclick = function() {
+            profileModal.style.display = "block";
+        }
+
+        profileClose.onclick = function() {
+            profileModal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == profileModal) {
+                profileModal.style.display = "none";
+            }
+        }
+
+        // Handle form submission
+        $('#create-board-form').submit(function(e) {
+            e.preventDefault();
+            var boardName = $('#board-name').val();
+            var BoardRequestDto = {
+                boardName: boardName,
+                boardInfo: $('#board-info').val()
+            };
+            $.ajax({
+                type: 'POST',
+                url: `/boards`,
+                contentType: 'application/json',
+                data: JSON.stringify(BoardRequestDto),
+                success: function (response) {
+                    console.log(response.data);
+                    console.log("보드 생성 성공: boardName");
+                    modal.style.display = "none";
+                    location.reload(true);
+                },
+                error(error, status, request) {
+                    console.log("보드 생성 실패: boardName");
+                    modal.style.display = "none";
+                    location.reload(true);
+                }
+            });
+        });
+
+        // 프로필 수정 처리
+        $('#profile-update-btn').click(function() {
+            var profileRequestDto = {
+                name: $('#profile-name').val()
+            };
+
+            $.ajax({
+                type: 'PUT',
+                url: `/users/profile`,
+                contentType: 'application/json',
+                data: JSON.stringify(profileRequestDto),
+                success: function(response) {
+                    console.log("프로필 수정 성공");
+                    profileModal.style.display = "none";
+                    location.reload(true);
+                },
+                error: function(error) {
+                    console.log("프로필 수정 실패", error);
+                    profileModal.style.display = "none";
+                }
+            });
+        });
+
+        // 비밀번호 변경 처리
+        $('#password-form').submit(function(e) {
+            e.preventDefault();
+            var passwordRequestDto = {
+                password: $('#current-password').val(),
+                newPassword: $('#new-password').val()
+            };
+
+            $.ajax({
+                type: 'PUT',
+                url: `/users/password`,
+                contentType: 'application/json',
+                data: JSON.stringify(passwordRequestDto),
+                success: function(response) {
+                    console.log("비밀번호 변경 성공");
+                    profileModal.style.display = "none";
+                    location.reload(true);
+                },
+                error: function(error) {
+                    console.log("비밀번호 변경 실패", error);
+                    profileModal.style.display = "none";
+                }
+            });
+        });
+
+        // 회원 탈퇴 버튼 클릭 시
+        $('#delete-account-btn').click(function() {
+            if (confirm("정말로 회원 탈퇴하시겠습니까?")) {
+                $.ajax({
+                    type: 'DELETE',
+                    url: '/users/signout',
+                    success: function(response) {
+                        alert("회원 탈퇴가 완료되었습니다.");
+                        window.location.href = host + '/users/page/login';
+                    },
+                    error: function(error) {
+                        console.log("회원 탈퇴 실패", error);
+                        alert("회원 탈퇴 중 오류가 발생했습니다.");
+                    }
+                });
+            }
+        });
+
+        // 로그아웃 처리
+        $('#logout-btn').click(function() {
+            $.ajax({
+                type: 'PUT',
+                url: `/users/logout`,
+                success: function(response) {
+                    console.log("로그아웃 성공");
+                    window.location.href = host + '/users/page/login';
+                },
+                error: function(error) {
+                    console.log("로그아웃 실패", error);
+                }
+            });
+        });
+    });
+
+    // 토큰 가져오기
+    function getToken() {
+        let auth = Cookies.get('Authorization');
+
+        if(auth === undefined) {
+            return '';
+        }
+
+        if(auth.indexOf('Bearer') === -1 && auth !== ''){
+            auth = 'Bearer ' + auth;
+        }
+
+        return auth;
+    }
+</script>
+</html>

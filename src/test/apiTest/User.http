@@ -1,2 +1,101 @@
-### 회원가입
-http://localhost:8080/
+### ADMIN 회원가입
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "email" : "admin@gmail.com",
+  "password": "sparta12!@",
+  "name" : "admin",
+  "adminToken": "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC"
+}
+
+### ADMIN 회원가입시 토큰값이 다를 때 실패
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "email" : "adminFail@gmail.com",
+  "password": "sparta12!@",
+  "name" : "admin1",
+  "adminToken": "AC"
+}
+
+### USER 회원가입
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "email" : "user@gmail.com",
+  "password": "sparta12!@",
+  "name" : "user"
+}
+
+### ADMIN 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "email" : "admin@gmail.com",
+  "password": "sparta12!@"
+}
+
+> {% client.global.set("ADMIN_TOKEN", response.headers.valueOf("Authorization")); %}
+
+### USER 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "email" : "user@gmail.com",
+  "password": "sparta12!@"
+}
+
+> {% client.global.set("USER_TOKEN", response.headers.valueOf("Authorization"));
+    client.global.set("USER_REFRESH_TOKEN", response.headers.valueOf("REFRESH_TOKEN_HEADER")); %}
+
+### USER 로그아웃
+PUT http://localhost:8080/users/logout
+Authorization:{{USER_TOKEN}}
+
+
+### USER 회원탈퇴
+DELETE http://localhost:8080/users/signout
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+
+### User Token 재발급
+GET http://localhost:8080/users/refresh
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+REFRESH_TOKEN_HEADER:{{USER_REFRESH_TOKEN}}
+
+> {% client.global.set("USER_TOKEN",response.headers.valueOf("Authorization"));
+    client.global.set("USER_REFRESH_TOKEN",response.headers.valueOf("REFRESH_TOKEN_HEADER")); %}
+
+
+### User Profile 조회
+GET http://localhost:8080/users/profile
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+### User Profile 수정
+PUT http://localhost:8080/users/profile
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+{
+  "email" : "user1@gmail.com",
+  "name": "열자안넘는이름입니다"
+}
+
+### User Password 수정
+PUT http://localhost:8080/users/password
+Content-Type: application/json
+Authorization:{{USER_TOKEN}}
+
+{
+  "password": "sparta12!@!"
+}
+
+

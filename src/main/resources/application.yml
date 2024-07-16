@@ -1,4 +1,6 @@
-spring.application.name=trello
+spring:
+  application:
+    name: trello
 
 ---
 spring:
@@ -22,9 +24,14 @@ spring:
           CharSet: utf-8
           characterEncoding: utf-8
           useUnicode: true
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 
-#jwt:
-#  secret-key: ${JWT_SECRET_KEY}
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY}
 
 server:
-  port: ${SERVER_PORT}
+  port: 8081

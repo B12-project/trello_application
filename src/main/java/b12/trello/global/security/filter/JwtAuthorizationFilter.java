@@ -6,6 +6,7 @@ import b12.trello.global.security.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 @Slf4j(topic = "JWT 검증 및 인가")
 @RequiredArgsConstructor
@@ -31,54 +33,53 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        if (request.getRequestURI().contains("/refresh")) { // 임시코드
-            filterChain.doFilter(request, response);
-            return;
-        }
-            // AccessToken 가져오기
-            String accessToken = jwtUtil.getAccessTokenFromRequest(request);
-//        String refreshToken = jwtUtil.getRefreshTokenFromRequest(request);
-
-//        if (refreshToken == null) {
-//            throw new UserException(UserErrorCode.INVALID_REFRESH_TOKEN);
-//        }
-        log.info("현재주소 : "+request.getRequestURL().toString());
+        // AccessToken 가져오기
+        String accessToken = jwtUtil.getAccessTokenFromRequest(request);
+        log.info("현재주소 : " + request.getRequestURL().toString());
         log.info("accessToken: " + accessToken);
+        if(request.getCookies() != null && request.getCookies().length > 0) {
+            log.info("쿠키 있음");
+            Cookie[] cookies = request.getCookies();
+            for (Cookie cookie : cookies) {
+                log.info(cookie.getValue());
+            }
+        }
 
         // 토큰 값이 있는지 확인
-        if(StringUtils.hasText(accessToken)
+        if (StringUtils.hasText(accessToken)
                 && !request.getRequestURL().toString().contains("/static/favicon.ico")
+                && !request.getRequestURL().toString().contains("/refresh")
         ) {
 
-                // 있으면 JWT 토큰 substring (가공)
-                accessToken = jwtUtil.substringToken(accessToken);
+            // 있으면 JWT 토큰 substring (가공)
+            accessToken = jwtUtil.substringToken(accessToken);
 
-                // 토큰 검증 시작
-                // SecurityConfig에서 예외처리를 해도 필터는 거치게 된다.
+            // 토큰 검증 시작
+            // SecurityConfig에서 예외처리를 해도 필터는 거치게 된다.
 
-                if (!jwtUtil.validateToken(accessToken)) {
-                    //여기서 반환
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            if (!jwtUtil.validateToken(accessToken)) {
+                //여기서 반환
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+
+
+            // 토큰에서 사용자 정보 가져오기
+            Claims accessTokenClaims = jwtUtil.getUserInfoFromToken(accessToken);
+            String email = accessTokenClaims.getSubject();
+            User findUser = userDetailsService.findUserByUserName(email);
+
+            if (findUser.getRefreshToken() != null) {
+                // 인증 처리
+                try {
+                    setAuthentication(accessTokenClaims.getSubject()); // 토큰 내부 값
+                } catch (Exception e) {
+                    log.error(e.getMessage());
                     return;
                 }
-
-
-                // 토큰에서 사용자 정보 가져오기
-                Claims accessTokenClaims = jwtUtil.getUserInfoFromToken(accessToken);
-                String email = accessTokenClaims.getSubject();
-                User findUser = userDetailsService.findUserByUserName(email);
-
-                if (findUser.getRefreshToken() != null) {
-                    // 인증 처리
-                    try {
-                        setAuthentication(accessTokenClaims.getSubject()); // 토큰 내부 값
-                    } catch (Exception e) {
-                        log.error(e.getMessage());
-                        return;
-                    }
-                }
-
             }
+
+        }
 
         filterChain.doFilter(request, response);
     }

@@ -242,6 +242,7 @@
         <span id="username-display"></span>
     </div>
     <div class="right-buttons">
+        <button id="token-test-btn">토큰 재발급</button>
         <button id="profile-view-btn">프로필 조회</button>
         <button onclick="location.href='/users/page/login'">로그아웃</button>
         <button id="create-board-btn">보드생성</button>
@@ -534,6 +535,17 @@
                 }
             });
         });
+
+        $('#token-test-btn').click(function () {
+            tokenRequest().then(
+                () => getToken().then(
+                    () => {
+                        serverConnect();
+                        window.location.href = host;
+                    }
+                )
+            )
+        })
     }
 
     function tokenCheck() {

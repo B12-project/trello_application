@@ -30,7 +30,7 @@ public class JwtUtil {
 
     // Access Token 만료시간 설정
 //    private final long ACCESS_TOKEN_EXPIRATION =  30 * 60 * 1000L; // 30 * 60 * 1000L; // 30분
-    private final long ACCESS_TOKEN_EXPIRATION =  10  * 1000L; // 30 * 60 * 1000L; // 30분
+    private final long ACCESS_TOKEN_EXPIRATION =  30 * 60 * 1000L; // 30 * 60 * 1000L; // 30분
 
     // Refresh Token 만료기간 설정
     private final long REFRESH_TOKEN_EXPIRATION = 24 * 60 * 60 * 1000L; // 24시간

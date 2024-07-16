@@ -47,10 +47,11 @@ public class AuthService {
 
         String email = jwtUtil.extractEmail(refreshToken);
 
-
         // DB에 저장된 refresh token 이 동일한지 확인
         User user = userRepository.findByEmailOrElseThrow(email);
 
+        log.info("입력토큰: " + refreshToken);
+        log.info("DB토큰: " + user.getRefreshToken());
         if(!refreshToken.equals(user.getRefreshToken())) {
             throw new UserException(UserErrorCode.INVALID_REFRESH_TOKEN); // 동일한 리프레시 토큰이 아닙니다.
         }
@@ -62,7 +63,7 @@ public class AuthService {
 
         jwtUtil.addJwtToHeader(response, JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
         // 일반 쿠키 저장
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        Cookie refreshTokenCookie = new Cookie("refreshToken", newRefreshToken);
         response.addCookie(refreshTokenCookie);
         // HTTPOnly 쿠키 저장
 //        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)

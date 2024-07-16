@@ -10,6 +10,7 @@ import b12.trello.global.security.UserDetailsImpl;
 import b12.trello.global.security.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -96,22 +97,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         // 토큰을 헤더에 전달
         jwtUtil.addJwtToHeader(response, JwtUtil.AUTHORIZATION_HEADER, accessToken);
-        // refreshToken HTTPOnly 쿠키에 저장
-//        response.addCookie(refreshTokenCookie);
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .sameSite("None")
-                .build();
-        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
-//        ResponseCookie refreshTokenCookie2 = ResponseCookie.from("refreshToken2", refreshToken)
+        // 일반 쿠키 저장
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        response.addCookie(refreshTokenCookie);
+        // HTTPOnly 쿠키 저장
+//        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
 //                .httpOnly(true)
 //                .secure(true)
 //                .path("/")
 //                .sameSite("None")
 //                .build();
-//        response.addHeader("Set-Cookie", refreshTokenCookie2.toString());
+//        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
         // refreshToken Entity 에 저장
         authService.updateRefreshToken(email, refreshToken);
